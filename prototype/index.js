@@ -1618,6 +1618,9 @@ class IntegrationPrototype {
                         if (syncResult.status === 'success') {
                             results.success++;
                             console.log(`✅ [${results.success}/${limit}] Success: Listing ${syncResult.hubspotListing.id}`);
+                        } else if (syncResult.status === 'updated') {
+                            results.success++;
+                            console.log(`✅ [${results.success}/${limit}] Updated: Listing ${syncResult.hubspotListing.id}`);
                         } else if (syncResult.status === 'skipped') {
                             results.skipped++;
                             console.log(`⚠️ Skipped (${syncResult.reason}) - continuing to next unit...`);
@@ -1668,6 +1671,27 @@ class IntegrationPrototype {
             console.log(`   ⚠️ Skipped: ${results.skipped}`);
             console.log(`   ❌ Errors: ${results.errors}`);
             console.log(`   📊 Total Processed: ${results.total}`);
+            
+            // Detailed breakdown
+            if (results.success > 0) {
+                console.log('\n🎉 Successfully Processed Units:');
+                results.details
+                    .filter(d => d.result.status === 'success' || d.result.status === 'updated')
+                    .forEach((detail, index) => {
+                        const status = detail.result.status === 'updated' ? 'Updated' : 'Created';
+                        console.log(`  ${index + 1}. ${detail.unit} → ${status} HubSpot ID: ${detail.result.hubspotListing.id}`);
+                    });
+            }
+            
+            if (results.errors > 0) {
+                console.log('\n❌ Errors Encountered:');
+                results.details
+                    .filter(d => d.result.status === 'error')
+                    .forEach((detail, index) => {
+                        console.log(`  ${index + 1}. ${detail.unit}: ${detail.result.error}`);
+                    });
+            }
+            
             console.log('');
 
             return results;
@@ -1699,9 +1723,9 @@ class IntegrationPrototype {
                     const activeLeases = await this.buildiumClient.getActiveLeaseForUnit(unit.Id);
                     const allLeases = await this.buildiumClient.getAllLeasesForUnit(unit.Id);
                     
-                    // Step 4: Transform to listing format with updated data
+                    // Step 4: Transform to listing format with updated data using SAFE UPDATE
                     const buildiumUnitUrl = `https://ripple.managebuilding.com/manager/app/properties/${unit.PropertyId}/units/${unit.Id}/summary`;
-                    const listingData = this.transformUnitToListing(unit, property, activeLeases, allLeases, buildiumUnitUrl);
+                    const listingData = this.transformUnitToListingSafeUpdate(unit, property, activeLeases, allLeases, buildiumUnitUrl);
                     
                     // Step 5: Update the existing listing
                     const updatedListing = await this.hubspotClient.updateListing(existingListing.id, listingData);
@@ -1862,6 +1886,110 @@ class IntegrationPrototype {
         });
 
         console.log('🔄 Transformed unit to listing format');
+        console.log(`   Current tenants: ${currentTenantContactIds.length}`);
+        console.log(`   Previous tenants: ${previousTenantContactIds.length}`);
+        return listingData;
+    }
+
+    /**
+     * Transform unit data to HubSpot listing format for SAFE UPDATES ONLY
+     * Only includes fields that have actual data from Buildium to avoid overwriting existing HubSpot data
+     */
+    transformUnitToListingSafeUpdate(unit, property, activeLease, allLeases, buildiumUnitUrl) {
+        console.log('🔄 Transforming unit data for SAFE UPDATE (non-empty fields only)...');
+        
+        // Get current and previous tenant contact IDs based on lease status
+        let currentTenantContactIds = [];
+        let previousTenantContactIds = [];
+        
+        // Process all leases and categorize tenants by lease status
+        for (const lease of allLeases) {
+            if (lease.Tenants && lease.Tenants.length > 0) {
+                if (lease.LeaseStatus === 'Active') {
+                    currentTenantContactIds.push(...lease.Tenants.map(t => t.Id));
+                } else if (lease.LeaseStatus === 'Past' || lease.LeaseStatus === 'Expired') {
+                    previousTenantContactIds.push(...lease.Tenants.map(t => t.Id));
+                }
+            }
+        }
+
+        // Remove duplicates
+        currentTenantContactIds = [...new Set(currentTenantContactIds)];
+        previousTenantContactIds = [...new Set(previousTenantContactIds)];
+
+        const safeUpdateFields = {};
+
+        // Only add fields that have actual data from Buildium
+        
+        // Basic listing info - only if we have data
+        if (property.Name && unit.UnitNumber) {
+            safeUpdateFields.hs_name = `${property.Name} - Unit ${unit.UnitNumber}`;
+        } else if (property.Name && unit.Id) {
+            safeUpdateFields.hs_name = `${property.Name} - Unit ${unit.Id}`;
+        }
+        
+        if (unit.MarketRent && unit.MarketRent > 0) {
+            safeUpdateFields.hs_price = unit.MarketRent;
+        }
+        
+        // Address information - only if we have data
+        if (property.Address?.AddressLine1) safeUpdateFields.hs_address_1 = property.Address.AddressLine1;
+        if (property.Address?.AddressLine2) safeUpdateFields.hs_address_2 = property.Address.AddressLine2;
+        if (property.Address?.City) safeUpdateFields.hs_city = property.Address.City;
+        if (property.Address?.State) safeUpdateFields.hs_state_province = property.Address.State;
+        
+        // Handle postal codes properly - only if we have data
+        if (property.Address?.PostalCode) {
+            if (/^\d{5}(-\d{4})?$/.test(property.Address.PostalCode)) {
+                safeUpdateFields.hs_zip = property.Address.PostalCode;  // US ZIP codes only
+            } else {
+                // Canadian postal codes - append to address_2 if it exists or create new
+                const existingAddress2 = property.Address?.AddressLine2 || '';
+                safeUpdateFields.hs_address_2 = `${existingAddress2} ${property.Address.PostalCode}`.trim();
+            }
+        }
+        
+        // Buildium identifiers - always include these for tracking
+        safeUpdateFields.buildium_unit_id = String(unit.Id);
+        safeUpdateFields.buildium_property_id = String(unit.PropertyId);
+        safeUpdateFields.buildium_unit_url = buildiumUnitUrl;
+        
+        // Unit-specific details - only if we have data
+        if (unit.UnitNumber) safeUpdateFields.buildium_unit_number = unit.UnitNumber;
+        if (unit.UnitType) safeUpdateFields.buildium_unit_type = unit.UnitType;
+        if (unit.IsOccupied !== undefined) safeUpdateFields.buildium_is_occupied = unit.IsOccupied ? 'Yes' : 'No';
+        
+        // Tenant tracking - always include for association management
+        safeUpdateFields.current_tenant_contact_id = currentTenantContactIds.map(id => String(id)).join(',');
+        safeUpdateFields.previous_tenant_contact_ids = previousTenantContactIds.map(id => String(id)).join(',');
+        
+        // Unit details - only if we have data
+        if (unit.BedCount && unit.BedCount > 0) safeUpdateFields.hs_bedrooms = unit.BedCount;
+        if (unit.BathCount && unit.BathCount > 0) safeUpdateFields.hs_bathrooms = unit.BathCount;
+        if (unit.SquareFeet && unit.SquareFeet > 0) safeUpdateFields.hs_square_footage = unit.SquareFeet;
+        
+        // Additional unit information - only if we have data
+        if (unit.FloorNumber) safeUpdateFields.buildium_floor_number = unit.FloorNumber;
+        if (unit.Description) safeUpdateFields.buildium_description = unit.Description;
+        
+        // Property details - only if we have data
+        if (property.YearBuilt) safeUpdateFields.hs_year_built = property.YearBuilt;
+        if (property.PropertyType) safeUpdateFields.hs_property_type = property.PropertyType;
+        
+        // Financial information - only if we have data
+        if (unit.MarketRent && unit.MarketRent > 0) safeUpdateFields.buildium_market_rent = unit.MarketRent;
+        if (property.ReserveAccount) safeUpdateFields.buildium_property_reserve_account = property.ReserveAccount;
+        
+        // Status and metadata - only if we have data
+        if (unit.IsOccupied !== undefined) safeUpdateFields.buildium_unit_status = unit.IsOccupied ? 'Occupied' : 'Vacant';
+        if (unit.CreatedDateTime) safeUpdateFields.buildium_created_date = new Date(unit.CreatedDateTime).toISOString();
+        if (unit.LastModifiedDateTime) safeUpdateFields.buildium_last_modified = new Date(unit.LastModifiedDateTime).toISOString();
+
+        const listingData = {
+            properties: safeUpdateFields
+        };
+
+        console.log(`✅ Safe listing update transformation complete - ${Object.keys(safeUpdateFields).length} fields with data`);
         console.log(`   Current tenants: ${currentTenantContactIds.length}`);
         console.log(`   Previous tenants: ${previousTenantContactIds.length}`);
         return listingData;
@@ -2194,6 +2322,13 @@ async function main() {
                     }
                 }
                 
+                // Check for --force flag
+                const unitsForceUpdate = args.includes('--force');
+                if (unitsForceUpdate) {
+                    integration.forceUpdate = true;
+                    console.log('⚡ FORCE MODE: Will update existing listings and contacts (safe mode - only non-empty fields)');
+                }
+                
                 await integration.syncUnitsToListings({ limit: unitsLimit });
                 break;
                 
@@ -2260,6 +2395,7 @@ async function main() {
         }
     } catch (error) {
         console.error('💥 Application error:', error.message);
+        console.error('Stack:', error.stack);
         process.exit(1);
     }
 }
