@@ -138,3 +138,8 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Legal/regulatory documents (may contain sensitive info)
+residential-tenancies-act.xml
+alberta-act-template.xml
+ATA.txt

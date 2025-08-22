@@ -8,6 +8,15 @@ require('dotenv').config();
  * 1. Fetch a tenant from Buildium API
  * 2. Transform the data to HubSpot format
  * 3. Create a contact in HubSpot
+ * 
+ * Rate Limiting & Error Handling:
+ * - Implements exponential backoff for 429 (Too Many Requests) errors
+ * - Buildium API limit: 10 concurrent requests per second (~100ms between requests)
+ * - HubSpot API limits: 9 req/sec standard (111ms), 1.8 req/sec search (550ms)
+ * - Retry strategy: 200ms→400ms→800ms for standard ops, 550ms→1100ms→2200ms for search
+ * - Also handles 5xx server errors with slower backoff (1.5x multiplier)
+ * - Both Buildium and HubSpot clients use retry mechanisms
+ * - Pagination operations properly handle rate limiting across multiple requests
  */
 
 class BuildiumClient {
@@ -18,19 +27,53 @@ class BuildiumClient {
     }
 
     /**
+     * Make API request with exponential backoff for rate limiting
+     * Implements Buildium's recommended retry strategy for 429 errors
+     */
+    async makeRequestWithRetry(requestFn, maxRetries = 3, initialDelay = 200) {
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+                return await requestFn();
+            } catch (error) {
+                // Check if this is a rate limit error (429)
+                if (error.response?.status === 429 && attempt < maxRetries) {
+                    // Exponential backoff: 200ms, 400ms, 800ms, 1600ms
+                    const delay = initialDelay * Math.pow(2, attempt);
+                    console.log(`⏳ Rate limited (429). Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
+                }
+                
+                // Check for other server errors that might benefit from retry
+                if (error.response?.status >= 500 && attempt < maxRetries) {
+                    const delay = initialDelay * Math.pow(1.5, attempt); // Slower backoff for server errors
+                    console.log(`🔄 Server error (${error.response.status}). Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
+                }
+                
+                // If not a retryable error or max retries exceeded, throw the error
+                throw error;
+            }
+        }
+    }
+
+    /**
      * Get a specific tenant by ID from Buildium
      */
     async getTenant(tenantId) {
         try {
             console.log(`🔍 Fetching tenant ${tenantId} from Buildium...`);
             
-            const response = await axios.get(`${this.baseURL}/leases/tenants/${tenantId}`, {
-                headers: {
-                    'x-buildium-client-id': this.clientId,
-                    'x-buildium-client-secret': this.clientSecret,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await this.makeRequestWithRetry(() => 
+                axios.get(`${this.baseURL}/leases/tenants/${tenantId}`, {
+                    headers: {
+                        'x-buildium-client-id': this.clientId,
+                        'x-buildium-client-secret': this.clientSecret,
+                        'Content-Type': 'application/json'
+                    }
+                })
+            );
 
             console.log('✅ Successfully fetched tenant from Buildium');
             return response.data;
@@ -58,15 +101,17 @@ class BuildiumClient {
                 const url = `${this.baseURL}${endpoint}`;
                 console.log(`\n🔍 Testing: ${url}`);
                 
-                const response = await axios.get(url, {
-                    headers: {
-                        'x-buildium-client-id': this.clientId,
-                        'x-buildium-client-secret': this.clientSecret,
-                        'Content-Type': 'application/json'
-                    },
-                    params: { limit: 1 },
-                    timeout: 10000
-                });
+                const response = await this.makeRequestWithRetry(() =>
+                    axios.get(url, {
+                        headers: {
+                            'x-buildium-client-id': this.clientId,
+                            'x-buildium-client-secret': this.clientSecret,
+                            'Content-Type': 'application/json'
+                        },
+                        params: { limit: 1 },
+                        timeout: 10000
+                    })
+                );
                 
                 console.log(`✅ ${endpoint}: Success (${response.status})`);
                 if (response.data && Array.isArray(response.data)) {
@@ -102,10 +147,12 @@ class BuildiumClient {
             console.log(`   Headers: ${JSON.stringify(headers, null, 2)}`);
             console.log(`   Params: ${JSON.stringify(params, null, 2)}`);
             
-            const response = await axios.get(url, {
-                headers: headers,
-                params: params
-            });
+            const response = await this.makeRequestWithRetry(() =>
+                axios.get(url, {
+                    headers: headers,
+                    params: params
+                })
+            );
 
             console.log(`✅ Successfully fetched ${response.data.length} tenants from Buildium`);
             return response.data;
@@ -127,13 +174,15 @@ class BuildiumClient {
         try {
             console.log(`🔍 Fetching property ${propertyId} from Buildium...`);
             
-            const response = await axios.get(`${this.baseURL}/rentals/${propertyId}`, {
-                headers: {
-                    'x-buildium-client-id': this.clientId,
-                    'x-buildium-client-secret': this.clientSecret,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await this.makeRequestWithRetry(() =>
+                axios.get(`${this.baseURL}/rentals/${propertyId}`, {
+                    headers: {
+                        'x-buildium-client-id': this.clientId,
+                        'x-buildium-client-secret': this.clientSecret,
+                        'Content-Type': 'application/json'
+                    }
+                })
+            );
 
             console.log('✅ Successfully fetched property from Buildium');
             return response.data;
@@ -150,14 +199,16 @@ class BuildiumClient {
         try {
             console.log(`🔍 Fetching ${limit} units from Buildium (offset: ${offset})...`);
             
-            const response = await axios.get(`${this.baseURL}/rentals/units`, {
-                headers: {
-                    'x-buildium-client-id': this.clientId,
-                    'x-buildium-client-secret': this.clientSecret,
-                    'Content-Type': 'application/json'
-                },
-                params: { limit, offset }
-            });
+            const response = await this.makeRequestWithRetry(() =>
+                axios.get(`${this.baseURL}/rentals/units`, {
+                    headers: {
+                        'x-buildium-client-id': this.clientId,
+                        'x-buildium-client-secret': this.clientSecret,
+                        'Content-Type': 'application/json'
+                    },
+                    params: { limit, offset }
+                })
+            );
 
             console.log(`✅ Successfully fetched ${response.data.length} units from Buildium`);
             return response.data;
@@ -174,13 +225,15 @@ class BuildiumClient {
         try {
             console.log(`🔍 Fetching unit ${unitId} from Buildium...`);
             
-            const response = await axios.get(`${this.baseURL}/rentals/units/${unitId}`, {
-                headers: {
-                    'x-buildium-client-id': this.clientId,
-                    'x-buildium-client-secret': this.clientSecret,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await this.makeRequestWithRetry(() =>
+                axios.get(`${this.baseURL}/rentals/units/${unitId}`, {
+                    headers: {
+                        'x-buildium-client-id': this.clientId,
+                        'x-buildium-client-secret': this.clientSecret,
+                        'Content-Type': 'application/json'
+                    }
+                })
+            );
 
             console.log('✅ Successfully fetched unit from Buildium');
             return response.data;
@@ -249,20 +302,22 @@ class BuildiumClient {
             let hasMoreData = true;
             
             while (hasMoreData) {
-                const response = await axios.get(`${this.baseURL}/leases`, {
-                    headers: {
-                        'x-buildium-client-id': this.clientId,
-                        'x-buildium-client-secret': this.clientSecret,
-                        'Content-Type': 'application/json'
-                    },
-                    params: {
-                        propertyids: [propertyId],  // Restrict to specific property
-                        unitnumber: unitNumber,     // Further filter by unit number
-                        limit: limit,
-                        offset: offset
-                    },
-                    timeout: 30000 // 30 second timeout
-                });
+                const response = await this.makeRequestWithRetry(() =>
+                    axios.get(`${this.baseURL}/leases`, {
+                        headers: {
+                            'x-buildium-client-id': this.clientId,
+                            'x-buildium-client-secret': this.clientSecret,
+                            'Content-Type': 'application/json'
+                        },
+                        params: {
+                            propertyids: [propertyId],  // Restrict to specific property
+                            unitnumber: unitNumber,     // Further filter by unit number
+                            limit: limit,
+                            offset: offset
+                        },
+                        timeout: 30000 // 30 second timeout
+                    })
+                );
 
                 const pageData = response.data;
                 candidateLeases = candidateLeases.concat(pageData);
@@ -293,19 +348,21 @@ class BuildiumClient {
                 hasMoreData = true;
                 
                 while (hasMoreData) {
-                    const fallbackResponse = await axios.get(`${this.baseURL}/leases`, {
-                        headers: {
-                            'x-buildium-client-id': this.clientId,
-                            'x-buildium-client-secret': this.clientSecret,
-                            'Content-Type': 'application/json'
-                        },
-                        params: {
-                            propertyids: [propertyId],  // Only property filter
-                            limit: limit,
-                            offset: offset
-                        },
-                        timeout: 30000
-                    });
+                    const fallbackResponse = await this.makeRequestWithRetry(() =>
+                        axios.get(`${this.baseURL}/leases`, {
+                            headers: {
+                                'x-buildium-client-id': this.clientId,
+                                'x-buildium-client-secret': this.clientSecret,
+                                'Content-Type': 'application/json'
+                            },
+                            params: {
+                                propertyids: [propertyId],  // Only property filter
+                                limit: limit,
+                                offset: offset
+                            },
+                            timeout: 30000
+                        })
+                    );
                     
                     const pageData = fallbackResponse.data;
                     allPropertyLeases = allPropertyLeases.concat(pageData);
@@ -362,13 +419,15 @@ class BuildiumClient {
      */
     async getLeaseById(leaseId) {
         try {
-            const response = await axios.get(`${this.baseURL}/leases/${leaseId}`, {
-                headers: {
-                    'x-buildium-client-id': this.clientId,
-                    'x-buildium-client-secret': this.clientSecret,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await this.makeRequestWithRetry(() =>
+                axios.get(`${this.baseURL}/leases/${leaseId}`, {
+                    headers: {
+                        'x-buildium-client-id': this.clientId,
+                        'x-buildium-client-secret': this.clientSecret,
+                        'Content-Type': 'application/json'
+                    }
+                })
+            );
 
             return response.data;
         } catch (error) {
@@ -385,17 +444,19 @@ class BuildiumClient {
         try {
             console.log(`🔍 Fetching up to ${limit} leases from Buildium...`);
             
-            const response = await axios.get(`${this.baseURL}/leases`, {
-                headers: {
-                    'x-buildium-client-id': this.clientId,
-                    'x-buildium-client-secret': this.clientSecret,
-                    'Content-Type': 'application/json'
-                },
-                params: {
-                    limit: limit
-                },
-                timeout: 30000 // 30 second timeout
-            });
+            const response = await this.makeRequestWithRetry(() =>
+                axios.get(`${this.baseURL}/leases`, {
+                    headers: {
+                        'x-buildium-client-id': this.clientId,
+                        'x-buildium-client-secret': this.clientSecret,
+                        'Content-Type': 'application/json'
+                    },
+                    params: {
+                        limit: limit
+                    },
+                    timeout: 30000 // 30 second timeout
+                })
+            );
 
             console.log(`✅ Retrieved ${response.data.length} leases`);
             return response.data;
@@ -413,6 +474,43 @@ class HubSpotClient {
     }
 
     /**
+     * Make API request with exponential backoff for rate limiting
+     * HubSpot has different rate limits:
+     * - Standard API: 9 req/sec (111ms between requests)
+     * - Search API: ~1.8 req/sec (550ms between requests)
+     * - Max concurrent: 6 requests
+     */
+    async makeRequestWithRetry(requestFn, maxRetries = 3, initialDelay = 200, isSearchOperation = false) {
+        // Use longer delays for search operations (550ms vs 200ms)
+        const baseDelay = isSearchOperation ? 550 : initialDelay;
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+                return await requestFn();
+            } catch (error) {
+                // Check if this is a rate limit error (429)
+                if (error.response?.status === 429 && attempt < maxRetries) {
+                    // Exponential backoff: baseDelay, baseDelay*2, baseDelay*4
+                    const delay = baseDelay * Math.pow(2, attempt);
+                    console.log(`⏳ HubSpot rate limited (429). Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
+                }
+                
+                // Check for other server errors that might benefit from retry
+                if (error.response?.status >= 500 && attempt < maxRetries) {
+                    const delay = baseDelay * Math.pow(1.5, attempt); // Slower backoff for server errors
+                    console.log(`🔄 HubSpot server error (${error.response.status}). Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
+                }
+                
+                // If not a retryable error or max retries exceeded, throw the error
+                throw error;
+            }
+        }
+    }
+
+    /**
      * Create a contact in HubSpot
      */
     async createContact(contactData) {
@@ -424,12 +522,14 @@ class HubSpotClient {
                 return { id: 'dry-run-id', properties: contactData.properties };
             }
 
-            const response = await axios.post(`${this.baseURL}/crm/v3/objects/contacts`, contactData, {
-                headers: {
-                    'Authorization': `Bearer ${this.accessToken}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await this.makeRequestWithRetry(() =>
+                axios.post(`${this.baseURL}/crm/v3/objects/contacts`, contactData, {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+            );
 
             console.log('✅ Successfully created contact in HubSpot');
             return response.data;
@@ -682,20 +782,23 @@ class HubSpotClient {
         try {
             console.log(`🔍 Searching for existing contact with email: ${email}`);
             
-            const response = await axios.post(`${this.baseURL}/crm/v3/objects/contacts/search`, {
-                filterGroups: [{
-                    filters: [{
-                        propertyName: 'email',
-                        operator: 'EQ',
-                        value: email
+            // Use longer delay for search operations (550ms vs 200ms)
+            const response = await this.makeRequestWithRetry(() =>
+                axios.post(`${this.baseURL}/crm/v3/objects/contacts/search`, {
+                    filterGroups: [{
+                        filters: [{
+                            propertyName: 'email',
+                            operator: 'EQ',
+                            value: email
+                        }]
                     }]
-                }]
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${this.accessToken}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                }), 3, 200, true // isSearchOperation = true
+            );
 
             if (response.data.results.length > 0) {
                 console.log('✅ Found existing contact');
@@ -722,12 +825,14 @@ class HubSpotClient {
                 return { id: 'dry-run-listing-id', properties: listingData.properties };
             }
 
-            const response = await axios.post(`${this.baseURL}/crm/v3/objects/0-420`, listingData, {
-                headers: {
-                    'Authorization': `Bearer ${this.accessToken}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await this.makeRequestWithRetry(() =>
+                axios.post(`${this.baseURL}/crm/v3/objects/0-420`, listingData, {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+            );
 
             console.log('✅ Successfully created listing in HubSpot');
             return response.data;
@@ -2283,6 +2388,9 @@ class IntegrationPrototype {
 async function main() {
     console.log('🏠➡️📞 Buildium to HubSpot Integration Prototype');
     console.log('=' .repeat(60));
+    console.log('✨ Enhanced with exponential backoff for rate limiting');
+    console.log('⚡ Buildium API: 10 req/sec | Retry: 200ms→400ms→800ms');
+    console.log('=' .repeat(60));
 
     const integration = new IntegrationPrototype();
 
@@ -2430,9 +2538,15 @@ async function main() {
                 console.log('');
                 console.log('Unit Sync Options (RECOMMENDED):');
                 console.log('  --limit N      Process N units (default: 10)');
+                console.log('  --force        Update existing listings/contacts (safe mode)');
                 console.log('');
                 console.log('Batch Options (Legacy):');
                 console.log('  --limit N      Process until N successful syncs (default: 10)');
+                console.log('');
+                console.log('Rate Limiting:');
+                console.log('  • Automatic exponential backoff for 429 errors');
+                console.log('  • Buildium: 10 concurrent requests/second limit');
+                console.log('  • Retry delays: 200ms, 400ms, 800ms (3 attempts)');
                 console.log('');
                 console.log('Examples:');
                 console.log('  npm start debug');
