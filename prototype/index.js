@@ -523,6 +523,12 @@ class HubSpotClient {
                     description: 'Current status of the unit (Occupied/Vacant)'
                 },
                 {
+                    name: 'buildium_description',
+                    label: 'Buildium Description',
+                    type: 'string',
+                    description: 'Description of the unit from Buildium'
+                },
+                {
                     name: 'buildium_created_date',
                     label: 'Buildium Created Date',
                     type: 'datetime',
@@ -1229,8 +1235,7 @@ class DataTransformer {
                 buildium_is_active: property.IsActive ? 'Yes' : 'No',
                 buildium_reserve_account: property.ReserveAccount || '',
                 
-                // Timestamps
-                createdate: createdDate,
+                // Timestamps - removed createdate as it's read-only
                 hs_lastmodifieddate: lastModifiedDate,
                 
                 // Contact information
