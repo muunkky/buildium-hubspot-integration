@@ -1,0 +1,2032 @@
+RESIDENTIAL TENANCIES ACT
+
+Chapter R‑17.1
+
+Table of Contents
+
+                1       Interpretation
+
+                2       Application
+
+                3       Act prevails
+
+             3.1       Relationship to other Acts
+
+                4       Crown is bound
+
+Part 1
+Periodic Tenancies
+
+                5       Notice of termination of periodic tenancy
+
+                6       Termination by landlord
+
+                7       Notice to terminate weekly tenancy
+
+                8       Notice to terminate monthly tenancy
+
+                9       Notice to terminate yearly tenancy
+
+              10       Form of notice
+
+              11       Notice to terminate tenancy of employee
+
+              12       Notice to terminate for condominium conversion
+
+              13       Implied periodic tenancy
+
+              14       Notice of increase in rent
+
+           14.1       Prohibition on rent increases in emergency
+
+Part 2
+Obligations of Landlords
+and Tenants
+
+              15       Notice to terminate not required
+
+              16       Landlord’s covenants
+
+              17       Copy of agreement for tenant
+
+              18       Notice of landlord
+
+              19       Inspection report
+
+              20       Time of expiration or termination
+
+              21       Tenant’s covenants
+
+              22       Assignment and sublease
+
+              23       Entry of premises
+
+              24       Locks and security devices
+
+              25       Prohibition re termination of tenancy
+
+Part 3
+Remedies of Landlords and Tenants
+
+              26       Landlord’s remedies
+
+              27       Repudiation of tenancy
+
+              28       Termination for substantial breach by landlord
+
+              29       Termination for substantial breach by tenant
+
+           29.1       Where premises are occupied by surviving
+spouse or partner
+
+              30       Termination of tenancy for damage or assault
+
+              31       Abandoned goods
+
+              32       Recovery of damages
+
+              33       Notice to vacate
+
+              34       Order for recovery of possession
+
+           34.1       Requirements respecting eviction
+
+              35       Notice of default required
+
+              36       Notice to vacate
+
+              37       Tenant’s remedies
+
+              38       Possession unobtainable
+
+              39       Compensation to tenant
+
+              40       Frustration of tenancy agreement
+
+              41       Application for remedy to court
+
+              42       Order of court
+
+Part 4
+Security Deposits
+
+              43       Amount of security deposit
+
+              44       Trust account
+
+              45       Interest on security deposit
+
+              46       Return of security deposit
+
+              47       Obligations and rights of new landlord
+
+
+Part 4.1
+Victims of Domestic Violence
+
+           47.1       Definition
+
+           47.2       Domestic violence
+
+           47.3       Termination of tenancy for domestic violence
+
+           47.4       Application for a certificate
+
+           47.5       Designated authority
+
+           47.6       Designated authority not compellable
+
+           47.7       Requirement for confidentiality
+
+Part 5
+The Court of Justice
+
+              48       Jurisdiction
+
+              49       Application of Court of Justice Act
+
+              50       Commencement of application
+
+              51       Notice of application
+
+              52       Hearing of application
+
+              53       Appeal
+
+              54       Enforcement of order
+
+Part 5.1
+Residential Tenancy Dispute
+Resolution Service
+
+           54.1       Definitions
+
+           54.2       Right to apply to Dispute Resolution Service
+
+           54.3       Effect of application to Dispute Resolution Service
+
+           54.4       Review before filing with a court
+
+           54.5       Authority of Dispute Resolution Service
+
+           54.6       Application, proceedings and decision to be in
+accordance with regulations
+
+           54.7       Regulations
+
+           54.8       Application of this Part
+
+Part 6
+General
+
+              55       Appointment of Director
+
+              56       Delegation
+
+              57       Service of notices, etc.
+
+              58       Satisfaction of service requirement
+
+              59       Landlord and Tenant Advisory Boards
+
+              60       Offences and penalties
+
+              61       Limitation period
+
+              62       Authorized person
+
+              63       Identification
+
+              64       Inspection
+
+              65       Order compelling assistance in inspections
+
+              66       Investigation
+
+
+              67       Order compelling assistance in investigations
+
+              68       Lieutenant Governor in Council regulations
+
+              69       Subsidized public housing regulations
+
+              70       Ministerial regulations
+
+              71       Application to Court of King’s Bench
+
+Part 7
+Transitional Provisions, Repeal and
+Coming into Force
+
+              72       Transitional
+
+        73,74       Repeal
+
+              75       Coming into force
+
+HER MAJESTY, by and with the advice and consent of the Legislative Assembly of Alberta, enacts as follows:
+
+Interpretation
+
+1(1)  In this Act,
+
+                             (a)    “child” means a person under 18 years of age;
+
+                          (a.1)    “common areas” means areas controlled by a landlord and used for access to residential premises or for the service or enjoyment of tenants;
+
+                             (b)    “council” means
+
+                                     (i)    the council of a city, town, village, municipal district or Metis settlement,
+
+                                    (ii)    in the case of an improvement district, the Minister determined under section 16 of the Government Organization Act as the Minister responsible for the Municipal Government Act, or
+
+                                   (iii)    in the case of a special area, the Minister determined under section 16 of the Government Organization Act as the Minister responsible for the Special Areas Act;
+
+                             (c)    “court” means
+
+                                     (i)    the Court of Justice, or
+
+                                    (ii)    the Court of King’s Bench;
+
+                             (d)    “Director” means the Director of Residential Tenancies appointed under section 55;
+
+                             (e)    “fixed term tenancy” means a tenancy under a residential tenancy agreement for a term that ends on a day specified in the agreement;
+
+                              (f)    “landlord” means
+
+                                     (i)    the owner of the residential premises,
+
+                                    (ii)    a property manager who acts as agent for the owner of the residential premises and any other person who, as agent for the owner, permits the occupation of the residential premises under a residential tenancy agreement,
+
+                                   (iii)    the heirs, assigns, personal representatives and successors in title of the owner of the residential premises, and
+
+                                  (iv)    a person who is entitled to possession of the residential premises, other than a tenant, and who attempts to enforce any of the rights of a landlord under a residential tenancy agreement or this Act;
+
+                             (g)    “Minister” means the Minister determined under section 16 of the Government Organization Act as the Minister responsible for this Act;
+
+                             (h)    “overholding tenant” means a person who was a tenant of premises and who does not vacate the premises after the tenancy has expired or been terminated;
+
+                              (i)    “periodic tenancy” means
+
+                                     (i)    a tenancy under a residential tenancy agreement that is renewed or continued without notice,
+
+                                    (ii)    with respect to a fixed term tenancy that contains a provision allowing for renewal or continuation of the tenancy without notice, that part of the tenancy that arises after the end of the fixed term tenancy, and
+
+                                   (iii)    with respect to a fixed term tenancy that does not contain a provision referred to in subclause (ii), the part of the tenancy that arises after the end of the fixed term tenancy, where the landlord and tenant by their conduct expressly or impliedly indicate that they intend that the tenancy be renewed or continued after the end of the fixed term tenancy;
+
+                              (j)    “prescribed” means prescribed by regulation;
+
+                           (j.1)    “protected adult” means an assisted adult, represented adult or supported adult as defined in the Adult Guardianship and Trusteeship Act;
+
+                             (k)    “rent” means the consideration to be paid by a tenant to a landlord under a residential tenancy agreement, but does not include a security deposit;
+
+                              (l)    “residential premises” means any place occupied by an individual as a residence;
+
+                            (m)    “residential tenancy agreement” means a written, oral or implied agreement to rent residential premises;
+
+                             (n)    “security deposit” means any money, property or right paid or given by a tenant of residential premises to a landlord
+
+                                     (i)    to be held by or for the landlord as security for the performance of an obligation or the payment of a liability by the tenant, or
+
+                                    (ii)    to be returned to the tenant on the happening of a condition;
+
+                          (n.1)    “stalking” means repeated conduct by a person, without lawful excuse or authority, that the person knows or reasonably ought to know constitutes harassment of another person and causes that other person to fear for his or her personal safety;
+
+                             (o)    “subsidized public housing” means residential premises rented to a tenant of low income who pays rent that is
+
+                                     (i)    reduced by reason of public funding provided by the government of Canada or Alberta or a municipality, or by their agents, under the National Housing Act (Canada) or the Alberta Housing Act or its predecessor, and
+
+                                    (ii)    determined by the tenant’s income;
+
+                             (p)    “substantial breach” means
+
+                                     (i)    on the part of a tenant, a breach of a covenant specified in section 21 or a series of breaches of a residential tenancy agreement, the cumulative effect of which is substantial, and
+
+                                    (ii)    on the part of a landlord, a breach of a covenant specified in section 16(c);
+
+                             (q)    “tenancy month” means the period on which a monthly periodic tenancy is based whether or not it is a calendar month, and the month begins on the day rent is payable unless another date is specified in the residential tenancy agreement;
+
+                              (r)    “tenancy week” means the period on which a weekly periodic tenancy is based whether or not it is a calendar week, and the week begins on the day rent is payable unless another date is specified in the residential tenancy agreement;
+
+                              (s)    “tenancy year” means the period on which a yearly periodic tenancy is based whether or not it is a calendar year, and the year begins on the day, or the anniversary of the day, on which the tenant first becomes entitled to possession unless another day is specified in the residential tenancy agreement;
+
+                              (t)    “tenant” means
+
+                                     (i)    a person who is permitted by the landlord to occupy residential premises under a residential tenancy agreement,
+
+                                    (ii)    a person who is permitted to occupy residential premises under an assignment or sublease of a residential tenancy agreement to which the landlord has consented under section 22, and
+
+                                   (iii)    an heir, assign or personal representative of a person referred to in subclause (i) or (ii).
+
+(2)  A reference to “tenant” in the following provisions includes a person who was a tenant of premises whose tenancy has expired or been terminated and who has vacated the premises:
+
+                                      section 1(1)(n);
+section 19(2), (3);
+section 25(b);
+section 31;
+section 37;
+section 41;
+section 44(5)(a);
+section 46;
+section 60(3), (5);
+section 70(1)(h).
+
+(3)  For the purposes of this Act, unless the landlord and the tenant agree otherwise, the tenant is considered to have taken possession of the residential premises when
+
+                             (a)    the tenant has paid the required security deposit and fees, if any, and the rent required at the beginning of the tenancy, and
+
+                             (b)    the landlord, being in lawful possession of the residential premises, has given the keys to the residential premises to the tenant for the purpose of the tenant’s occupying the residential premises under the residential tenancy agreement.
+
+(4)  Where, before the end of the residential tenancy agreement, the tenant has paid the rent to the end of the tenancy but has not turned in the keys to the residential premises, the tenant shall not be considered to have given up possession of the residential premises unless
+
+                             (a)    the landlord and the tenant agree that the tenant has given up possession, or
+
+                             (b)    the landlord reasonably believes that the tenant has repudiated the residential tenancy agreement or has abandoned the residential premises.
+
+2004 cR‑17.1 s1;2007 c11 s1;2015 c20 s2;AR 217/2022;
+AR 75/2023
+
+Application
+
+2(1)  Subject to subsection (2), this Act applies only to tenancies of residential premises.
+
+(2)  This Act does not apply to
+
+                             (a)    a mobile home site as defined in the Mobile Home Sites Tenancies Act,
+
+                             (b)    premises occupied for business purposes with living accommodation attached and rented under a single agreement,
+
+                             (c)    rooms in the living quarters of the landlord, if the landlord actually resides in those quarters,
+
+                             (d)    a hotel, motel, motor hotel, resort, lodge or tourist camp, a cottage or cabin located in a campground, or a trailer park, tourist home, bed and breakfast establishment or farm vacation home, if a person resides there for less than 6 consecutive months,
+
+                             (e)    a tenancy agreement between an educational institution as landlord and a student of that institution as tenant if the tenant does not have exclusive possession of a self‑contained dwelling unit,
+
+                              (f)    a continuing care home as defined in the Continuing Care Act;
+
+                             (g)    lodge accommodation as defined in the Alberta Housing Act that is operated
+
+                                     (i)    by a management body under a ministerial order under section 5 of that Act, or
+
+                                    (ii)    under an agreement with the Minister responsible for that Act,
+
+                             (h)    repealed 2013 cS‑19.3 s25,
+
+                          (h.1)    a supportive living accommodation as defined in the Continuing Care Act,
+
+                              (i)    a correctional institution, or
+
+                              (j)    any other prescribed premises.
+
+2004 cR‑17.1 s2;2009 cS‑23.5 s26;2013 cS‑19.3 s25;2022 cC‑26.7 s79
+
+
+Act prevails
+
+3(1)  Any waiver or release by a tenant of the rights, benefits or protections under this Act is void.
+
+(2)  If a residential tenancy agreement is in writing, the agreement must contain the following statement in print larger than the other print in the agreement:
+
+                                      The tenancy created by this agreement is governed by the Residential Tenancies Act and if there is a conflict between this agreement and the Act, the Act prevails.
+
+ 
+
+Relationship to other Acts
+
+3.1  Notwithstanding anything in this Act, if an order is made pursuant to the Safer Communities and Neighbourhoods Act that terminates a residential tenancy or entitles a landlord to possession of residential premises, the tenancy terminates and the landlord regains possession in accordance with the order.
+
+2007 cS‑0.5 s66
+
+Crown is bound
+
+4   The Crown in right of Alberta is bound by this Act.
+
+Part 1
+Periodic Tenancies
+
+Notice of termination of periodic tenancy
+
+5(1)  A weekly, monthly or yearly tenancy may be terminated by either the landlord or the tenant on notice to the other.
+
+(2)  The notice
+
+                             (a)    must be served in sufficient time to give the period of notice required by section 7, 8, 9, 11 or 12, as the case may be, and
+
+                             (b)    must meet the requirements of section 10.
+
+(3)  A tenancy not referred to in subsection (1) that is terminable on notice must, unless otherwise agreed, be terminated as provided by section 10 and the notice must be served on the landlord or tenant, as the case may be.
+
+(4)  If a periodic tenancy of residential premises is for a period of more than one week but less than one year, that tenancy is, for the purposes of terminating the tenancy, deemed to be a monthly tenancy.
+
+(5)  A period of notice required by section 7, 8, 9, 11 or 12 may be modified by a regulation made under section 70(1)(c.1).
+
+2004 cR‑17.1 s5;2007 c11 s1
+
+Termination by landlord
+
+6(1)  A notice under this Part from a landlord to a tenant to terminate a periodic tenancy is of no effect unless the termination is for one or more of the prescribed reasons or for the reasons set out in section 11 or 12.
+
+(2)  A landlord who gives a notice under this Part to a tenant to terminate a periodic tenancy for one or more of the prescribed reasons or for the reasons set out in section 12 contravenes this Act if the tenant vacates the premises and the landlord does not use the premises for the reasons set out in the notice within a reasonable time after the termination date set out in the notice.
+
+ 
+
+Notice to terminate weekly tenancy
+
+7   A notice to terminate a weekly tenancy given by a landlord or tenant must be served on the other party on or before the first day of the tenancy week to be effective on the last day of that tenancy week.
+
+ 
+
+Notice to terminate monthly tenancy
+
+8(1)  A notice to terminate a monthly tenancy must be served
+
+                             (a)    by a tenant on the tenant’s landlord, on or before the first day of a tenancy month to be effective on the last day of that tenancy month, or
+
+                             (b)    by a landlord on the landlord’s tenant, on or before the first day of a notice period to be effective on the last day of the notice period.
+
+(2)  In this section and section 10(2)(b), “notice period” means a period of 3 consecutive tenancy months.
+
+ 
+
+Notice to terminate yearly tenancy
+
+9   A notice to terminate a yearly tenancy must be served
+
+                             (a)    by a tenant on the tenant’s landlord, on or before the 60th day before the last day of a tenancy year, or
+
+                             (b)    by a landlord on the landlord’s tenant, on or before the 90th day before the last day of a tenancy year,
+
+to be effective on the last day of the tenancy year.
+
+ 
+
+Form of notice
+
+10(1)  A notice to terminate a tenancy must
+
+                             (a)    be in writing,
+
+                             (b)    be signed by the person giving the notice or the person’s agent,
+
+                             (c)    in the case of a landlord terminating the tenancy, set out the reasons for which the tenancy is being terminated,
+
+                             (d)    identify the premises in respect of which the notice is served, and
+
+                             (e)    state the date on which the tenancy is to terminate.
+
+(2)  If a notice to terminate a weekly, monthly or yearly tenancy is not served in sufficient time to give the period of notice required by section 7, 8 or 9, as the case may be, the notice is still effective to terminate
+
+                             (a)    the weekly tenancy on the last day of the first complete tenancy week following the date on which the notice is served,
+
+                             (b)    the monthly tenancy
+
+                                     (i)    if the notice is served by a tenant on the tenant’s landlord, on the last day of the first complete tenancy month following the date on which the notice is served, or
+
+                                    (ii)    if the notice is served by a landlord on the landlord’s tenant, on the last day of the first complete notice period following the date on which the notice is served,
+
+                                 or
+
+                             (c)    the yearly tenancy
+
+                                     (i)    if the notice is served before the end of the tenancy year by a tenant on the tenant’s landlord, 60 days from the date on which the notice is served, or
+
+                                    (ii)    if the notice is served before the end of the tenancy year by a landlord on the landlord’s tenant, 90 days from the date on which the notice is served.
+
+(3)  Subsection (2) does not apply to a notice to terminate under section 11 or 12.
+
+ 
+
+Notice to terminate tenancy of employee
+
+11   If a periodic tenancy of residential premises has been entered into by reason of the tenant’s employment by the landlord and that employment is terminated, either the landlord or the tenant may terminate the tenancy by serving notice on the other party in sufficient time to provide a period of notice of termination of the tenancy that is
+
+                             (a)    a period equal to
+
+                                     (i)    the period of notice of termination of employment required under any law in force in Alberta that is applicable to the tenant’s employment,
+
+                                    (ii)    the period of notice of termination of employment agreed on by the landlord and the tenant, or
+
+                                   (iii)    one week,
+
+                                      whichever is longest, or
+
+                             (b)    a period prescribed in or determined in accordance with the regulations.
+
+ 
+
+Notice to terminate for condominium conversion
+
+12(1)  In this section,
+
+                             (a)    “condominium plan” means a condominium plan as defined in the Condominium Property Act;
+
+                             (b)    “condominium unit” means a unit as defined in the Condominium Property Act.
+
+(2)  If after the commencement of a periodic tenancy of residential premises
+
+                             (a)    a condominium plan that includes or is proposed to include those residential premises is registered or is proposed to be registered in the land titles office, and
+
+                             (b)    termination of that tenancy is sought for the purpose of obtaining vacant possession of the residential premises in order that the residential premises or any part of them may be sold as a condominium unit or as part of a condominium unit,
+
+the landlord may terminate that tenancy by serving a notice of termination on the tenant at least 180 days before the day named in the notice for the termination of the residential tenancy agreement.
+
+(3)  Notwithstanding subsection (2), if the residential tenancy agreement is terminated by the tenant before the day specified in the notice, the landlord may rent the premises to another tenant for the period remaining until the day specified in the notice, if the landlord gives that tenant notice of the termination date before entering into the residential tenancy agreement.
+
+ 
+
+Implied periodic tenancy
+
+13   When a periodic tenancy is implied by operation of law after the expiration or termination of a prior fixed term tenancy, the implied tenancy, in the absence of facts showing a contrary intention, is
+
+                             (a)    if the prior tenancy was for a fixed term of one month or more, a monthly tenancy, or
+
+                             (b)    if the prior tenancy was for a fixed term of less than one month, a weekly tenancy.
+
+ 
+
+Notice of increase in rent
+
+14(1)  A landlord shall not increase the rent payable under a residential tenancy agreement or recover any additional rent resulting from an increase unless the landlord serves on the tenant a written notice of the increase in rent
+
+                             (a)    in respect of a weekly tenancy, at least 12 tenancy weeks,
+
+                             (b)    in respect of a monthly tenancy, at least 3 tenancy months, and
+
+                             (c)    in respect of any other periodic tenancy, at least 90 days,
+
+before the date on which the increase is to be effective.
+
+(2)  A notice under this section must indicate the date on which the increase is to be effective and must be dated and signed by the landlord.
+
+(3)  If the residential tenancy agreement provides for a period of notice longer than the period specified in subsection (1), the landlord must give at least that longer period of notice before increasing the rent payable or recovering any additional rent resulting from the increase.
+
+(4)  A landlord shall not increase the rent payable under a residential tenancy agreement or recover any additional rent resulting from an increase unless the prescribed amount of time has passed, which shall not be less than 1 year.
+
+(5)  A tenant under a periodic tenancy who receives a notice under this section and who fails to give to the landlord notice of termination effective on or before the date the rent increase is to be effective is deemed to have agreed to the increase in rent.
+
+(6)  A notice of increase in rent that does not comply with or is not given in accordance with this section is void.
+
+(7)  A tenant who pays increased rent pursuant to a notice of increase in rent that does not comply with or is not given in accordance with this section may recover the amount by which the rent was increased in an action in debt.
+
+(8)  A period of notice required by this section may be modified by a regulation made under section 70(1)(c.1).
+
+2004 cR‑17.1 s14;2007 c11 s1
+
+Prohibition on rent increases in emergency
+
+14.1(1)  In this section, “emergency end date” means the date of the lapse or termination of the state of public health emergency declared under Order in Council 80/2020 or such alternative date as may be prescribed.
+
+(2)  If a tenancy expires or is terminated on or after March 27, 2020, and the landlord and tenant enter into a new residential tenancy agreement in respect of the same residential premises that was the subject of the expired or terminated residential tenancy agreement during the period beginning on March 27, 2020 and ending on the emergency end date, the rent payable under the new residential tenancy agreement from the date the agreement was entered into until the emergency end date is deemed to be the amount of rent payable under the residential tenancy agreement that was in force immediately prior to the date on which the landlord and tenant entered into the new residential tenancy agreement.
+
+(3)  Despite section 14, a landlord shall not increase the rent payable under an existing residential tenancy agreement until after the emergency end date where
+
+                             (a)    a landlord has given a tenant a written notice of an increase in the rent in accordance with section 14, and
+
+                             (b)    the notice period required under section 14(1) is to elapse during the period beginning on March 27, 2020 and ending on the emergency end date.
+
+2020 c6 s3;2020 cC‑19.5 s12
+
+Part 2
+Obligations of Landlords
+and Tenants
+
+Notice to terminate not required
+
+15   Notwithstanding any agreement to the contrary, notice to terminate is not required in order to terminate a fixed term tenancy.
+
+ 
+
+Landlord’s covenants
+
+16   The following covenants of the landlord form part of every residential tenancy agreement:
+
+                             (a)    that the premises will be available for occupation by the tenant at the beginning of the tenancy;
+
+                             (b)    that, subject to section 23, neither the landlord nor a person having a claim to the premises under the landlord will in any significant manner disturb the tenant’s possession or peaceful enjoyment of the premises;
+
+                             (c)    that the premises will meet at least the minimum standards prescribed for housing premises under the Public Health Act and regulations.
+
+ 
+
+Copy of agreement for tenant
+
+17(1)  If a residential tenancy agreement is in writing and the tenant has signed and returned the written residential tenancy agreement to the landlord, the landlord shall, within 21 days after the written residential tenancy agreement is returned to the landlord, serve on the tenant a copy of the written residential tenancy agreement signed by the landlord.
+
+(2)  A tenant may withhold payment of rent until the tenant is served with a copy of the residential tenancy agreement under subsection (1).
+
+ 
+
+Notice of landlord
+
+18(1)  In this section, “notice of landlord” means a written notice that is dated and signed by the landlord and sets out the name of one of the persons who falls within the definition of landlord and a postal address and physical location in Canada for that person.
+
+(2)  When a tenant enters into a residential tenancy agreement with a landlord, the landlord shall serve the tenant with a notice of landlord within 7 days after the day on which the tenant takes possession of the residential premises.
+
+(3)  A landlord of residential premises that are contained in a building or complex with common areas may, instead of complying with subsection (2), post the notice of landlord in a conspicuous place in a common area.
+
+(4)  If the information in the notice of landlord changes, the landlord shall forthwith serve the tenant with a new notice with the current information or, if the landlord has posted the notice under subsection (3), forthwith post a new notice with the current information.
+
+(5)  The landlord who posts a notice of landlord under this section shall take all reasonable steps to ensure that it remains posted.
+
+2004 cR‑17.1 s18;2009 c7 s11
+
+Inspection report
+
+19(1)  A landlord and tenant shall inspect the residential premises within one week before or after a tenant takes possession of the residential premises, and the landlord shall, forthwith on completion of the inspection, provide the tenant with a report of the inspection that describes the condition of the premises.
+
+(2)  A landlord and tenant shall inspect the residential premises within one week before or after the tenant gives up possession of the residential premises and the landlord shall, forthwith on completion of the inspection, provide the tenant with a report of the inspection that describes the condition of the premises.
+
+(3)  A landlord may complete the inspection without the tenant if the landlord proposes 2 inspections to take place
+
+                             (a)    on different days,
+
+                             (b)    on days that are not holidays, and
+
+                             (c)    between 8 a.m. and 8 p.m.,
+
+and no adult person who falls within the definition of tenant agrees to take part.
+
+(4)  For the purposes of subsection (3) the landlord may propose alternative inspection times, with the inspection to take place on the 2nd date and time if it does not proceed on the first date and time.
+
+(5)  A report must contain the prescribed statements and be signed in accordance with the regulations.
+
+(6)  A landlord shall
+
+                             (a)    keep a copy of an inspection report prepared under this section for at least 3 years after the termination of the tenancy, and
+
+                             (b)    make the inspection report available for inspection by the Director or an authorized person for the purposes of an inspection or investigation under Part 6.
+
+ 
+
+Time of expiration or termination
+
+20(1)  Unless the landlord and tenant agree on a different time, a tenancy that expires or is terminated ends at 12 noon on the last day of the tenancy.
+
+(2)  This section does not apply to a tenancy terminated by notice under section 30.
+
+Tenant’s covenants
+
+21   The following covenants of the tenant form part of every residential tenancy agreement:
+
+                             (a)    that the rent will be paid when due;
+
+                             (b)    that the tenant will not in any significant manner interfere with the rights of either the landlord or other tenants in the premises, the common areas or the property of which they form a part;
+
+                             (c)    that the tenant will not perform illegal acts or carry on an illegal trade, business or occupation in the premises, the common areas or the property of which they form a part;
+
+                             (d)    that the tenant will not endanger persons or property in the premises, the common areas or the property of which they form a part;
+
+                             (e)    that the tenant will not do or permit significant damage to the premises, the common areas or the property of which they form a part;
+
+                              (f)    that the tenant will maintain the premises and any property rented with it in a reasonably clean condition;
+
+                             (g)    that the tenant will vacate the premises at the expiration or termination of the tenancy.
+
+Assignment and sublease
+
+22(1)  Subject to subsection (4), no assignment or sublease of a residential tenancy agreement by a tenant is valid without the written consent of the landlord.
+
+(2)  A landlord shall not refuse consent to an assignment or sublease unless there are reasonable grounds for the refusal.
+
+(3)  When
+
+                             (a)    the Banff Housing Corporation is the landlord under a residential tenancy agreement,
+
+                             (b)    the tenant under that agreement is a person other than the Crown, and
+
+                             (c)    that agreement has a fixed term of 25 or more years,
+
+the only grounds on which the Banff Housing Corporation may refuse to give its consent to an assignment or sublease are those set out in the regulations.
+
+(4)  If a landlord does not respond to a request for a consent within 14 days after receiving the request, the landlord is deemed to have given consent.
+
+(5)  A landlord who refuses to give consent shall provide the tenant who requested consent with written reasons for the refusal.
+
+(6)  A landlord shall not charge a fee or other consideration for giving consent to an assignment or sublease.
+
+ 
+
+Entry of premises
+
+23(1)  Except as otherwise permitted in this section, no landlord shall enter residential premises rented by the landlord without the consent of the tenant or of an adult person lawfully on the premises.
+
+(2)  A landlord is entitled to enter residential premises rented by the landlord without consent or notice if the landlord has reasonable grounds to believe that
+
+                             (a)    an emergency requires the landlord to enter the premises, or
+
+                             (b)    the tenant has abandoned the premises.
+
+(3)  Subject to subsection (4), a landlord is entitled to enter residential premises rented by the landlord without consent but after notice to the tenant
+
+                             (a)    to inspect the state of repair of the premises,
+
+                             (b)    to make repairs to the premises,
+
+                             (c)    to take necessary steps to control pests in the premises to ensure that the premises meet standards in that regard that are required under any law in force in Alberta,
+
+                             (d)    for the purpose of showing the premises, whether directly or through a real estate broker, to prospective purchasers or mortgagees of the premises, or
+
+                             (e)    to show the premises to prospective tenants after a landlord or tenant has served notice of termination of a periodic tenancy or during the last month of a fixed term tenancy.
+
+(4)  A landlord is not entitled to enter residential premises under subsection (3) unless
+
+                             (a)    the notice is served on the tenant at least 24 hours before the time of entry,
+
+                             (b)    the entry is made on a day that is not
+
+                                     (i)    a holiday, except that the landlord may enter on a Sunday if the tenant’s day of religious worship is not a Sunday and the tenant has provided the landlord with a written notice of that day, or
+
+                                    (ii)    the tenant’s day of religious worship if that day is not a Sunday and the tenant has provided the landlord with a written notice of that day,
+
+                                 and
+
+                             (c)    the entry is between 8 a.m. and 8 p.m.
+
+(5)  A notice under subsection (3) must
+
+                             (a)    be in writing,
+
+                             (b)    be signed by the landlord or the landlord’s agent,
+
+                             (c)    state the reason for the entry, and
+
+                             (d)    name a date and time of entry that comply with subsection (4).
+
+(6)  The date and time of entry referred to in subsection (5)(d) may be expressed as a period of time of reasonable duration, which must begin and end at specified times.
+
+ 
+
+Locks and security devices
+
+24(1)  Neither a tenant nor a landlord shall add to or change locks on doors giving access to residential premises or to the property of which the residential premises form a part without the consent of the other party.
+
+(2)  Notwithstanding subsection (1), a landlord may add to or change locks on doors giving access to residential premises or to the property of which the residential premises form a part if a key is made available to the tenant as soon as the addition or change is made.
+
+(3)  Subsection (1) does not apply to the installation by a tenant of a security device that
+
+                             (a)    is capable of being put into effect only while a person is inside the residential premises, and
+
+                             (b)    can be installed and removed without damage to the premises or will remain affixed to the premises and become the property of the landlord when the tenancy is terminated.
+
+(4)  Where a tenant adds to or changes a lock in accordance with subsection (1) the tenant shall make a key available to the landlord as soon as the addition or change is made.
+
+ 
+
+Prohibition re termination of tenancy
+
+25   No landlord shall
+
+                             (a)    terminate a tenancy, or
+
+                             (b)    take any kind of retaliatory action against a tenant including, without limitation, the imposition of a financial penalty,
+
+by reason only of the tenant’s having made an application, filed a statement, made a complaint, assisted in an investigation or inquiry or given evidence at a hearing under this Act or the Public Health Act.
+
+Part 3
+Remedies of Landlords and Tenants
+
+Landlord’s remedies
+
+26(1)  If a tenant commits a breach of a residential tenancy agreement, the landlord may apply to a court for one or more of the following remedies:
+
+                             (a)    where the breach consists of non‑payment of rent, recovery of arrears of rent;
+
+                             (b)    where the breach consists of failing to give up possession of the residential premises,
+
+                                     (i)    recovery of possession of the premises from the overholding tenant, and
+
+                                    (ii)    recovery of compensation for the use and occupation of the premises by the overholding tenant;
+
+                             (c)    where the breach is a substantial breach, termination of the tenancy;
+
+                             (d)    recovery of damages resulting from the breach.
+
+(2)  An application under subsection (1) must be supported by an affidavit setting out the following:
+
+                             (a)    if a claim is made for the recovery of arrears of rent, the amount of rent in arrears and the time during which it has been in arrears;
+
+                             (b)    if a claim is made for the recovery of damages resulting from a breach of the residential tenancy agreement, the details of the breach and the amount of damages claimed;
+
+                             (c)    if a claim is made for the recovery of compensation for the use and occupation of premises by an overholding tenant,
+
+                                     (i)    the date of the expiration of the tenancy or, if the tenancy was terminated, the method of termination and the effective date of the termination,
+
+                                    (ii)    the reasons for the tenant’s failure to vacate the premises, to the extent known,
+
+                                   (iii)    the nature of the use and occupation by the overholding tenant, to the extent known,
+
+                                  (iv)    the rent payable under the prior tenancy agreement, and
+
+                                   (v)    the amount of compensation claimed;
+
+                             (d)    if a claim is made for the recovery of possession of the premises from an overholding tenant,
+
+                                     (i)    the date of the expiration of the tenancy or, if the tenancy was terminated, the method of termination and the effective date of the termination, and
+
+                                    (ii)    the reasons for the tenant’s failure to vacate the premises, to the extent known;
+
+                             (e)    if a claim is made for the termination of the tenancy by reason of a substantial breach of the tenancy agreement, the details of the breach and the requested termination date.
+
+ 
+
+Repudiation of tenancy
+
+27(1)  If a tenant by abandonment of the residential premises or otherwise gives the landlord reasonable grounds to believe that the tenant has repudiated the residential tenancy agreement, the landlord may either
+
+                             (a)    accept the repudiation as a termination of the tenancy, or
+
+                             (b)    refuse to accept the repudiation and continue the tenancy.
+
+(2)  In the case of a periodic tenancy, for the purposes of subsections (3) and (7), the tenant’s acts of repudiation constitute a proper notice effective to terminate the tenancy on the earliest date that the tenant could have terminated the tenancy under this Act.
+
+(3)  A landlord who accepts the repudiation as a termination of the tenancy may recover
+
+                             (a)    damages resulting from a breach of the residential tenancy agreement prior to the repudiation, and
+
+                             (b)    damages for the loss of the benefit of the residential tenancy agreement
+
+                                     (i)    in the case of fixed term tenancy, until it would have expired had the landlord not accepted the repudiation, or
+
+                                    (ii)    in the case of a periodic tenancy, until the termination date.
+
+(4)  Notwithstanding subsection (3)(b), a landlord shall make reasonable efforts to mitigate the damages for the loss of the benefits of the residential tenancy agreement.
+
+(5)  A landlord who refuses to accept the repudiation and elects to continue the tenancy shall make reasonable efforts to mitigate the tenant’s liability for rent under the residential tenancy agreement.
+
+(6)  A landlord who rents the premises to a new tenant in order to mitigate a tenant’s liability for rent under a residential tenancy agreement
+
+                             (a)    is deemed to have accepted the repudiation of the landlord’s previous tenant as terminating that tenancy at the time the new tenancy commences, and
+
+                             (b)    may recover damages in the same manner as if the landlord had accepted the tenant’s repudiation of the residential tenancy agreement.
+
+(7)  Subject to subsection (5), a landlord who refuses to accept the repudiation and elects to continue the tenancy may, so long as the landlord has not rented the premises to a new tenant, recover rent accruing under the residential tenancy agreement
+
+                             (a)    in the case of a fixed term tenancy, until it expires, or
+
+                             (b)    in the case of a periodic tenancy, until the termination date.
+
+Termination for substantial breach by landlord
+
+28(1)  A tenant may apply to a court to terminate the tenancy or may terminate the tenancy by serving the landlord with a notice at least 14 days before the day that the tenancy is to terminate where
+
+                             (a)    the landlord commits a substantial breach of the residential tenancy agreement, and
+
+                             (b)    an executive officer has issued an order under section 62 of the Public Health Act in respect of the circumstances that constitute the substantial breach, and the tenant believes on reasonable grounds that the landlord has failed to comply with the order.
+
+(2)  The notice must
+
+                             (a)    be in writing,
+
+                             (b)    be signed by the tenant,
+
+                             (c)    set out the reasons for the termination, and
+
+                             (d)    set out the termination date.
+
+(3)  A notice to terminate under this section is ineffective if
+
+                             (a)    within 7 days from the date the landlord receives the notice, the landlord serves the tenant with a notice in writing objecting to the termination on the grounds that the landlord has complied with the order under the Public Health Act or has been granted a stay of the order, and
+
+                             (b)    at the time of serving the notice of objection the landlord has complied with the order or has been granted a stay of the order.
+
+2004 cR‑17.1 s28;2005 c32 s2
+
+Termination for substantial breach by tenant
+
+29(1)  If a tenant commits a substantial breach of a residential tenancy agreement, the landlord may apply to a court to terminate the tenancy or may terminate the tenancy by serving the tenant with a notice at least 14 days before the day that the tenancy is to terminate.
+
+(2)  The notice must
+
+                             (a)    be in writing,
+
+                             (b)    be signed by the landlord or the landlord’s agent,
+
+                             (c)    set out separately
+
+                                     (i)    the rent due as of the date of the notice, and
+
+                                    (ii)    any additional rent that may become due during the notice period,
+
+                             (d)    set out the reasons for the termination, and
+
+                             (e)    set out the termination date.
+
+(3)  Where a landlord terminates a tenancy for non‑payment of rent, the notice to terminate must state that the tenancy will not be terminated if, on or before the termination date specified in the notice, the tenant pays the rent due and any additional rent that has become due under the residential tenancy agreement as of the date of payment.
+
+(4)  A notice to terminate under this section is ineffective if, before the termination date given in the notice, the tenant
+
+                             (a)    pays all rent due as of the date of payment, if the alleged breach is a failure to pay rent, or
+
+                             (b)    serves the landlord with a notice in writing objecting to the termination that sets out the tenant’s reasons for objecting, if the alleged breach is other than a failure to pay rent.
+
+2004 cR‑17.1 s29;2005 c32 s3
+
+Where premises are occupied by surviving
+spouse or partner
+
+29.1   If residential premises are occupied by a surviving spouse or adult interdependent partner pursuant to Division 1 of Part 5 of the Wills and Succession Act, any application under section 26, 28 or 29 must be made to the Court of King’s Bench.
+
+2010 cW‑12.2 s122;AR 217/2022
+
+Termination of tenancy for damage or assault
+
+30(1)  Notwithstanding section 29, if a tenant has
+
+                             (a)    done or permitted significant damage to the residential premises, the common areas or the property of which they form a part, or
+
+                             (b)    physically assaulted or threatened to physically assault the landlord or another tenant,
+
+the landlord may apply to a court to terminate the tenancy or may terminate the tenancy by serving the tenant with a notice at least 24 hours before the time that the tenancy is to terminate.
+
+(2)  The notice must
+
+                             (a)    be in writing,
+
+                             (b)    be signed by the landlord or the landlord’s agent,
+
+                             (c)    set out the reasons for the termination, and
+
+                             (d)    set out the time and date that the tenancy is to terminate.
+
+(3)  If a landlord terminates a tenancy by serving a notice under subsection (1) and the tenant has not vacated the premises by the time and date set out in the notice, the landlord may within 10 days after the termination date apply to a court for an order confirming the termination of the tenancy and for any remedy that may be granted under section 26.
+
+(4)  An application under subsection (3) must be supported by an affidavit setting out the following:
+
+                             (a)    details of the damage or physical assault or threat;
+
+                             (b)    a copy of the notice to terminate and the time and date it was served.
+
+(5)  If the landlord has not applied to a court to confirm the termination of the tenancy within 10 days after the termination date and the tenant has not vacated the premises, the termination of the tenancy by notice of the landlord is ineffective and the tenancy is deemed never to have been terminated by notice of the landlord under this section.
+
+(6)  A court may grant an order confirming the termination of the tenancy if satisfied that the tenant has done or permitted significant damage or committed the assault or threat referred to in subsection (1).
+
+(7)  If a court is not satisfied that the tenant has done or permitted significant damage or committed the assault or threat referred to in subsection (1), the court may declare the termination of the tenancy by notice of the landlord to be ineffective and the tenancy is deemed never to have been terminated by notice of the landlord under this section.
+
+ 
+
+Abandoned goods
+
+31(1)  In this section, “abandoned goods” means goods left at residential premises by a tenant who has
+
+                             (a)    abandoned the premises, or
+
+                             (b)    vacated the premises and whose tenancy has expired or been terminated.
+
+(2)  A landlord who believes on reasonable grounds that abandoned goods have a total market value of less than the prescribed amount may dispose of the goods.
+
+(3)  Notwithstanding that abandoned goods have a value equal to or greater than the prescribed amount, a landlord who on reasonable grounds believes
+
+                             (a)    that the storage of the goods would be unsanitary or unsafe or would rapidly result in total or substantial depreciation in their market value, or
+
+                             (b)    that the cost of removing, storing and selling the goods would exceed the proceeds of their sale,
+
+may sell the goods by a means and for a price that the landlord believes is reasonable.
+
+(4)  If subsections (2) and (3) do not apply, the landlord
+
+                             (a)    shall store or arrange for storage of the goods on behalf of the tenant until the expiration of the prescribed period after the date of their abandonment, and
+
+                             (b)    afterwards may dispose of the goods by public auction or, with the approval of a court, by private sale.
+
+(5)  If no bid is received for the abandoned goods at a public auction held under subsection (4)(b), the landlord may dispose of the goods.
+
+(6)  No liability attaches to a person for
+
+                             (a)    selling goods under subsection (3) or (4)(b), or
+
+                             (b)    disposing of goods under subsection (2) or (5).
+
+(7)  Where abandoned goods are disposed of or sold under this section, the person acquiring the goods on the disposal or sale acquires the tenant’s interest in those goods and the tenant’s interest in the goods is extinguished.
+
+(8)  A landlord shall, on payment of the landlord’s proper costs of removing and storing the abandoned goods, give up possession of the goods to the tenant or to the person entitled to them.
+
+(9)  A landlord may apply the proceeds of any sale of abandoned goods
+
+                             (a)    to the landlord’s proper costs of removing, storing and selling the goods, and
+
+                             (b)    to satisfy the tenant’s liabilities to the landlord in respect of the tenancy, if the liabilities are established in accordance with the regulations,
+
+and shall pay the surplus, if any, to the Minister.
+
+(10)  The Minister shall retain the surplus on behalf of the tenant for one year and afterwards, if the tenant has not claimed it, pay the surplus into the General Revenue Fund.
+
+(11)  On payment of the surplus into the General Revenue Fund under subsection (10), the tenant’s claim to that surplus is extinguished.
+
+(12)  This section does not apply to goods on premises against which a civil enforcement agency executes an order of possession.
+
+(13)  A landlord shall keep a record of the storage, disposition or sale of goods under this section including
+
+                             (a)    a description of the goods,
+
+                             (b)    the period for which and the location at which they were stored,
+
+                             (c)    in a case where subsection (8) applies, the costs claimed by the landlord and the date on which the goods were returned to the tenant,
+
+                             (d)    where the goods are sold, the particulars of the sale, the amount claimed by the landlord under subsection (9) and the amount, if any, paid to the Minister under subsection (9), and
+
+                             (e)    where the goods are neither returned to the tenant nor sold, the manner in which they were disposed of.
+
+(14)  A landlord shall keep a record referred to in subsection (13) as it relates to particular goods for at least 3 years after the goods were returned to the tenant, sold or disposed of, as the case may be.
+
+2004 cR‑17.1 s31;2006 c23 s69;2008 c43 s10;2011 c14 s25
+
+Recovery of damages
+
+32   In an application to a court for the recovery of damages resulting from the tenant’s breach of the tenant’s covenant to vacate the residential premises at the expiration or termination of the tenancy, a landlord may recover
+
+                             (a)    general damages the landlord has suffered resulting from the tenant’s failure to vacate the premises, and
+
+                             (b)    special damages the landlord has suffered resulting from the landlord’s liability to a new tenant because of the landlord’s failure to deliver possession of the premises to the new tenant, if the tenant could reasonably have foreseen that those damages would be a consequence of the tenant’s failure to vacate the premises.
+
+ 
+
+Notice to vacate
+
+33(1)  If the tenant having the right to occupy residential premises has abandoned the premises, the landlord may require a person living in the premises who is not a tenant to vacate the premises by serving the person with a notice to vacate.
+
+(2)  The notice to vacate under subsection (1) must give the person living in the premises at least 48 hours to vacate the premises from the time that the notice is served.
+
+(3)  A notice to vacate must
+
+                             (a)    be in writing,
+
+                             (b)    be signed by the landlord or the landlord’s agent, and
+
+                             (c)    set out the time and date by which the person must vacate the premises.
+
+(4)  If the person on whom a notice to vacate is served fails to vacate the premises by the time and date specified in the notice, the landlord may apply to a court for an order terminating the tenancy of the tenant who abandoned the premises and for recovery of possession of the premises.
+
+(5)  An application under subsection (4) must be supported by an affidavit setting out the following:
+
+                             (a)    the date that the premises were abandoned by the tenant, to the extent known;
+
+                             (b)    a copy of the notice to vacate and the time, date and manner in which it was served;
+
+                             (c)    the reasons for the person’s failure to vacate the premises, to the extent known.
+
+(6)  A court may grant an order under subsection (4) if satisfied that the tenant has abandoned the premises and that the person living in the premises is not a tenant.
+
+(7)  Nothing in this section prevents a landlord from applying to a court for additional remedies under section 26.
+
+ 
+
+Order for recovery of possession
+
+34   An order for recovery of possession of residential premises
+
+                             (a)    shall direct the tenant or overholding tenant or, where section 33 applies, the person living in the premises and the tenant, to give up possession of the premises to the landlord by a specified date or within a specified time after service of the order,
+
+                             (b)    shall include a statement to the effect that a civil enforcement agency has authority, after service of the order has been effected, to evict any occupant of the premises, and
+
+                             (c)    may be served in a manner provided for by section 57 or in any other manner that the court directs.
+
+2004 cR‑17.1 s34;2011 c14 s25
+
+Requirements respecting eviction
+
+34.1   A civil enforcement agency has authority to evict an occupant from residential premises
+
+                             (a)    only in accordance with an order for recovery of possession, and
+
+                             (b)    unless the court orders otherwise, only after the civil enforcement agency is satisfied that
+
+                                     (i)    the order has been served on the tenant or overholding tenant or, where section 33 applies, the person living in the premises and the tenant, and
+
+                                    (ii)    an affidavit of service has been filed in the Court of King’s Bench by the person who has the order for recovery of possession.
+
+2011 c14 s25;AR 217/2022
+
+Notice of default required
+
+35   If an order for recovery of possession of premises is stayed while payments are being made in accordance with the order granting the stay, the order for recovery of possession may not, unless the court orders otherwise, subsequently be enforced until notice of default is served on the tenant.
+
+2004 cR‑17.1 s35;2011 c14 s25
+
+Notice to vacate
+
+36(1)  A landlord may require a person who is not a tenant but who is living in residential premises occupied by a tenant to vacate the premises by serving the person with a notice to vacate.
+
+(2)  The notice to vacate under subsection (1) must give the person living in the premises at least 14 days to vacate the premises from the day that the notice is served.
+
+(3)  A notice to vacate must
+
+                             (a)    be in writing,
+
+                             (b)    be signed by the landlord or the landlord’s agent, and
+
+                             (c)    set out the time and date by which the person must vacate.
+
+(4)  If the person on whom a notice to vacate is served fails to vacate the premises by the time and date specified in the notice, the landlord may apply to a court for an order directing the person to vacate the premises.
+
+(5)  An application under subsection (4) must be supported by an affidavit setting out the following:
+
+                             (a)    a copy of the notice to vacate and the time, date and manner in which it was served;
+
+                             (b)    the reasons for the person’s failure to vacate the premises, to the extent known.
+
+ 
+
+Tenant’s remedies
+
+37(1)  If a landlord commits a breach of a residential tenancy agreement or contravenes this Act, the tenant may apply to a court for one or more of the following remedies:
+
+                             (a)    recovery of damages resulting from the breach or contravention;
+
+                             (b)    abatement of rent to the extent that the breach or contravention deprives the tenant of the benefit of the residential tenancy agreement;
+
+                             (c)    compensation for the cost of performing the landlord’s obligations;
+
+                             (d)    termination of the tenancy by reason of the breach or contravention if in the opinion of the court the breach or contravention is of such significance that the tenancy should be terminated.
+
+(2)  An application under subsection (1) must be supported by an affidavit setting out the following:
+
+                             (a)    if a claim is made for the recovery of damages resulting from a breach of the residential tenancy agreement or a contravention of this Act, the details of the breach or contravention and the amount of damages claimed;
+
+                             (b)    if a claim is made for abatement of rent by reason of a breach of a residential tenancy agreement or a contravention of this Act,
+
+                                     (i)    the rent payable under the residential tenancy agreement,
+
+                                    (ii)    the details of the breach or contravention,
+
+                                   (iii)    the benefit of the residential tenancy agreement that the tenant was deprived of, and
+
+                                  (iv)    the amount of rent abatement claimed;
+
+                             (c)    if a claim is made for compensation for the cost of performing the landlord’s obligations,
+
+                                     (i)    the rent payable under the residential tenancy agreement,
+
+                                    (ii)    the details of the breach of the residential tenancy agreement or of the contravention of this Act,
+
+                                   (iii)    the obligations performed on the landlord’s behalf, and
+
+                                  (iv)    the amount of compensation claimed;
+
+                             (d)    if a claim is made for termination of the tenancy by reason of a breach of the residential tenancy agreement or a contravention of this Act, the details of the breach or contravention and the requested termination date.
+
+Possession unobtainable
+
+38   If at the beginning of the tenancy the landlord is in breach of the landlord’s covenant under section 16(a) or (c), the tenant may do one or more of the following:
+
+                             (a)    repudiate the residential tenancy agreement or apply to the Court of King’s Bench for specific performance of the covenant;
+
+                             (b)    recover general damages resulting from the breach;
+
+                             (c)    recover special damages resulting from the breach if the landlord could reasonably have foreseen that those damages would be a consequence of the breach.
+
+2004 cR-17.1 s38;AR 217/2022
+
+Compensation to tenant
+
+39   On hearing an application by a tenant for the recovery of damages or for compensation for the cost of performing the landlord’s obligations, a court may
+
+                             (a)    direct that the tenant pay into the court, pending and after disposition of the application, those amounts of rent as they become due that the court considers appropriate, and
+
+                             (b)    direct that any amount of rent paid into the court be disbursed
+
+                                     (i)    to the tenant as damages, or
+
+                                    (ii)    to the landlord, the tenant or a third party, for costs reasonably incurred in performing the landlord’s obligations,
+
+                                      and that any remaining amount be paid to the landlord.
+
+ 
+
+Frustration of tenancy agreement
+
+40(1)  A residential tenancy agreement is frustrated if
+
+                             (a)    the residential premises that are the subject of the residential tenancy agreement are destroyed,
+
+                             (b)    the residential premises, the common areas or the property of which they form a part are damaged to such an extent that
+
+                                     (i)    a reasonable landlord would not repair the damage, or
+
+                                    (ii)    a reasonable tenant would not be willing to remain as a tenant,
+
+                             (c)    an order is made under section 62 of the Public Health Act that closes the residential premises, declares the residential premises unfit for habitation or otherwise operates so as to make the continuation of the tenancy practically impossible, or
+
+                             (d)    the residential premises, the common areas or the property of which they form a part are in a condition that contravenes an enactment that regulates health and safety in housing accommodation, and the condition is not remedied in accordance with that enactment.
+
+(2)  The law pertaining to frustration of a contract applies with respect to a residential tenancy agreement that is frustrated.
+
+ 
+
+Application for remedy to court
+
+41   If a landlord or tenant applies to a court to obtain a remedy under section 26, 30, 33, 36, 37 or 47.3(7), the landlord or tenant shall serve on the other party to the application a notice of the application and a supporting affidavit at least 3 days, exclusive of holidays and Saturdays, or any shorter period of time that the court may approve, before the day named in the notice for the hearing.
+
+2004 cR‑17.1 s41;2015 c20 s3
+
+Order of court
+
+42   On hearing an application and considering the oral and affidavit evidence submitted, a court may
+
+                             (a)    make an order granting or denying the remedy in whole or in part, or
+
+                             (b)    direct a trial to determine an issue that remains unresolved by the evidence submitted.
+
+2004 cR‑17.1 s42;2009 c53 s163
+
+Part 4
+Security Deposits
+
+Amount of security deposit
+
+43(1)  A landlord shall not require a tenant to provide a security deposit that is greater than one month’s rent under the residential tenancy agreement or that is greater than the rent that would be payable for one month under the residential tenancy agreement if the rent were payable monthly.
+
+(2)  A landlord shall not require a tenant to pay an increase in a security deposit.
+
+ 
+
+Trust account
+
+44(1)  A landlord shall
+
+                             (a)    deposit each security deposit consisting of money received by the landlord into an interest‑bearing trust account at a bank, treasury branch, credit union or trust corporation in Alberta within 2 banking days after receiving the deposit, and
+
+                             (b)    ensure that the security deposit remains in trust until it is disposed of in accordance with this Act and the regulations.
+
+(2)  A landlord is the trustee of the money in a trust account on behalf of the tenant who paid it or, if the tenant has assigned the residential tenancy agreement with the consent of the landlord under section 22, the assignee.
+
+(3)  A landlord shall deposit only money that is a security deposit in the trust account.
+
+(4)  Money in the trust account is subject to this Act and the regulations and to the provisions of the residential tenancy agreement respecting security deposits that are not in conflict with this Act or the regulations.
+
+(5)  A landlord shall
+
+                             (a)    keep security deposit records that show with respect to each tenant
+
+                                     (i)    the date of receipt of a security deposit by the landlord and the amount of the security deposit,
+
+                                    (ii)    the date on which the security deposit was deposited in a financial institution and the name and location of the financial institution,
+
+                                   (iii)    particulars of the interest payable and paid to the tenant, and
+
+                                  (iv)    particulars of the disposition of the security deposit under section 46, including the manner in which the security deposit or part of it was delivered to the tenant,
+
+                                 and
+
+                             (b)    make the security deposit records available for inspection by the Director or an authorized person for the purposes of an inspection or investigation under Part 6.
+
+(6)  A landlord shall keep security deposit records under subsection (5) for at least 3 years after the expiration or termination of the tenancy to which they relate.
+
+Interest on security deposit
+
+45(1)  Subject to subsection (2), a landlord shall pay annually to the tenant interest calculated at the prescribed rate on a security deposit consisting of money.
+
+(2)  If a security deposit consists of money, a tenant and the tenant’s landlord may agree in writing that the interest on the security deposit shall not be paid annually and in that case the interest shall be compounded annually and be paid to the tenant on the expiration or termination of the tenancy.
+
+(3)  A landlord is entitled to retain any interest and profit resulting from the investment of a security deposit in excess of the amount of interest payable to the tenant under this section.
+
+(4)  If a landlord and tenant agree that interest is to be payable under this section at a rate higher than the rate prescribed pursuant to this section, subsections (1), (2) and (3) are deemed to refer to the higher rate.
+
+ 
+
+Return of security deposit
+
+46(1)  In this section,
+
+                             (a)    “deliver” means
+
+                                     (i)    deliver by personal service,
+
+                                    (ii)    send by regular mail or registered mail, or
+
+                                   (iii)    deliver in any other manner agreed to in writing by the landlord and tenant;
+
+                             (b)    “normal wear and tear” in respect of residential premises means the deterioration that occurs over time with the use of the premises even though the premises receive reasonable care and maintenance;
+
+                             (c)    “security deposit” includes any amount owing to the tenant as interest under section 45 at the time of the expiration or termination of the tenancy.
+
+(2)  A landlord who holds a security deposit shall, within 10 days after the day on which the tenant gives up possession of the residential premises,
+
+                             (a)    deliver the security deposit to the tenant,
+
+                             (b)    if all or part of the security deposit has been deducted in accordance with the conditions agreed to by the tenant, deliver to the tenant the balance of the deposit, if any, and a statement of account showing the amount of the deposit used, or
+
+                             (c)    if the landlord is entitled to make a deduction from the security deposit in accordance with the conditions agreed to by the tenant but is unable to determine the correct amount of the deduction, deliver to the tenant the balance of the deposit, if any, that the landlord does not intend to use and an estimated statement of account of the anticipated deduction and, within 30 days after the day on which the tenant gives up possession of the residential premises, deliver to the tenant the remaining balance of the deposit, if any, and a final statement of account.
+
+(3)  If a landlord fails to return all or part of a security deposit to a tenant in accordance with subsection (2), then, whether or not a statement of account was delivered to the tenant, the tenant may commence an action in a court to recover the whole of the deposit or that part of the deposit to which the tenant claims to be entitled.
+
+(4)  In proceedings taken under subsection (3), the court
+
+                             (a)    shall determine the amounts, if any, that the landlord is entitled to deduct from the security deposit in accordance with the conditions agreed to by the tenant, and
+
+                             (b)    if the deductions so determined are less than the amount of the deposit, shall give judgment in favour of the tenant for the balance.
+
+(5)  No deduction may be made from a tenant’s security deposit for normal wear and tear to the residential premises during the period of the tenant’s tenancy.
+
+(6)  A landlord shall not make a deduction from a tenant’s security deposit for damages to the residential premises unless the requirements respecting inspection reports under section 19 have been met.
+
+2004 cR‑17.1 s46;2005 c32 s4;2016 c18 s17;2022 c16 s14
+
+Obligations and rights of new landlord
+
+47(1)  A person who acquires the interest of a landlord in residential premises has the rights and is subject to the obligations of the previous landlord with respect to a security deposit paid to the previous landlord in respect of the residential premises.
+
+(2)  A person who acquires the interest of a landlord in residential premises shall, within a reasonable time after acquiring the interest and without cost to the tenant, serve on the tenant
+
+                             (a)    a notice of landlord that meets the requirements of section 18, and
+
+                             (b)    a statement setting out the amount of the security deposit and interest, calculated in accordance with the regulations, standing to the tenant’s credit as of the date the person acquired the interest in the residential premises.
+
+Part 4.1
+Victims of Domestic Violence
+
+Definition
+
+47.1   In this Part, except in section 47.3, “court” includes any court of competent jurisdiction.
+
+2015 c20 s4
+
+Domestic violence
+
+47.2(1)  For the purposes of this Part, domestic violence occurs when a person, that person’s dependent child or a protected adult who lives with that person is subjected to any of the acts or omissions listed in subsection (2) by another person who
+
+                             (a)    is or has been married to that person, is or has been an adult interdependent partner of that person or is residing or has resided together with that person in an intimate relationship,
+
+                             (b)    is or has been in a dating relationship with that person, regardless of whether they have lived together at any time,
+
+                             (c)    is the biological or adoptive parent of one or more children with that person, regardless of their marital status or whether they have lived together at any time,
+
+                             (d)    is related to that person by blood, marriage or adoption or by virtue of an adult interdependent relationship, regardless of whether they have lived together at any time, or
+
+                             (e)    resides with that person and has care and custody over that person pursuant to an order of a court.
+
+(2)  The following acts and omissions constitute domestic violence for the purposes of this Part:
+
+                             (a)    any intentional or reckless act or omission that causes injury or property damage and that intimidates or harms a person;
+
+                             (b)    any act or threatened act that intimidates a person by creating a reasonable fear of property damage or injury to a person;
+
+                             (c)    conduct that reasonably, in all circumstances, constitutes psychological or emotional abuse;
+
+                             (d)    forced confinement;
+
+                             (e)    sexual contact of any kind that is coerced by force or threat of force;
+
+                              (f)    stalking.
+
+2015 c20 s4
+
+Termination of tenancy for domestic violence
+
+47.3(1)  A tenant may terminate a tenancy by giving notice in accordance with subsection (2) if, because of domestic violence, the tenant believes that his or her own safety, that of a dependent child of the tenant or of a protected adult who lives with the tenant is at risk if the tenancy continues.
+
+(2)  To terminate a tenancy under subsection (1), the tenant shall serve the landlord with
+
+                             (a)    a notice at least 28 days before the day that the tenancy is to terminate, and
+
+                             (b)    a certificate in the prescribed form signed by the designated authority confirming that there are grounds for terminating the tenancy.
+
+(3)  A notice to terminate under this section must
+
+                             (a)    be in writing,
+
+                             (b)    be signed by the tenant,
+
+                             (c)    set out the termination date, and
+
+                             (d)    be given no later than 90 days after the date on which the certificate under subsection (2)(b) is issued.
+
+(4)  If notice to terminate a tenancy is given under this section,
+
+                             (a)    the tenant shall be responsible for payment of rent only for the period of notice provided under subsection (2)(a) and any rent payable during the relevant rent payment period or periods shall be prorated if necessary,
+
+                             (b)    the tenant shall not be subject to any penalty under the residential tenancy agreement that would be due only because of early termination of the agreement, and
+
+                             (c)    on the request of the tenant, the landlord shall apply a security deposit paid in respect of the residential premises in payment of the rent during the notice period provided under subsection (2)(a).
+
+(5)  Where a tenancy is terminated under this section, the tenancy is terminated for all the tenants in the same residential premises but, for greater certainty, the other tenants and the landlord may agree to enter into a new landlord and tenant relationship.  
+
+(6)  In a case where a tenancy is held by more than one tenant, the designated authority may require a tenant to advise the designated authority when notice under this section is served so that the designated authority may, in coordination with the landlord, take steps to notify the other tenants that the tenancy will terminate.
+
+(7)  A landlord may apply to a court to set aside a notice given under this section only on the ground that the notice to terminate and the certificate were not properly served on the landlord.
+
+(8)  An application under subsection (7) must be made prior to the expiry of the period of notice under subsection (2)(a) and must be supported by an affidavit setting out a copy of the notice to terminate and certificate received by the landlord, if any, and the time, date and manner in which they were received.
+
+2015 c20 s4
+
+Application for a certificate
+
+47.4(1)  Where a tenant in a residential tenancy agreement is a victim of domestic violence, the tenant or person on behalf of the tenant and with the tenant’s consent may apply to the designated authority, in the form and manner and including the information required by the designated authority, for a certificate confirming that one of the grounds to issue a certificate under subsection (2) has been established.
+
+(2)  The designated authority may issue a certificate to a tenant for the purposes of section 47.3 if  
+
+                             (a)    the designated authority has received from the tenant
+
+                                     (i)    a copy of an emergency protection order or King’s Bench protection order granted under the Protection Against Family Violence Act, a restraining order, a peace bond or other court order that is in place to prevent a person described in section 47.2(1) from contacting or communicating with that tenant, or
+
+                                    (ii)    a statement from a person described in subsection (4) acting in his or her professional capacity indicating that person’s opinion that the tenant has been the subject of domestic violence,
+
+                                 and
+
+                             (b)    after having completed an assessment, the designated authority is satisfied that there is a risk to the safety of the tenant, the tenant’s dependent child or a protected adult who lives with the tenant if the tenancy continues.
+
+(3)  The designated authority shall, within 7 days of receiving an application under subsection (1), either issue a certificate under subsection (2) or advise the tenant or the person who applied on behalf of the tenant that the certificate will not be issued.
+
+(4)  The following persons may provide a statement in accordance with subsection 2(a)(ii):
+
+                             (a)    a regulated member of the
+
+                                     (i)    College of Physicians and Surgeons of Alberta,
+
+                                    (ii)    College of Registered Nurses of Alberta,
+
+                                   (iii)    Alberta College of Social Workers,
+
+                                  (iv)    College of Alberta Psychologists, or
+
+                                   (v)    College of Registered Psychiatric Nurses of Alberta;
+
+                             (b)    a police officer or a member of the Royal Canadian Mounted Police;
+
+                             (c)    an individual employed
+
+                                     (i)    by an agency or organization to assist individuals for whom the agency or organization provides accommodation in an emergency or transitional shelter because of homelessness or abuse, or
+
+                                    (ii)    to provide support initiatives for victims of crime
+
+                                      if that individual is authorized by his or her employer to provide statements under this section;
+
+                             (d)    any other person or member of a class of persons prescribed by the regulations.
+
+(5)  No action or proceeding may be brought against a person in respect of a statement made under subsection (2)(a)(ii) if that statement was made in good faith.
+
+2015 c20 s4;AR 217/2022;2025 c10 s54
+
+Designated authority
+
+47.5(1)  The Minister may, in accordance with the regulations, appoint a person to act as the designated authority under this Act.
+
+(2)  The designated authority may delegate to any person any power, duty or function of the designated authority under this Part except the power to delegate under this section.
+
+(3)  A delegation under subsection (2) must be in writing and may contain any conditions or restrictions the designated authority considers appropriate.
+
+(4)  The designated authority may, in accordance with the regulations, make inquiries, collect information and take any other action necessary to carry out the designated authority’s powers, duties and functions under this Part.
+
+(5)  Subject to subsection (6), a decision by the designated authority to issue or refuse to issue a certificate under section 47.4 is final and not subject to review or appeal.
+
+(6)  A tenant who is refused a certificate under section 47.4 may reapply for a certificate if there is a change in circumstances.
+
+2015 c20 s4
+
+Designated authority not compellable
+
+47.6   The designated authority and any person who provides a statement in accordance with section 47.4(2)(a)(ii) cannot be compelled in a court or other proceeding, including a proceeding before the Residential Tenancy Dispute Resolution Service established by regulations made under section 54.7, to
+
+                             (a)    give evidence about information obtained for the purpose of this Part, or
+
+                             (b)    produce any document or thing obtained for the purpose of this Part.
+
+2015 c20 s4
+
+Requirement for confidentiality
+
+47.7   A landlord shall ensure that any information received under this Part from or about a tenant who is a victim of domestic violence is kept confidential unless the landlord is authorized by the regulations to disclose that information.
+
+2015 c20 s4
+
+Part 5
+The Court of Justice
+
+Jurisdiction
+
+48(1)  The Court of Justice has the jurisdiction to grant any remedy or relief under this Act other than
+
+                             (a)    giving a judgment for debt or damages in excess of the amount prescribed under the Court of Justice Act, or
+
+                             (b)    granting a remedy or relief required by this Act to be granted in the Court of King’s Bench.
+
+(2)  Nothing in this Part prohibits a landlord or a tenant from proceeding under this Act in the Court of King’s Bench.
+
+2004 cR-17.1 s48;AR 217/2022;AR 75/2023
+
+ 
+
+Application of Court of Justice Act
+
+49   The Court of Justice Act and the regulations made under that Act, to the extent they are not changed by or provided for in this Act or the regulations under this Act, apply to proceedings before the Court of Justice and to appeals from decisions of the Court of Justice.
+
+2004 cR‑17.1 s49;AR 75/2023
+
+Commencement of application
+
+50(1)  A person wishing to commence an application in the Court of Justice shall file with a clerk of the Court of Justice
+
+                             (a)    a written notice identifying the residential premises in respect of which the application is being commenced and setting out the remedy being applied for, and
+
+                             (b)    an affidavit referred to in section 26(2) or 37(2), as the case may be.
+
+(2)  No application may be accepted by a clerk for filing under subsection (1) except in accordance with section 54.4.
+
+2004 cR‑17.1 s50;2005 c46 s2;AR 75/2023
+
+Notice of application
+
+51(1)  On a notice and an affidavit being filed under section 50, a clerk of the Court of Justice shall issue a notice of application stating the time and place at which the application will be heard.
+
+(2)  A copy of the notice and the affidavit filed under section 50 must be attached to and form a part of the notice of application issued by a clerk of the Court of Justice.
+
+2004 cR‑17.1 s51;AR 75/2023
+
+Hearing of application
+
+52   On the notice of application issued under section 51 and the documents attached to it being served on the other party to the application, the Court of Justice shall hear the matter in accordance with Part 3.
+
+2004 cR‑17.1 s52;AR 75/2023
+
+Appeal
+
+53(1)  A party to an order made by the Court of Justice may, within 30 days after the order being entered under section 54 and served, appeal the order to the Court of King’s Bench by way of an application.
+
+(2)  The party commencing an appeal under this section shall file with the Court of King’s Bench copies of
+
+                             (a)    all notices, documents and affidavits filed in the Court of Justice in respect of the application made in the Court of Justice, and
+
+                             (b)    the order being appealed.
+
+(3)  The application and copies of the notices, documents and affidavits filed with the Court of King’s Bench under subsection (2) must be served on the other parties to the action at least 3 days, exclusive of holidays and Saturdays, before the day named in the application for the hearing of the application.
+
+(4)  On hearing the matter, the Court of King’s Bench may make any order it could have made had the application for the order being appealed from been commenced in the Court of King’s Bench instead of in the Court of Justice.
+
+(5)  The commencement of an appeal under this section does not stay the order being appealed except as directed by the Court of King’s Bench.
+
+2004 cR‑17.1 s53;2009 c53 s163;AR 217/2022;AR 75/2023
+
+Enforcement of order
+
+54(1)  An order made by the Court of Justice may be entered in the Court of King’s Bench and on being so entered it is enforceable in the same manner as an order of the Court of King’s Bench.
+
+(2)  An order made by the Court of Justice does not take effect until it is entered under subsection (1) and served under section 57 or as directed by the Court of Justice on the other parties to the application by the party entering the order.
+
+2004 cR-17.1 s54;AR 217/2022;AR 75/2023
+
+Part 5.1
+Residential Tenancy Dispute Resolution Service
+
+Definitions
+
+54.1   In this Part,
+
+                             (a)    “Dispute Resolution Service” means the Residential Tenancy Dispute Resolution Service established by the regulations;
+
+                             (b)    “regulations” means regulations made under section 54.7;
+
+                             (c)    “remedy” means any order, judgment, damages, compensation or other relief provided for in this Act.
+
+2005 c46 s3
+
+Right to apply to Dispute Resolution Service
+
+54.2(1)  Where a landlord has a dispute with a tenant and has a right to apply to a court under Part 3 or Part 4.1 for a remedy, the landlord may apply to the Dispute Resolution Service instead of the court for the remedy.
+
+(2)  Where a tenant has a dispute with a landlord and has a right to apply to a court under Part 3 or to commence an action in a court under Part 4 for a remedy, the tenant may apply to the Dispute Resolution Service instead of the court for the remedy.
+
+(3)  No application may be made to the Dispute Resolution Service if an application to a court has been filed with the clerk of that court by either party to the dispute
+
+                             (a)    for the remedy sought under subsection (1) or (2), or
+
+                             (b)    for any other remedy that is available under Part 3, Part 4 or Part 4.1 to resolve a related dispute between the parties,
+
+unless the application to the court is first withdrawn.
+
+2005 c46 s3;2015 c20 s5;2017 c22 s48
+
+Effect of application to Dispute Resolution Service
+
+54.3(1)  A landlord’s application to the Dispute Resolution Service for a remedy binds the tenant in respect of whom the remedy is sought to the choice of that forum.
+
+(2)  A tenant’s application to the Dispute Resolution Service for a remedy binds the landlord in respect of whom the remedy is sought to the choice of that forum.
+
+(3)  Where an application has been filed with the Dispute Resolution Service by one party to a dispute, no application may be made to a court by either party to the dispute
+
+                             (a)    for the remedy sought under section 54.2(1) or (2), or
+
+                             (b)    for any remedy that is available under Part 3, Part 4 or Part 4.1 to resolve a related dispute between the parties,
+
+unless the application to the Dispute Resolution Service is first withdrawn.
+
+2005 c46 s3;2017 c22 s48
+
+Review before filing with a court
+
+54.4(1)  Before any application to a court for a remedy to a dispute under Part 3, Part 4 or Part 4.1 may be filed by a clerk of a court, the clerk shall, in accordance with the process set out in the regulations, determine whether an application has been filed with the Dispute Resolution Service
+
+                             (a)    for the remedy applied for in the application to the court, or
+
+                             (b)    for any other remedy that is available under Part 3, Part 4 or Part 4.1 to resolve a related dispute between the parties to the application to the court.
+
+(2)  Where the process referred to in subsection (1) discloses that an application, as described in subsection (1), has been filed with the Dispute Resolution Service, the application to the court shall not be filed except as provided in the regulations.
+
+(3)  Where, on the same day,
+
+                             (a)    a clerk of a court files an application made by one of the parties to a dispute for a remedy under Part 3, Part 4 or Part 4.1, and
+
+                             (b)    the Dispute Resolution Service files an application made by the other party to the dispute for any other remedy that is available under Part 3, Part 4 or Part 4.1 to resolve a related dispute between the parties,
+
+the application filed with the clerk of the court shall be proceeded with and the application to the Dispute Resolution Service shall be discontinued.
+
+2005 c46 s38;2017 c22 s48
+
+Authority of Dispute Resolution Service
+
+54.5   The Dispute Resolution Service has the authority to order remedies in accordance with the regulations.
+
+2005 c46 s3
+
+Application, proceedings and decision to be in
+accordance with regulations
+
+54.6(1)  An application to the Dispute Resolution Service must be made in accordance with the regulations.
+
+(2)  The Dispute Resolution Service must conduct all proceedings and decide all applications to it
+
+                             (a)    in accordance with and subject to any limitations and restrictions set out in the regulations, and
+
+                             (b)    in accordance with the rules of practice and procedure and the code of conduct established pursuant to the regulations.
+
+(3)  The Dispute Resolution Service must refer to a court an application, dispute or issue that is, in accordance with the regulations, required to be referred to a court.
+
+(4)  The Dispute Resolution Service may, in any of the circumstances provided for in the regulations,
+
+                             (a)    refuse to accept an application to the Dispute Resolution Service, and
+
+                             (b)    refer an application to the Dispute Resolution Service to a court.
+
+2005 c46 s3
+
+Regulations
+
+54.7   The Lieutenant Governor in Council may make regulations respecting the establishment of an alternative dispute resolution mechanism for the purpose of resolving disputes arising in respect of matters under this Act, including, without limitation, regulations
+
+                             (a)    respecting the establishment of the Residential Tenancy Dispute Resolution Service and the appointment of an administrator, tenancy dispute officers and any other employees required for the administration of the Dispute Resolution Service;
+
+                             (b)    respecting the process to be followed by a clerk of a court for the purposes of section 54.4;
+
+                             (c)    respecting applications to the Dispute Resolution Service, including applications that include a claim for damages, compensation or other relief that exceeds the amount prescribed by regulations for the purposes of section 9.6(1) of the Court of Justice Act;
+
+                             (d)    respecting the kinds of applications, disputes and issues that are required to be referred to a court by the Dispute Resolution Service;
+
+                             (e)    respecting the circumstances in which the Dispute Resolution Service
+
+                                     (i)    may refuse to accept an application to the Service, or
+
+                                    (ii)    may refer to a court an application to the Service;
+
+                              (f)    respecting the proceedings before the Dispute Resolution Service and the establishment of rules of practice and procedure governing those proceedings;
+
+                             (g)    respecting the establishment of a code of conduct for tenancy dispute officers;
+
+                             (h)    respecting the powers and duties of tenancy dispute officers;
+
+                              (i)    respecting the matters that tenancy dispute officers may or must consider when dealing with a dispute;
+
+                              (j)    respecting the remedies that the Dispute Resolution Service is authorized to order, including orders providing for costs;
+
+                             (k)    respecting limitations and restrictions on the Dispute Resolution Service’s authority to order a remedy;
+
+                              (l)    respecting terms and conditions that may be included in an order of the Dispute Resolution Service;
+
+                            (m)    respecting the effect of an order and how it may be enforced, including regulations authorizing the order to be filed in the Court of King’s Bench and, on filing, to be enforced as an order of that court;
+
+                             (n)    respecting the appeal of an order to the Court of King’s Bench on a question of law or jurisdiction;
+
+                             (o)    respecting the fees that may be charged by the Dispute Resolution Service and providing for the waiver of any fee;
+
+                             (p)    respecting forms for the purposes of this Part and providing for their use;
+
+                             (q)    respecting the service of notices, documents or orders;
+
+                              (r)    defining, for the purposes of this Part and the regulations made under this Part, any word or phrase that is used in this Part but is not defined;
+
+                              (s)    respecting any matter or thing that the Minister considers necessary or appropriate to carry out the intent and purposes of this Part.
+
+2005 c46 s3;AR 217/2022;AR 75/2023
+
+Application of this Part
+
+54.8(1)  This Part applies
+
+                             (a)    only in the geographic region of the Province, and
+
+                             (b)    only for the period of time
+
+specified by an order of the Lieutenant Governor in Council.
+
+(2)  The Lieutenant Governor in Council may, by order,
+
+                             (a)    extend or shorten the period of time specified under subsection (1)(b),
+
+                             (b)    suspend the operation of the Dispute Resolution Service, and
+
+                             (c)    end a suspension referred to in clause (b).
+
+(3)  If the operation of the Dispute Resolution Service is suspended by an order under subsection (2), the transitional rules necessary to address incompleted hearings, pending applications and all related matters must be set out in the order.
+
+2005 c46 s3;2009 c53 s163
+
+Part 6
+General
+
+Appointment of Director
+
+55   In accordance with the Public Service Act there may be appointed a Director of Residential Tenancies and any other officers and employees required for the administration of this Act.
+
+ 
+
+Delegation
+
+56   The Director may delegate any of the Director’s powers, duties or functions under this Act and the regulations to any person and may authorize that person to further delegate the power, duty or function.
+
+ 
+
+Service of notices, etc.
+
+57(1)   Subject to this section, a notice, order or document under this Act must be served personally or by registered mail.
+
+(2)  For the purpose of service by registered mail,
+
+                             (a)    a tenant’s address is the address of the residential premises rented by the tenant, and
+
+                             (b)    a landlord’s address is the address at which rent is payable or the address in the notice of landlord served or posted under section 18 or 47(2).
+
+(3)  If a landlord is unable to effect service on a tenant by reason of the tenant’s absence from the premises or by reason of the tenant’s evading service, service may be effected
+
+                             (a)    on any adult person who apparently resides with the tenant, or
+
+                             (b)    by posting the notice, order or document in a conspicuous place on some part of the premises.
+
+(4)  If a landlord is unable to effect service on a person referred to in section 33 or 36 by reason of the person’s absence from the premises or by reason of the person’s evading service, service may be effected by posting the notice in a conspicuous place on some part of the premises.
+
+(5)  When a landlord is unable to effect service on a tenant or a person referred to in section 33 or 36 by any means referred to in subsections (1) to (4) or when a tenant is unable to effect service on the landlord personally or by registered mail, the landlord or tenant may effect service of the notice, order or document by an electronic method if
+
+                             (a)    the landlord or tenant, as applicable, has provided an electronic address as an address for service to which information or data in respect of a notice, order or document may be transmitted, and
+
+                             (b)    the notice, order or document is sent to the landlord or tenant, as applicable, at the specified address and in a format that is usable for subsequent reference.
+
+(6)  This section does not apply to service governed by the rules or practice of a court.
+
+(7)  If a landlord or tenant is a corporation, a notice, order or document may be served in the manner permitted under section 308 of the Companies Act, section 347 of the Cooperatives Act or section 256 of the Business Corporations Act, as the case may be.
+
+2004 cR‑17.1 s57;2016 c18 s17;2025 c15 s6
+
+Satisfaction of service requirement
+
+58(1)  A requirement under this Act to give or serve a notice, order or document to or on the landlord of residential premises is satisfied if the notice, order or document is given to or served on one person who falls within the definition of landlord of those premises.
+
+(2)  A requirement under this Act to give or serve a notice, order or document to or on the tenant of residential premises is satisfied if the notice, order or document is given to or served on one adult person who falls within the definition of tenant of those premises.
+
+ 
+
+Landlord and Tenant Advisory Boards
+
+59(1)  A council may by bylaw establish a Landlord and Tenant Advisory Board and provide for the remuneration of its members and any other matters pertaining to its procedures or incidental to the exercise of its functions.
+
+(2)  The functions of a Landlord and Tenant Advisory Board are as follows:
+
+                             (a)    to advise landlords and tenants in tenancy matters;
+
+                             (b)    to receive complaints and seek to mediate disputes between landlords and tenants;
+
+                             (c)    to disseminate information for the purpose of educating and advising landlords and tenants concerning rental practices, rights and remedies;
+
+                             (d)    to receive and investigate complaints of conduct in contravention of legislation governing tenancies.
+
+ 
+
+Offences and penalties
+
+60(1)  A person who contravenes
+
+                             (a)    section 18, 19(6), 23, 24, 25, 31(13) or (14), 43, 44(1), (3), (5) or (6), 45, 46(2) or (6), or 47.7 or this Act as described in section 6(2), or
+
+                             (b)    a provision of the regulations referred to in section 69(1)(b) or 70(1)(l),
+
+is guilty of an offence and liable to a fine of not more than $5000.
+
+(1.1)  A landlord who fails to give the minimum required period of notice under section 12 is guilty of an offence and liable to a fine of not more than $10 000.
+
+(2)  Where a corporation is convicted of an offence, every officer, director, employee or agent of the corporation who authorized the commission of the offence or assented to it or acquiesced or participated in it is also guilty of an offence and is liable to the penalty provided for in subsection (1) or (1.1).
+
+(3)  A justice who convicts a landlord of contravening section 46(2) or (6) may, on the application of a tenant who is entitled to all or part of a security deposit, order the landlord to pay to the tenant the whole or part of the security deposit together with interest calculated under section 45.
+
+(4)  Where a landlord is convicted of contravening a provision referred to in subsection (1) or (1.1) and the justice considers that the landlord has wrongfully withheld prepaid rent paid by the tenant, the justice may order the landlord to pay all or part of that prepaid rent to the tenant.
+
+(5)  If an amount that is ordered to be paid under subsection (3) or (4) is not paid within the time ordered by the justice, the tenant or other person in whose favour the order was made may, by filing the order, enter as a judgment in the Court of King’s Bench the amount ordered to be paid, and that judgment is enforceable against the landlord in the same manner as if it were a judgment rendered against the landlord in the Court of King’s Bench in civil proceedings.
+
+2004 cR‑17.1 s60;2007 c11 s1;2015 c20 s7;AR 217/2022
+
+Limitation period
+
+61   No proceedings may be instituted under section 60 more than 3 years after the time when the alleged offence occurred.
+
+ 
+
+Authorized person
+
+62   In sections 63 to 67, “authorized person” means a person to whom the Director has, under section 56, delegated the Director’s powers, duties or functions under those sections.
+
+ 
+
+Identification
+
+63   The Director or an authorized person who enters any place under the authority of sections 64 to 67 must, on request,
+
+                             (a)    produce a document that identifies the person as the Director or an authorized person, and
+
+                             (b)    explain the purpose for entering the place.
+
+ 
+
+Inspection
+
+64(1)  The Director or an authorized person may enter the business premises of a landlord at any reasonable time to conduct an inspection to determine if there is compliance with this Act and the regulations.
+
+(2)  If the Director or authorized person has reasonable grounds to believe that
+
+                             (a)    books, records, documents or other things of a landlord are located in another person’s business premises, and
+
+                             (b)    those books, records, documents or other things are relevant to determine if there is compliance with this Act or the regulations,
+
+the Director or authorized person may enter those other business premises at any reasonable time.
+
+(3)  The Director or authorized person may, in the course of an inspection, request an employee or agent of the landlord at the business premises referred to in subsection (1) or (2)
+
+                             (a)    to give written or oral replies to questions,
+
+                             (b)    to produce any books, records, documents or other things and to provide copies of them, and
+
+                             (c)    to provide any other information
+
+to determine if there is compliance with this Act and the regulations.
+
+(4)  The Director or authorized person may in the course of an inspection inspect, examine and make copies of or temporarily remove books, records or documents or other things that are relevant to determine if there is compliance with this Act and the regulations.
+
+(5)  When the Director or authorized person removes any books, records, documents or other things under subsection (4), the Director or authorized person
+
+                             (a)    must give a receipt for them to the person from whom they were taken,
+
+                             (b)    may make copies of, take photographs of or otherwise record them, and
+
+                             (c)    must, within a reasonable time, return them to the person to whom the receipt was given.
+
+(6)  A landlord and any employee or agent of the landlord must co‑operate with the Director or an authorized person acting under the authority of this section.
+
+ 
+
+Order compelling assistance in inspections
+
+65(1)  For the purpose of enabling the Director or an authorized person to conduct an inspection to determine if there is compliance with this Act and the regulations, the Director may apply to the Court of King’s Bench for an order
+
+                             (a)    compelling a landlord or an employee or agent of a landlord to allow the Director or an authorized person to enter the business premises, private dwelling or other place occupied or controlled by the landlord, employee or agent and requiring the landlord, employee or agent to produce for examination books, records, documents or other things relevant to the inspection;
+
+                             (b)    authorizing the Director or authorized person to copy or remove the books, records, documents or other things on any terms that the Court considers appropriate;
+
+                             (c)    requiring a landlord or an employee or agent of a landlord to co-operate with the inspection on any terms that the Court considers appropriate.
+
+(2)  The Court of King’s Bench may grant an order under subsection (1) if satisfied on evidence under oath by the Director that there are reasonable grounds to believe that
+
+                             (a)    the inspection is reasonable,
+
+                             (b)    the landlord, agent or employee of the landlord has not co-operated or likely will not co-operate with the inspection, and
+
+                             (c)    the order is appropriate in the circumstances.
+
+(3)  An application under this section may be made ex parte if the Court of King’s Bench considers it proper to do so.
+
+2004 cR-17.1 s65;AR 217/2022
+
+Investigation
+
+66(1)  The Director or an authorized person who has reasonable grounds to believe that a person has committed an offence under this Act or the regulations may, after explaining to the person or to the person’s agent that the Director or authorized person wishes to enter the person’s business premises for the purposes of carrying out an investigation, request permission to enter the business premises.
+
+(2)  If a person permits the Director or authorized person to enter business premises for the purposes of an investigation, the Director or authorized person may, with the permission of the person, inspect, examine and make copies of or temporarily remove books, records, documents or other things that are relevant to determine if an offence has been committed under this Act or the regulations.
+
+(3)  When the Director or authorized person removes any books, records, documents or other things under subsection (2), the Director or authorized person
+
+                             (a)    must give a receipt for them to the person from whom they were taken,
+
+                             (b)    may make copies of, take photographs of or otherwise record them,
+
+                             (c)    must, within a reasonable time, return anything that has been copied to the person to whom the receipt was given, and
+
+                             (d)    must return everything else that was removed to the person to whom the receipt was given within a reasonable time after the investigation and any prosecution resulting from the investigation are concluded.
+
+ 
+
+Order compelling assistance in investigations
+
+67(1)  For the purpose of determining if an offence has been committed under this Act or the regulations, the Director may apply to the Court of King’s Bench for an order
+
+                             (a)    compelling a person to allow the Director or an authorized person to enter the person’s business premises, private dwelling or other place occupied or controlled by the person and requiring the person to produce for examination the person’s books, records, documents or other things relevant to the investigation;
+
+                             (b)    authorizing the Director or an authorized person to copy or remove the books, records, documents or other things on any terms that the Court considers appropriate;
+
+                             (c)    requiring a person to co-operate with the investigation on any terms that the Court considers appropriate.
+
+(2)  The Court of King’s Bench may grant an order under subsection (1) if satisfied on evidence under oath by the Director that there are reasonable grounds to believe that
+
+                             (a)    an offence under this Act or the regulations has been committed, and
+
+                             (b)    the order is appropriate in the circumstances.
+
+(3)  An application under this section may be made ex parte if the Court of King’s Bench considers it proper to do so.
+
+2004 cR-17.1 s67;AR 217/2022
+
+Lieutenant Governor in Council regulations
+
+68   The Lieutenant Governor in Council may make regulations
+
+                             (a)    governing the practice and procedures in matters before the Court of Justice under this Act;
+
+                             (b)    respecting the rate of interest under section 45(1);
+
+                             (c)    prescribing that any class of residential premises is exempt from the operation of all or any of the provisions of this Act or the regulations;
+
+                             (d)    defining, for the purposes of this Act and the regulations, any term that is used in this Act but is not defined;
+
+                             (e)    setting out the grounds on which the Banff Housing Corporation may refuse to give its consent to the assignment or sublease of a residential tenancy agreement described in section 22(3);
+
+                              (f)    respecting statements confirming domestic violence under section 47.4(2)(a)(ii), including any requirements concerning their form and content;
+
+                             (g)    prescribing persons who can make statements confirming domestic violence under section 47.4(4)(d);
+
+                             (h)    respecting the appointment of the designated authority under section 47.5(1);
+
+                              (i)    respecting the powers, duties and functions of the designated authority appointed under section 47.5(1);
+
+                              (j)    prescribing circumstances under section 47.7 in which a landlord may disclose information about a tenant.
+
+2004 cR‑17.1 s68;2015 c20 s8;AR 75/2023
+
+Subsidized public housing regulations
+
+69(1)  The Lieutenant Governor in Council may make regulations
+
+                             (a)    respecting rent, security deposits and the termination of tenancies for subsidized public housing;
+
+                             (b)    prescribing, with respect to any provision of the regulations under clause (a), that contravention of the provision constitutes an offence.
+
+(2)  The regulations made under subsection (1) may have the effect of modifying or making inapplicable Parts 1 to 4 of this Act with respect to subsidized public housing.
+
+ 
+
+Ministerial regulations
+
+70(1)  The Minister may make regulations
+
+                             (a)    establishing forms that may be used by landlords and tenants for leases, inspection reports, notices of default and other documents under this Act;
+
+                          (a.1)    prescribing the maximum period of time after a default within which a landlord may serve a tenant with a notice of default and the minimum period of notice that must be provided in the notice of default within which the tenant must vacate the residential premises;
+
+                             (b)    prescribing the reasons for which a landlord may terminate a periodic tenancy under Part 1;
+
+                             (c)    prescribing the minimum amount of time between increases in rent for periodic tenancies and for fixed term tenancies;
+
+                        (c.01)    prescribing an alternative emergency end date for the purposes of section 14.1;
+
+                          (c.1)    modifying any period of notice required by section 7, 8, 9, 11, 12 or 14;
+
+                             (d)    prescribing or providing for the manner of determining periods of notice for the purposes of section 11(b);
+
+                             (e)    prescribing the statements to be contained in inspection reports and governing the signing of inspection reports for the purposes of section 19;
+
+                              (f)    prescribing an amount for the purposes of section 31(2) and (3);
+
+                             (g)    prescribing a period for the purposes of section 31(4);
+
+                             (h)    respecting the means of establishing the liabilities of a tenant for the purposes of section 31(9);
+
+                              (i)    respecting trust accounts for security deposits;
+
+                           (i.1)    establishing the form of certificate for the purposes of section 47.3(2)(b);
+
+                              (j)    respecting the circumstances under which landlords may charge a fee or penalty for late payments of rent by tenants, and prescribing the maximum amounts of such fees or penalties or the manner in which they are calculated;
+
+                           (j.1)    respecting prohibitions against charging fees or penalties for late payments of rent or non-payment of rent;
+
+                           (j.2)    respecting the voiding of provisions in residential tenancy agreements in respect of the imposition or charging of late fees or penalties or the enforcement or collection of late fees or penalties;
+
+                             (k)    repealed 2005 c46 s4;
+
+                              (l)    prescribing, with respect to any provision of the regulations under this section, that contravention of the provision constitutes an offence;
+
+                            (m)    providing with respect to any provision of this Act, other than a provision referred to in section 60(1)(a) or (1.1), that its contravention constitutes an offence and prescribing penalties in respect of those offences;
+
+                             (n)    respecting any other matter considered necessary to carry out the intent of this Act.
+
+(2)  A regulation made under this section may be made effective with reference to a date before it is made.
+
+(3)  Notwithstanding section 3(5) of the Regulations Act, a person is deemed to have notice of a regulation made under this section when the regulation is filed with the registrar under the Regulations Act.
+
+2004 cR‑17.1 s70;2005 c46 s4;2007 c11 s1;2011 c14 s25;
+2015 c20 s9;2020 c6 s3
+
+Application to Court of King’s Bench
+
+71   An application made under this Act to the Court of King’s Bench must be made in accordance with the Alberta Rules of Court.
+
+2004 cR‑17.1 s71;2009 c53 s163;AR 217/2022

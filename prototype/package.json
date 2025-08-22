@@ -1,0 +1,26 @@
+{
+  "name": "buildium-hubspot-prototype",
+  "version": "1.0.0",
+  "description": "Simple prototype to sync one tenant from Buildium to HubSpot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.0",
+    "xml-js": "^1.6.11"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "keywords": [
+    "buildium",
+    "hubspot",
+    "integration",
+    "prototype"
+  ],
+  "author": "",
+  "license": "MIT"
+}

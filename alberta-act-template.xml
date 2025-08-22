@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Act>
+    <Metadata>
+        <Title>GENERIC_ACT_TITLE</Title>
+        <Chapter>GENERIC_CHAPTER_NUMBER</Chapter>
+        <DateEnacted>YYYY-MM-DD</DateEnacted>
+        <LegislativeBody>[Legislative Body Name]</LegislativeBody>
+    </Metadata>
+
+    <Preamble>
+        <Paragraph>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</Paragraph>
+    </Preamble>
+
+    <TableOfContents>
+        <SectionRef number="1" title="Generic Section Title One"/>
+        <SectionRef number="2" title="Generic Section Title Two"/>
+        <SectionRef number="3" title="Generic Section Title Three"/>
+        <SectionRef number="3.1" title="Generic Section Title Three Point One"/>
+        <SectionRef number="4" title="Generic Section Title Four"/>
+        <PartRef number="1" title="Generic Part One Title">
+            <SectionRef number="5" title="Generic Section Title Five"/>
+            <SectionRef number="6" title="Generic Section Title Six"/>
+            <SectionRef number="7" title="Generic Section Title Seven"/>
+        </PartRef>
+        <PartRef number="2" title="Generic Part Two Title">
+            <SectionRef number="15" title="Generic Section Title Fifteen"/>
+            <SectionRef number="16" title="Generic Section Title Sixteen"/>
+            <SectionRef number="17" title="Generic Section Title Seventeen"/>
+        </PartRef>
+    </TableOfContents>
+
+    <Body>
+        <Section number="1" title="Generic Section Title One">
+            <Subsection number="1">
+                <Paragraph>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Paragraph>
+                <DefinitionList>
+                    <Definition>
+                        <Term letter="a">generic_term_a</Term>
+                        <Content>Lorem ipsum dolor sit amet, consectetur adipiscing elit;</Content>
+                    </Definition>
+                    <Definition>
+                        <Term letter="b">generic_term_b</Term>
+                        <Content>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                            <ClauseList>
+                                <Clause number="i">Lorem ipsum dolor sit amet,</Clause>
+                                <Clause number="ii">Lorem ipsum dolor sit amet, consectetur adipiscing elit,</Clause>
+                                <Clause number="iii">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Clause>
+                            </ClauseList>
+                        </Content>
+                    </Definition>
+                </DefinitionList>
+            </Subsection>
+            <Subsection number="2">
+                <Paragraph>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Paragraph>
+                <ReferenceList>
+                    <Reference>section X(Y)(Z);</Reference>
+                    <Reference>section A(B), (C);</Reference>
+                    <Reference>section D(E);</Reference>
+                </ReferenceList>
+            </Subsection>
+            <Subsection number="3">
+                <Paragraph>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Paragraph>
+                <ClauseList>
+                    <Clause letter="a">Lorem ipsum dolor sit amet, consectetur adipiscing elit,</Clause>
+                    <Clause letter="b">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Clause>
+                </ClauseList>
+            </Subsection>
+            <History>
+                <Amendment>YYYY cX sY; YYYY cZ sA; YYYY cB sC</Amendment>
+            </History>
+        </Section>
+
+        <Section number="2" title="Generic Section Title Two">
+            <Subsection number="1">
+                <Paragraph>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Paragraph>
+            </Subsection>
+            <Subsection number="2">
+                <Paragraph>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Paragraph>
+                <ClauseList>
+                    <Clause letter="a">Lorem ipsum dolor sit amet,</Clause>
+                    <Clause letter="b">Lorem ipsum dolor sit amet,</Clause>
+                    <Clause letter="c">Lorem ipsum dolor sit amet,</Clause>
+                </ClauseList>
+            </Subsection>
+            <History>
+                <Amendment>YYYY cX sY; YYYY cZ sA</Amendment>
+            </History>
+        </Section>
+
+        <Part number="1" title="Generic Part One Title">
+            <Section number="5" title="Generic Section Title Five">
+                <Subsection number="1">
+                    <Paragraph>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Paragraph>
+                </Subsection>
+                <Subsection number="2">
+                    <Paragraph>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Paragraph>
+                    <ClauseList>
+                        <Clause letter="a">Lorem ipsum dolor sit amet,</Clause>
+                        <Clause letter="b">Lorem ipsum dolor sit amet.</Clause>
+                    </ClauseList>
+                </Subsection>
+                <History>
+                    <Amendment>YYYY cX sY; YYYY cZ sA</Amendment>
+                </History>
+            </Section>
+        </Part>
+    </Body>
+
+    <EnactmentDetails>
+        <ComingIntoForce>
+            <SectionRef number="99" title="Coming into force"/>
+        </ComingIntoForce>
+    </EnactmentDetails>
+</Act>

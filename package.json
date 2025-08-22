@@ -1,0 +1,44 @@
+{
+  "name": "buildium-hubspot-integration",
+  "version": "1.0.0",
+  "description": "A comprehensive integration system for syncing property data and tenant contacts between Buildium and HubSpot",
+  "main": "prototype/index.js",
+  "scripts": {
+    "start": "node prototype/utils/sync_10_units.js",
+    "sync": "node prototype/utils/sync_10_units.js",
+    "sync:force": "node prototype/utils/sync_10_units.js --force",
+    "test:contact": "node prototype/utils/test_contact_creation.js",
+    "clean:listings": "node prototype/utils/delete_all_listings.js"
+  },
+  "keywords": [
+    "buildium",
+    "hubspot",
+    "property-management",
+    "crm-integration",
+    "real-estate",
+    "api-integration",
+    "tenant-management",
+    "listings"
+  ],
+  "author": "Cameron",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muunkky/buildium-hubspot-integration.git"
+  },
+  "bugs": {
+    "url": "https://github.com/muunkky/buildium-hubspot-integration/issues"
+  },
+  "homepage": "https://github.com/muunkky/buildium-hubspot-integration#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "xml-js": "^1.6.11",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.50.0"
+  }
+}
