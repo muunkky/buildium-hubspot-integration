@@ -484,7 +484,8 @@ class HubSpotClient {
                     name: 'buildium_unit_url',
                     label: 'Buildium Unit URL',
                     type: 'string',
-                    description: 'Direct link to manage this unit in Buildium'
+                    fieldType: 'text',
+                    description: 'Direct link to manage this unit in Buildium (clickable URL)'
                 },
                 {
                     name: 'buildium_unit_number',
@@ -583,7 +584,7 @@ class HubSpotClient {
                             name: property.name,
                             label: property.label,
                             type: property.type,
-                            fieldType: property.type === 'number' ? 'number' : 'text',
+                            fieldType: property.fieldType || (property.type === 'number' ? 'number' : 'text'),
                             groupName: 'listing_information',
                             description: property.description
                         }, {
@@ -2345,6 +2346,49 @@ async function main() {
                 await integration.syncTenantToContact(tenantId);
                 break;
 
+            case 'sync-unit':
+                const unitId = args[1];
+                if (!unitId) {
+                    console.error('❌ Please provide a unit ID: npm start sync-unit <unit_id>');
+                    process.exit(1);
+                }
+                
+                // Check for --force flag
+                const unitForceUpdate = args.includes('--force');
+                if (unitForceUpdate) {
+                    integration.forceUpdate = true;
+                    console.log('⚡ FORCE MODE: Will update existing listing and contacts (safe mode - only non-empty fields)');
+                }
+                
+                console.log(`🏠 Syncing Unit ${unitId} to HubSpot...`);
+                console.log('=' .repeat(50));
+                
+                try {
+                    // Get the unit details
+                    const unit = await integration.buildiumClient.getUnit(unitId);
+                    console.log(`📋 Unit: ${unit.UnitNumber || unit.Id} (Property: ${unit.PropertyId})`);
+                    
+                    // Ensure custom properties exist
+                    await integration.hubspotClient.createListingCustomProperties();
+                    
+                    // Sync the unit
+                    const result = await integration.syncUnitToListing(unit);
+                    
+                    if (result.status === 'success') {
+                        console.log(`🎉 Successfully created listing: ${result.hubspotListing.id}`);
+                    } else if (result.status === 'updated') {
+                        console.log(`🎉 Successfully updated listing: ${result.hubspotListing.id}`);
+                    } else if (result.status === 'skipped') {
+                        console.log(`⚠️ Skipped: ${result.reason}`);
+                    } else {
+                        console.log(`❌ Error: ${result.error}`);
+                    }
+                } catch (error) {
+                    console.error(`❌ Failed to sync unit ${unitId}:`, error.message);
+                    process.exit(1);
+                }
+                break;
+
             case 'batch':
             case 'batch-sync':
                 // Parse optional --limit flag
@@ -2380,6 +2424,7 @@ async function main() {
                 console.log('  npm start delete-listings          - Delete all listings in HubSpot');
                 console.log('  npm start units [--limit N]        - Sync units to listings (NEW APPROACH)');
                 console.log('  npm start sync <id>                - Sync specific tenant to HubSpot');
+                console.log('  npm start sync-unit <id> [--force] - Sync specific unit to HubSpot listing');
                 console.log('  npm start batch [--limit N]        - Batch sync multiple tenants');
                 console.log('  npm start sync-property <id>       - Sync specific property to HubSpot Listings');
                 console.log('');
@@ -2394,6 +2439,7 @@ async function main() {
                 console.log('  npm start delete-listings          # Clean slate');
                 console.log('  npm start units --limit 5          # Sync 5 units to listings');
                 console.log('  npm start sync 12345');
+                console.log('  npm start sync-unit 177172 --force # Sync specific unit with active lease');
                 console.log('  npm start batch --limit 5          # Process until 5 successful syncs');
                 console.log('  npm start sync-property 67890');
                 break;
