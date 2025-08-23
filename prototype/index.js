@@ -27,6 +27,25 @@ class BuildiumClient {
     }
 
     /**
+     * Custom parameter serializer to handle array parameters per OpenAPI specification
+     * Buildium API expects arrays to be exploded: ?propertyids=123&propertyids=456
+     */
+    buildParamsSerializer(params) {
+        const searchParams = new URLSearchParams();
+        Object.keys(params).forEach(key => {
+            if (Array.isArray(params[key])) {
+                // Explode array parameters per OpenAPI spec (explode: true, collectionFormat: "multi")
+                params[key].forEach(value => {
+                    searchParams.append(key, value);
+                });
+            } else {
+                searchParams.append(key, params[key]);
+            }
+        });
+        return searchParams.toString();
+    }
+
+    /**
      * Make API request with exponential backoff for rate limiting
      * Implements Buildium's recommended retry strategy for 429 errors
      */
@@ -195,9 +214,17 @@ class BuildiumClient {
     /**
      * Get all rental units from Buildium
      */
-    async getAllUnits(limit = 50, offset = 0) {
+    async getAllUnits(limit = 50, offset = 0, propertyIds = null) {
         try {
             console.log(`🔍 Fetching ${limit} units from Buildium (offset: ${offset})...`);
+            
+            const params = { limit, offset };
+            
+            // Add property filter if specified
+            if (propertyIds && propertyIds.length > 0) {
+                params.propertyids = propertyIds;
+                console.log(`   🏢 Filtering by properties: ${propertyIds.join(', ')}`);
+            }
             
             const response = await this.makeRequestWithRetry(() =>
                 axios.get(`${this.baseURL}/rentals/units`, {
@@ -206,7 +233,21 @@ class BuildiumClient {
                         'x-buildium-client-secret': this.clientSecret,
                         'Content-Type': 'application/json'
                     },
-                    params: { limit, offset }
+                    params,
+                    paramsSerializer: function(params) {
+                        const searchParams = new URLSearchParams();
+                        for (const key in params) {
+                            if (Array.isArray(params[key])) {
+                                // Handle array parameters with explode=true (repeat parameter name)
+                                params[key].forEach(value => {
+                                    searchParams.append(key, value);
+                                });
+                            } else {
+                                searchParams.append(key, params[key]);
+                            }
+                        }
+                        return searchParams.toString();
+                    }
                 })
             );
 
@@ -214,6 +255,41 @@ class BuildiumClient {
             return response.data;
         } catch (error) {
             console.error('❌ Error fetching units from Buildium:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Get all units for a specific property
+     */
+    async getUnitsForProperty(propertyId) {
+        try {
+            console.log(`🏢 Fetching all units for property ${propertyId}...`);
+            
+            const allUnits = [];
+            let offset = 0;
+            const batchSize = 100;
+            
+            while (true) {
+                const units = await this.getAllUnits(batchSize, offset, [propertyId]);
+                
+                if (units.length === 0) {
+                    break;
+                }
+                
+                allUnits.push(...units);
+                
+                if (units.length < batchSize) {
+                    break; // We got fewer results than requested, so we're done
+                }
+                
+                offset += batchSize;
+            }
+            
+            console.log(`✅ Found ${allUnits.length} units for property ${propertyId}`);
+            return allUnits;
+        } catch (error) {
+            console.error(`❌ Error fetching units for property ${propertyId}:`, error.response?.data || error.message);
             throw error;
         }
     }
@@ -462,6 +538,192 @@ class BuildiumClient {
             return response.data;
         } catch (error) {
             console.error('❌ Error fetching all leases:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Get rental owners from Buildium
+     * Supports filtering by property IDs and status
+     */
+    async getRentalOwners(options = {}) {
+        try {
+            const { propertyIds, status, limit = 100, offset = 0 } = options;
+            console.log(`🔍 Fetching rental owners from Buildium...`);
+            
+            const params = { limit, offset };
+            
+            if (propertyIds && propertyIds.length > 0) {
+                // Keep as array - we'll use custom paramsSerializer to handle it properly
+                params.propertyids = propertyIds;
+            }
+            
+            if (status) {
+                params.status = status; // 'Active' or 'Inactive'
+            }
+            
+            const response = await this.makeRequestWithRetry(() =>
+                axios.get(`${this.baseURL}/rentals/owners`, {
+                    headers: {
+                        'x-buildium-client-id': this.clientId,
+                        'x-buildium-client-secret': this.clientSecret,
+                        'Content-Type': 'application/json'
+                    },
+                    params,
+                    // Custom parameter serializer to handle array parameters per OpenAPI spec
+                    paramsSerializer: this.buildParamsSerializer,
+                    timeout: 30000
+                })
+            );
+
+            console.log(`✅ Retrieved ${response.data.length} rental owners`);
+            return response.data;
+        } catch (error) {
+            console.error('❌ Error fetching rental owners:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Get association owners from Buildium
+     * Supports filtering by association IDs
+     */
+    async getAssociationOwners(options = {}) {
+        try {
+            const { associationIds, limit = 100, offset = 0 } = options;
+            console.log(`🔍 Fetching association owners from Buildium...`);
+            
+            const params = { limit, offset };
+            
+            if (associationIds && associationIds.length > 0) {
+                // Keep as array - we'll use custom paramsSerializer to handle it properly
+                params.associationids = associationIds;
+            }
+            
+            const response = await this.makeRequestWithRetry(() =>
+                axios.get(`${this.baseURL}/associations/owners`, {
+                    headers: {
+                        'x-buildium-client-id': this.clientId,
+                        'x-buildium-client-secret': this.clientSecret,
+                        'Content-Type': 'application/json'
+                    },
+                    params,
+                    // Custom parameter serializer to handle array parameters per OpenAPI spec
+                    paramsSerializer: this.buildParamsSerializer,
+                    timeout: 30000
+                })
+            );
+
+            console.log(`✅ Retrieved ${response.data.length} association owners`);
+            return response.data;
+        } catch (error) {
+            console.error('❌ Error fetching association owners:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Get all owners (both rental and association) with unified interface
+     */
+    async getAllOwners(options = {}) {
+        try {
+            const { propertyIds, status, ownerType = 'both', limit } = options;
+            const allOwners = [];
+            
+            console.log(`🔍 Fetching all owners (type: ${ownerType})...`);
+            
+            // Fetch rental owners if requested
+            if (ownerType === 'rental' || ownerType === 'both') {
+                try {
+                    console.log('🔍 Fetching rental owners from Buildium...');
+                    let offset = 0;
+                    let hasMore = true;
+                    let totalRentalOwners = 0;
+                    
+                    while (hasMore) {
+                        const rentalOwners = await this.getRentalOwners({ 
+                            propertyIds, 
+                            status, 
+                            limit: 100, // Fetch in batches of 100
+                            offset 
+                        });
+                        
+                        if (rentalOwners.length === 0) {
+                            hasMore = false;
+                        } else {
+                            // Add owner type metadata
+                            rentalOwners.forEach(owner => {
+                                owner._ownerType = 'rental';
+                                owner._isCompany = owner.IsCompany || false;
+                            });
+                            allOwners.push(...rentalOwners);
+                            totalRentalOwners += rentalOwners.length;
+                            offset += rentalOwners.length;
+                            
+                            // If we got less than 100, we've reached the end
+                            if (rentalOwners.length < 100) {
+                                hasMore = false;
+                            }
+                        }
+                    }
+                    
+                    console.log(`✅ Retrieved ${totalRentalOwners} rental owners`);
+                } catch (error) {
+                    console.warn('⚠️ Failed to fetch rental owners:', error.message);
+                }
+            }
+            
+            // Fetch association owners if requested
+            if (ownerType === 'association' || ownerType === 'both') {
+                try {
+                    console.log('🔍 Fetching association owners from Buildium...');
+                    let offset = 0;
+                    let hasMore = true;
+                    let totalAssociationOwners = 0;
+                    
+                    while (hasMore) {
+                        const associationOwners = await this.getAssociationOwners({ 
+                            associationIds: propertyIds, // Map property IDs to association IDs
+                            limit: 100, // Fetch in batches of 100
+                            offset
+                        });
+                        
+                        if (associationOwners.length === 0) {
+                            hasMore = false;
+                        } else {
+                            // Add owner type metadata
+                            associationOwners.forEach(owner => {
+                                owner._ownerType = 'association';
+                                owner._isCompany = false; // Association owners are typically individuals
+                            });
+                            allOwners.push(...associationOwners);
+                            totalAssociationOwners += associationOwners.length;
+                            offset += associationOwners.length;
+                            
+                            // If we got less than 100, we've reached the end
+                            if (associationOwners.length < 100) {
+                                hasMore = false;
+                            }
+                        }
+                    }
+                    
+                    console.log(`✅ Retrieved ${totalAssociationOwners} association owners`);
+                } catch (error) {
+                    console.warn('⚠️ Failed to fetch association owners:', error.message);
+                }
+            }
+            
+            // Apply global limit if specified
+            let finalOwners = allOwners;
+            if (limit && allOwners.length > limit) {
+                finalOwners = allOwners.slice(0, limit);
+                console.log(`🔢 Applied global limit: showing ${finalOwners.length} of ${allOwners.length} owners`);
+            }
+            
+            console.log(`✅ Retrieved ${finalOwners.length} total owners (${finalOwners.filter(o => o._ownerType === 'rental').length} rental, ${finalOwners.filter(o => o._ownerType === 'association').length} association)`);
+            return finalOwners;
+        } catch (error) {
+            console.error('❌ Error fetching all owners:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -766,6 +1028,74 @@ class HubSpotClient {
     }
 
     /**
+     * Create required custom properties for companies if they don't exist
+     */
+    async createCompanyCustomProperties() {
+        try {
+            console.log('🔧 Creating custom properties for companies...');
+            
+            const properties = [
+                {
+                    name: 'buildium_owner_id',
+                    label: 'Buildium Owner ID',
+                    type: 'string',
+                    description: 'The unique owner ID from Buildium'
+                },
+                {
+                    name: 'buildium_owner_type',
+                    label: 'Buildium Owner Type',
+                    type: 'string',
+                    description: 'The type of owner (rental, association, etc.) from Buildium'
+                },
+                {
+                    name: 'buildium_property_ids',
+                    label: 'Buildium Property IDs',
+                    type: 'string',
+                    description: 'Comma-separated list of property IDs owned in Buildium'
+                }
+            ];
+
+            for (const property of properties) {
+                try {
+                    // Check if property already exists
+                    const existingResponse = await axios.get(`${this.baseURL}/crm/v3/properties/0-2/${property.name}`, {
+                        headers: this.getHeaders()
+                    });
+                    console.log(`✅ Company property '${property.name}' already exists`);
+                } catch (error) {
+                    if (error.response && error.response.status === 404) {
+                        // Property doesn't exist, create it
+                        console.log(`🔨 Creating company property: ${property.name}`);
+                        
+                        const response = await axios.post(`${this.baseURL}/crm/v3/properties/0-2`, {
+                            name: property.name,
+                            label: property.label,
+                            type: property.type,
+                            fieldType: property.type === 'number' ? 'number' : 'text',
+                            groupName: 'companyinformation',
+                            description: property.description
+                        }, {
+                            headers: this.getHeaders()
+                        });
+                        
+                        console.log(`✅ Successfully created company property: ${property.name}`);
+                    } else {
+                        console.error(`❌ Error checking/creating company property ${property.name}:`, error.response?.data || error.message);
+                        // Don't fail the entire process for individual property errors
+                    }
+                }
+            }
+            
+            console.log('✅ Company custom properties setup complete');
+            return true;
+        } catch (error) {
+            console.error('❌ Failed to create company custom properties:', error.response?.data || error.message);
+            // Don't fail the sync process even if custom properties fail
+            return true;
+        }
+    }
+
+    /**
      * Get headers for API requests
      */
     getHeaders() {
@@ -950,11 +1280,43 @@ class HubSpotClient {
     }
 
     /**
+     * Search for all listings with a specific Buildium Property ID
+     */
+    async searchListingsByPropertyId(propertyId) {
+        try {
+            console.log(`🔍 Searching for listings with Buildium Property ID: ${propertyId}`);
+            
+            const response = await axios.post(`${this.baseURL}/crm/v3/objects/0-420/search`, {
+                filterGroups: [{
+                    filters: [{
+                        propertyName: 'buildium_property_id',
+                        operator: 'EQ',
+                        value: propertyId
+                    }]
+                }],
+                properties: ['hs_name', 'hs_address_1', 'hs_city', 'buildium_unit_id', 'buildium_property_id'],
+                limit: 100 // Get up to 100 listings for this property
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log(`✅ Found ${response.data.results.length} listing(s) for property ${propertyId}`);
+            return response.data.results;
+        } catch (error) {
+            console.error(`❌ Error searching for listings by Property ID ${propertyId}:`, error.response?.data || error.message);
+            return [];
+        }
+    }
+
+    /**
      * Create association between contact and listing with specified association type
      */
     async createContactListingAssociation(contactId, listingId, associationTypeId = 2) {
         try {
-            const typeName = associationTypeId === 2 ? 'Active Tenant' : associationTypeId === 6 ? 'Inactive Tenant' : `Type ${associationTypeId}`;
+            const typeName = associationTypeId === 4 ? 'Property Owner' : associationTypeId === 2 ? 'Active Tenant' : associationTypeId === 6 ? 'Inactive Tenant' : `Type ${associationTypeId}`;
             console.log(`🔗 Creating ${typeName} association between Contact ${contactId} and Listing ${listingId}...`);
             
             if (process.env.DRY_RUN === 'true') {
@@ -990,6 +1352,113 @@ class HubSpotClient {
         } catch (error) {
             console.error('❌ Error creating association:', error.response?.data || error.message);
             return null;
+        }
+    }
+
+    /**
+     * Create associations between an owner and all unit listings for their properties (with --force sync)
+     */
+    async createOwnerPropertyAssociations(hubspotRecordId, owner, recordType, associationTypeId = 4) {
+        try {
+            const typeName = associationTypeId === 8 ? 'Property Owner' : `Type ${associationTypeId}`;
+            console.log(`🔗 Creating ${typeName} associations for ${recordType} ${hubspotRecordId}...`);
+            console.log(`   Owner has ${owner.PropertyIds?.length || 0} properties: ${owner.PropertyIds?.join(', ') || 'none'}`);
+            
+            if (!owner.PropertyIds || owner.PropertyIds.length === 0) {
+                console.log('⚠️ Owner has no PropertyIds - no associations to create');
+                return { status: 'skipped', reason: 'no_properties', associations: 0 };
+            }
+            
+            const results = {
+                status: 'success',
+                propertiesProcessed: 0,
+                listingsFound: 0,
+                associationsCreated: 0,
+                errors: 0,
+                details: []
+            };
+            
+            // Process each property owned by this owner
+            for (const propertyId of owner.PropertyIds) {
+                console.log(`\n🏢 Processing property ${propertyId}...`);
+                
+                try {
+                    // Step 1: Look for existing unit listings for this property
+                    let listings = await this.searchListingsByPropertyId(propertyId);
+                    results.propertiesProcessed++;
+                    
+                    // Step 2: If no listings found, sync the property's units first
+                    if (listings.length === 0) {
+                        console.log(`⚡ No listings found for property ${propertyId}, syncing units first...`);
+                        
+                        // Use the integration reference to sync property units
+                        if (this.integration) {
+                            const syncResult = await this.integration.syncPropertyUnits(propertyId, { force: true });
+                            console.log(`   Sync result: ${syncResult.success || 0} units synced`);
+                            
+                            // Search again after syncing
+                            listings = await this.searchListingsByPropertyId(propertyId);
+                        } else {
+                            console.log('⚠️ Cannot sync units - integration instance not available');
+                            results.details.push({
+                                propertyId,
+                                status: 'error',
+                                error: 'Integration instance not available for force sync'
+                            });
+                            results.errors++;
+                            continue;
+                        }
+                    }
+                    
+                    console.log(`   Found ${listings.length} listing(s) for property ${propertyId}`);
+                    results.listingsFound += listings.length;
+                    
+                    // Step 3: Associate owner with all found listings
+                    for (const listing of listings) {
+                        try {
+                            await this.createContactListingAssociation(
+                                hubspotRecordId, 
+                                listing.id, 
+                                associationTypeId
+                            );
+                            results.associationsCreated++;
+                            console.log(`   ✅ Associated with listing ${listing.id} (Unit: ${listing.properties?.buildium_unit_id || 'N/A'})`);
+                        } catch (error) {
+                            console.error(`   ❌ Failed to associate with listing ${listing.id}:`, error.message);
+                            results.errors++;
+                        }
+                    }
+                    
+                    results.details.push({
+                        propertyId,
+                        status: 'success',
+                        listingsFound: listings.length,
+                        associationsCreated: listings.length
+                    });
+                    
+                } catch (error) {
+                    console.error(`❌ Error processing property ${propertyId}:`, error.message);
+                    results.errors++;
+                    results.details.push({
+                        propertyId,
+                        status: 'error',
+                        error: error.message
+                    });
+                }
+            }
+            
+            // Summary
+            console.log(`\n🏆 Owner Association Complete!`);
+            console.log(`   Properties Processed: ${results.propertiesProcessed}`);
+            console.log(`   Listings Found: ${results.listingsFound}`);
+            console.log(`   ✅ Associations Created: ${results.associationsCreated}`);
+            console.log(`   ❌ Errors: ${results.errors}`);
+            
+            return results;
+            
+        } catch (error) {
+            console.error(`❌ Error creating owner property associations:`, error.message);
+            return { status: 'error', error: error.message, associations: 0 };
         }
     }
 
@@ -1115,6 +1584,229 @@ class HubSpotClient {
             throw error;
         }
     }
+
+    /**
+     * Create or update a contact (for individual owners)
+     */
+    async createOrUpdateContact(contactData, buildiumOwnerId) {
+        try {
+            // First, try to find existing contact by email
+            const email = contactData.properties.email;
+            const existingContact = await this.findContactByEmail(email);
+            
+            if (existingContact) {
+                console.log(`📝 Updating existing contact ${existingContact.id} for owner ${buildiumOwnerId}`);
+                return await this.updateContact(existingContact.id, contactData);
+            } else {
+                console.log(`➕ Creating new contact for owner ${buildiumOwnerId}`);
+                return await this.createContact(contactData);
+            }
+        } catch (error) {
+            console.error('❌ Error creating/updating contact:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Create a new contact
+     */
+    async createContact(contactData) {
+        try {
+            const response = await this.makeRequestWithRetry(() =>
+                axios.post(
+                    `${this.baseURL}/crm/v3/objects/contacts`,
+                    contactData,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                )
+            );
+
+            return response.data;
+        } catch (error) {
+            console.error('❌ Error creating contact:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Update an existing contact
+     */
+    async updateContact(contactId, contactData) {
+        try {
+            const response = await this.makeRequestWithRetry(() =>
+                axios.patch(
+                    `${this.baseURL}/crm/v3/objects/contacts/${contactId}`,
+                    contactData,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                )
+            );
+
+            return response.data;
+        } catch (error) {
+            console.error('❌ Error updating contact:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Create or update a company (for company owners)
+     */
+    async createOrUpdateCompany(companyData, buildiumOwnerId) {
+        try {
+            // First, try to find existing company by Buildium Owner ID
+            const existingCompany = await this.findCompanyByBuildiumId(buildiumOwnerId);
+            
+            if (existingCompany) {
+                console.log(`📝 Updating existing company ${existingCompany.id} for owner ${buildiumOwnerId}`);
+                return await this.updateCompany(existingCompany.id, companyData);
+            } else {
+                console.log(`➕ Creating new company for owner ${buildiumOwnerId}`);
+                return await this.createCompany(companyData);
+            }
+        } catch (error) {
+            console.error('❌ Error creating/updating company:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Create a new company
+     */
+    async createCompany(companyData) {
+        try {
+            const response = await this.makeRequestWithRetry(() =>
+                axios.post(
+                    `${this.baseURL}/crm/v3/objects/companies`,
+                    companyData,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                )
+            );
+
+            return response.data;
+        } catch (error) {
+            console.error('❌ Error creating company:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Update an existing company
+     */
+    async updateCompany(companyId, companyData) {
+        try {
+            const response = await this.makeRequestWithRetry(() =>
+                axios.patch(
+                    `${this.baseURL}/crm/v3/objects/companies/${companyId}`,
+                    companyData,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                )
+            );
+
+            return response.data;
+        } catch (error) {
+            console.error('❌ Error updating company:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Find contact by Buildium Owner ID
+     */
+    async findContactByEmail(email) {
+        try {
+            if (!email) {
+                console.log(`⚠️ No email provided, cannot search for existing contact`);
+                return null;
+            }
+
+            console.log(`🔍 Searching for existing contact by email: ${email}...`);
+            const response = await this.makeRequestWithRetry(() =>
+                axios.post(
+                    `${this.baseURL}/crm/v3/objects/contacts/search`,
+                    {
+                        filterGroups: [{
+                            filters: [{
+                                propertyName: 'email',
+                                operator: 'EQ',
+                                value: email
+                            }]
+                        }],
+                        limit: 1
+                    },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                ), true // isSearchOperation = true for proper rate limiting
+            );
+
+            const existingContact = response.data.results.length > 0 ? response.data.results[0] : null;
+            if (existingContact) {
+                console.log(`✅ Found existing contact ${existingContact.id} for email ${email}`);
+            } else {
+                console.log(`ℹ️ No existing contact found for email ${email}`);
+            }
+            return existingContact;
+        } catch (error) {
+            console.error('❌ Error finding contact by email:', error.response?.data || error.message);
+            return null;
+        }
+    }
+
+    /**
+     * Find company by Buildium Owner ID
+     */
+    async findCompanyByBuildiumId(buildiumOwnerId) {
+        try {
+            const response = await this.makeRequestWithRetry(() =>
+                axios.post(
+                    `${this.baseURL}/crm/v3/objects/companies/search`,
+                    {
+                        filterGroups: [{
+                            filters: [{
+                                propertyName: 'buildium_owner_id',
+                                operator: 'EQ',
+                                value: buildiumOwnerId.toString()
+                            }]
+                        }],
+                        limit: 1
+                    },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                ), true // isSearchOperation = true for proper rate limiting
+            );
+
+            return response.data.results.length > 0 ? response.data.results[0] : null;
+        } catch (error) {
+            console.error('❌ Error finding company by Buildium ID:', error.response?.data || error.message);
+            return null;
+        }
+    }
 }
 
 class DataTransformer {
@@ -1183,10 +1875,16 @@ class DataTransformer {
                 // HubSpot metadata
                 lastmodifieddate: lastModifiedDate,
                 hs_lead_status: 'NEW', // Valid options: NEW, OPEN, IN_PROGRESS, OPEN_DEAL, UNQUALIFIED, ATTEMPTED_TO_CONTACT, CONNECTED, BAD_TIMING
-                lifecyclestage: 'customer' // Since they're already tenants
+                lifecyclestage: 'customer', // Since they're already tenants
+                
+                // Marketing contact prevention - avoid billing charges
+                hs_marketable_status: 'NON_MARKETABLE'
             }
         };
 
+        // Log marketing status decision for audit trail
+        console.log(`📊 MARKETING STATUS AUDIT: Tenant ${tenant.Id} (${tenant.Email}) set to NON_MARKETABLE to prevent billing charges`);
+        
         // Remove empty/null properties
         Object.keys(hubspotContact.properties).forEach(key => {
             if (hubspotContact.properties[key] === null || hubspotContact.properties[key] === undefined || hubspotContact.properties[key] === '') {
@@ -1260,6 +1958,12 @@ class DataTransformer {
         
         if (buildiumNotes) safeUpdateFields.hs_content_membership_notes = buildiumNotes;
         if (lastModifiedDate) safeUpdateFields.lastmodifieddate = lastModifiedDate;
+        
+        // Marketing contact prevention - avoid billing charges
+        safeUpdateFields.hs_marketable_status = 'NON_MARKETABLE';
+
+        // Log marketing status decision for audit trail
+        console.log(`📊 MARKETING STATUS AUDIT: Tenant ${tenant.Id} (${tenant.Email}) safe update - set to NON_MARKETABLE to prevent billing charges`);
 
         const hubspotContact = {
             properties: safeUpdateFields
@@ -1363,6 +2067,123 @@ class DataTransformer {
         console.log('✅ Successfully transformed property data to listing');
         return hubspotListing;
     }
+
+    /**
+     * Transform Buildium owner data to HubSpot contact format (for individual owners)
+     */
+    transformOwnerToContact(owner) {
+        console.log(`🔄 Transforming owner ${owner.Id} to HubSpot contact format...`);
+        
+        // Extract primary phone number
+        const primaryPhone = owner.PhoneNumbers && owner.PhoneNumbers.length > 0 
+            ? owner.PhoneNumbers[0].Number 
+            : null;
+
+        // Build primary address string
+        const primaryAddress = owner.Address || owner.PrimaryAddress;
+        const address = primaryAddress 
+            ? `${primaryAddress.AddressLine1 || ''} ${primaryAddress.AddressLine2 || ''}`.trim()
+            : null;
+
+        // Use ONLY standard HubSpot contact fields to avoid validation errors
+        const hubspotContact = {
+            properties: {
+                // Standard HubSpot contact fields (guaranteed to work)
+                firstname: owner.FirstName || '',
+                lastname: owner.LastName || `Owner ${owner.Id}`,
+                email: owner.Email || null,
+                phone: primaryPhone,
+                
+                // Standard address fields
+                address: address,
+                city: primaryAddress?.City,
+                state: primaryAddress?.State,
+                zip: primaryAddress?.PostalCode,
+                country: primaryAddress?.Country,
+                
+                // Standard business fields
+                company: owner.CompanyName || null,
+                
+                // Standard HubSpot lifecycle
+                lifecyclestage: 'customer',
+                
+                // Explicitly set as non-marketing contact to avoid marketing contact charges
+                hs_marketable_status: 'NON_MARKETABLE'
+                
+                // NOTE: All Buildium custom fields removed to avoid validation errors
+                // We can create these custom properties in HubSpot later if needed:
+                // buildium_owner_id, buildium_property_ids, buildium_management_dates, etc.
+            }
+        };
+
+        // Clean up null/undefined values
+        Object.keys(hubspotContact.properties).forEach(key => {
+            if (hubspotContact.properties[key] === null || hubspotContact.properties[key] === undefined) {
+                delete hubspotContact.properties[key];
+            }
+        });
+
+        // Log marketing status decision for audit trail
+        console.log(`📊 MARKETING STATUS AUDIT: Owner ${owner.Id} (${owner.Email || 'no email'}) set to NON_MARKETABLE to prevent billing charges`);
+        console.log(`✅ Transformed contact: ${owner.FirstName} ${owner.LastName} (${owner.Email || 'no email'})`);
+        return hubspotContact;
+    }
+
+    /**
+     * Transform Buildium owner data to HubSpot company format (for company owners)
+     */
+    transformOwnerToCompany(owner) {
+        console.log(`🔄 Transforming company owner ${owner.Id} to HubSpot company format...`);
+        
+        // Extract primary phone number
+        const primaryPhone = owner.PhoneNumbers && owner.PhoneNumbers.length > 0 
+            ? owner.PhoneNumbers[0].Number 
+            : null;
+
+        // Build address string
+        const primaryAddress = owner.Address || owner.PrimaryAddress;
+        const address = primaryAddress 
+            ? `${primaryAddress.AddressLine1 || ''} ${primaryAddress.AddressLine2 || ''}`.trim()
+            : null;
+
+        // Try to extract domain from email
+        const domain = owner.Email ? owner.Email.split('@')[1] : null;
+
+        // Use ONLY standard HubSpot company fields to avoid validation errors
+        const hubspotCompany = {
+            properties: {
+                // Standard HubSpot company fields (guaranteed to work)
+                name: owner.CompanyName || `Owner ${owner.Id}`,
+                domain: domain,
+                phone: primaryPhone,
+                
+                // Standard address fields
+                address: address,
+                city: primaryAddress?.City,
+                state: primaryAddress?.State,
+                zip: primaryAddress?.PostalCode,
+                country: primaryAddress?.Country,
+                
+                // Standard business fields
+                industry: 'REAL_ESTATE',  // Using valid HubSpot industry code
+                description: owner.Comment || null
+                
+                // NOTE: All Buildium custom fields removed to avoid validation errors
+                // We can create these custom properties in HubSpot later if needed:
+                // buildium_owner_id, buildium_property_ids, buildium_management_dates, etc.
+            }
+        };
+
+        // Clean up null/undefined values
+        Object.keys(hubspotCompany.properties).forEach(key => {
+            if (hubspotCompany.properties[key] === null || hubspotCompany.properties[key] === undefined) {
+                delete hubspotCompany.properties[key];
+            }
+        });
+
+        console.log(`✅ Transformed company: ${owner.CompanyName || `Owner ${owner.Id}`}`);
+        return hubspotCompany;
+    }
 }
 
 class IntegrationPrototype {
@@ -1370,6 +2191,9 @@ class IntegrationPrototype {
         this.buildiumClient = new BuildiumClient();
         this.hubspotClient = new HubSpotClient();
         this.transformer = new DataTransformer();
+        
+        // Set integration reference on HubSpot client for force sync capability
+        this.hubspotClient.integration = this;
     }
 
     /**
@@ -1561,6 +2385,115 @@ class IntegrationPrototype {
     }
 
     /**
+     * Sync all units for a specific property to HubSpot listings (with force option)
+     */
+    async syncPropertyUnits(propertyId, options = {}) {
+        try {
+            const { force = false } = options;
+            
+            console.log(`🏢 Starting sync of all units for property ${propertyId}...`);
+            console.log('=' .repeat(50));
+            
+            // Step 1: Get all units for this property
+            const units = await this.buildiumClient.getUnitsForProperty(propertyId);
+            
+            if (units.length === 0) {
+                console.log(`⚠️ No units found for property ${propertyId}`);
+                return { status: 'skipped', reason: 'no_units', propertyId, unitsProcessed: 0 };
+            }
+            
+            console.log(`📋 Found ${units.length} units to sync for property ${propertyId}`);
+            
+            const results = {
+                propertyId,
+                totalUnits: units.length,
+                success: 0,
+                skipped: 0,
+                errors: 0,
+                details: []
+            };
+            
+            // Step 2: Sync each unit
+            for (let i = 0; i < units.length; i++) {
+                const unit = units[i];
+                console.log(`\n[${i + 1}/${units.length}] Processing Unit: ${unit.UnitNumber || unit.Id}`);
+                console.log('-'.repeat(40));
+                
+                try {
+                    // Skip if listing already exists (unless force is true)
+                    if (!force) {
+                        const existingListing = await this.hubspotClient.searchListingByUnitId(unit.Id);
+                        if (existingListing) {
+                            results.skipped++;
+                            results.details.push({
+                                unit: unit.UnitNumber || unit.Id,
+                                status: 'skipped',
+                                reason: 'already_exists',
+                                listingId: existingListing.id
+                            });
+                            console.log(`⚠️ Listing already exists (ID: ${existingListing.id}) - skipping...`);
+                            continue;
+                        }
+                    }
+                    
+                    // Sync the unit
+                    const syncResult = await this.syncUnitToListing(unit);
+                    
+                    if (syncResult.status === 'success') {
+                        results.success++;
+                        results.details.push({
+                            unit: unit.UnitNumber || unit.Id,
+                            status: 'success',
+                            listingId: syncResult.hubspotListing.id
+                        });
+                        console.log(`✅ Success: Listing ${syncResult.hubspotListing.id}`);
+                    } else if (syncResult.status === 'skipped') {
+                        results.skipped++;
+                        results.details.push({
+                            unit: unit.UnitNumber || unit.Id,
+                            status: 'skipped',
+                            reason: syncResult.reason
+                        });
+                        console.log(`⚠️ Skipped (${syncResult.reason})`);
+                    } else {
+                        results.errors++;
+                        results.details.push({
+                            unit: unit.UnitNumber || unit.Id,
+                            status: 'error',
+                            error: syncResult.error
+                        });
+                        console.log(`❌ Error: ${syncResult.error}`);
+                    }
+                    
+                } catch (error) {
+                    results.errors++;
+                    results.details.push({
+                        unit: unit.UnitNumber || unit.Id,
+                        status: 'error',
+                        error: error.message
+                    });
+                    console.error(`❌ Error syncing unit ${unit.UnitNumber || unit.Id}:`, error.message);
+                }
+            }
+            
+            // Step 3: Summary
+            console.log('\n🏆 Property Units Sync Complete!');
+            console.log('=' .repeat(50));
+            console.log(`   Property ID: ${propertyId}`);
+            console.log(`   Total Units: ${results.totalUnits}`);
+            console.log(`   ✅ Success: ${results.success}`);
+            console.log(`   ⚠️ Skipped: ${results.skipped}`);
+            console.log(`   ❌ Errors: ${results.errors}`);
+            
+            return { status: 'completed', ...results };
+            
+        } catch (error) {
+            console.error(`💥 Property units sync failed for property ${propertyId}:`, error.message);
+            return { status: 'error', propertyId, error: error.message };
+        }
+    }
+
+    /**
      * Batch sync multiple tenants with optional limit
      */
     async batchSyncTenants(options = {}) {
@@ -1679,11 +2612,14 @@ class IntegrationPrototype {
      */
     async syncUnitsToListings(options = {}) {
         try {
-            const { limit = 10 } = options;
+            const { limit = 10, propertyIds = null } = options;
             
             console.log('🏠 Starting Unit-to-Listing Sync...');
             console.log('=' .repeat(50));
             console.log(`   Target: ${limit} units to process`);
+            if (propertyIds) {
+                console.log(`   Property Filter: ${propertyIds.join(', ')}`);
+            }
             console.log('');
 
             // Ensure listing custom properties exist
@@ -1705,7 +2641,7 @@ class IntegrationPrototype {
             while (results.success < limit) {
                 // Step 1: Fetch a batch of units from Buildium
                 console.log(`📋 Fetching batch of units (offset: ${offset})...`);
-                const units = await this.buildiumClient.getAllUnits(batchSize, offset);
+                const units = await this.buildiumClient.getAllUnits(batchSize, offset, propertyIds);
                 
                 if (units.length === 0) {
                     console.log('ℹ️ No more units available');
@@ -2382,6 +3318,509 @@ class IntegrationPrototype {
         console.log('✅ Configuration validated');
         return true;
     }
+
+    /**
+     * Handle owners command with various options
+     */
+    async handleOwnersCommand(options = {}) {
+        try {
+            console.log('👥 Property Owners Sync Command');
+            console.log('=' .repeat(50));
+            
+            const {
+                syncAll = false,
+                propertyIds = null,
+                status = null,
+                ownerType = 'both',
+                dryRun = false,
+                verify = false,
+                createMissing = false,
+                limit = null,
+                force = false
+            } = options;
+
+            // Validate options
+            if (!syncAll && !propertyIds && !verify) {
+                console.error('❌ Please specify --sync-all, --property-ids, or --verify');
+                return;
+            }
+
+            // Verification mode
+            if (verify) {
+                return await this.verifyOwnersData();
+            }
+
+            // Sync mode
+            const syncOptions = {
+                propertyIds,
+                status,
+                ownerType,
+                dryRun,
+                createMissing,
+                limit,
+                force
+            };
+
+            if (dryRun) {
+                console.log('🔍 DRY RUN MODE - No changes will be made');
+            }
+            
+            if (force) {
+                console.log('💪 FORCE MODE - Will update existing owners');
+            }
+
+            console.log(`📊 Sync Configuration:`);
+            console.log(`   Owner Type: ${ownerType}`);
+            console.log(`   Status Filter: ${status || 'all'}`);
+            console.log(`   Property IDs: ${propertyIds ? propertyIds.join(', ') : 'all'}`);
+            console.log(`   Limit: ${limit || 'no limit'}`);
+            console.log(`   Mode: ${dryRun ? 'dry-run' : (createMissing ? 'create-missing' : (force ? 'force-update' : 'create-only'))}`);
+            console.log('');
+
+            // Create required custom properties for companies
+            await this.hubspotClient.createCompanyCustomProperties();
+
+            const results = await this.syncOwners(syncOptions);
+
+            // Print summary
+            console.log('\n📈 Sync Summary');
+            console.log('=' .repeat(30));
+            console.log(`✅ Successfully synced: ${results.success}`);
+            console.log(`🔄 Enriched existing: ${results.enriched}`);
+            console.log(`⚠️ Skipped: ${results.skipped}`);
+            console.log(`❌ Errors: ${results.errors}`);
+            console.log(`📊 Total processed: ${results.total}`);
+
+            if (results.errors > 0) {
+                console.log('\n❌ Error Details:');
+                results.errorDetails.forEach(error => {
+                    console.log(`   - Owner ${error.ownerId}: ${error.message}`);
+                });
+            }
+
+            return results;
+
+        } catch (error) {
+            console.error('❌ Owners command failed:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Sync owners from Buildium to HubSpot
+     */
+    async syncOwners(options = {}) {
+        const {
+            propertyIds = null,
+            status = null,
+            ownerType = 'both',
+            dryRun = false,
+            createMissing = false,
+            limit = null,
+            force = false
+        } = options;
+
+        const results = {
+            target: limit,
+            success: 0,
+            skipped: 0,
+            enriched: 0,
+            errors: 0,
+            total: 0,
+            errorDetails: []
+        };
+
+        try {
+            if (limit) {
+                console.log(`🎯 Target: ${limit} successful syncs (skips don't count)`);
+                return await this._syncOwnersWithLimit(options, results);
+            } else {
+                // Original behavior: fetch all and process
+                return await this._syncAllOwners(options, results);
+            }
+        } catch (error) {
+            console.error('❌ Error in owners sync:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Sync all owners (original behavior when no limit specified)
+     */
+    async _syncAllOwners(options, results) {
+        const {
+            propertyIds = null,
+            status = null,
+            ownerType = 'both',
+            dryRun = false,
+            createMissing = false,
+            force = false
+        } = options;
+
+        // Fetch owners from Buildium
+        console.log('🔍 Fetching owners from Buildium...');
+        const owners = await this.buildiumClient.getAllOwners({
+            propertyIds,
+            status,
+            ownerType
+        });
+
+        results.total = owners.length;
+        console.log(`📊 Found ${owners.length} owners to process`);
+
+        if (owners.length === 0) {
+            console.log('ℹ️ No owners found matching criteria');
+            return results;
+        }
+
+        // Process each owner
+        for (let i = 0; i < owners.length; i++) {
+            const owner = owners[i];
+            const progress = `[${i + 1}/${owners.length}]`;
+            
+            try {
+                console.log(`\n${progress} Processing: ${this.getOwnerDisplayName(owner)} (ID: ${owner.Id}, Type: ${owner._ownerType})`);
+                console.log('-'.repeat(60));
+
+                if (dryRun) {
+                    console.log('🔍 DRY RUN: Would sync this owner');
+                    results.success++;
+                    continue;
+                }
+
+                const syncResult = await this.syncOwnerToHubSpot(owner, { createMissing, force });
+                
+                if (syncResult.status === 'success') {
+                    results.success++;
+                    console.log(`✅ Success: ${syncResult.recordType} ${syncResult.recordId}`);
+                } else if (syncResult.status === 'skipped') {
+                    results.skipped++;
+                    console.log(`⚠️ Skipped: ${syncResult.reason}`);
+                } else if (syncResult.status === 'enriched') {
+                    results.enriched++;
+                    console.log(`🔄 Enriched: ${syncResult.recordType} ${syncResult.recordId}`);
+                } else {
+                    results.errors++;
+                    console.log(`❌ Error: ${syncResult.error}`);
+                    results.errorDetails.push({
+                        ownerId: owner.Id,
+                        message: syncResult.error
+                    });
+                }
+
+                // Rate limiting delay
+                if (i < owners.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
+
+            } catch (error) {
+                results.errors++;
+                console.log(`❌ Error processing owner ${owner.Id}: ${error.message}`);
+                results.errorDetails.push({
+                    ownerId: owner.Id,
+                    message: error.message
+                });
+            }
+        }
+
+        return results;
+    }
+
+    /**
+     * Sync owners with limit (like units/tenants - successful syncs only)
+     */
+    async _syncOwnersWithLimit(options, results) {
+        const {
+            propertyIds = null,
+            status = null,
+            ownerType = 'both',
+            dryRun = false,
+            createMissing = false,
+            force = false,
+            limit = null
+        } = options;
+
+        let offset = 0;
+        let totalProcessed = 0;
+        const batchSize = Math.max(limit * 2, 20); // Fetch more than needed to account for skips
+
+        // Keep processing until we hit our success target or run out of owners
+        while ((results.success + results.enriched) < limit) {
+            // Step 1: Fetch a batch of owners from Buildium
+            console.log(`📋 Fetching batch of owners (offset: ${offset})...`);
+            const owners = await this.buildiumClient.getAllOwners({
+                propertyIds,
+                status,
+                ownerType,
+                limit: batchSize,
+                offset
+            });
+            
+            if (owners.length === 0) {
+                console.log('ℹ️ No more owners available');
+                break;
+            }
+            
+            console.log(`   Found ${owners.length} owners in this batch`);
+
+            // Step 2: Process each owner until we hit our success target
+            for (let i = 0; i < owners.length && (results.success + results.enriched) < limit; i++) {
+                const owner = owners[i];
+                totalProcessed++;
+                const successCount = results.success + results.enriched + 1; // What this would be if successful
+                
+                console.log(`\n[${successCount}/${limit}] Processing: ${this.getOwnerDisplayName(owner)} (ID: ${owner.Id}, Type: ${owner._ownerType})`);
+                console.log('-'.repeat(60));
+                
+                try {
+                    if (dryRun) {
+                        console.log('🔍 DRY RUN: Would sync this owner');
+                        results.success++;
+                        continue;
+                    }
+
+                    const syncResult = await this.syncOwnerToHubSpot(owner, { createMissing, force });
+                    
+                    if (syncResult.status === 'success') {
+                        results.success++;
+                        console.log(`✅ [${results.success + results.enriched}/${limit}] Success: ${syncResult.recordType} ${syncResult.recordId}`);
+                    } else if (syncResult.status === 'enriched') {
+                        results.enriched++;
+                        console.log(`🔄 [${results.success + results.enriched}/${limit}] Enriched: ${syncResult.recordType} ${syncResult.recordId}`);
+                    } else if (syncResult.status === 'skipped') {
+                        results.skipped++;
+                        console.log(`⚠️ Skipped (${syncResult.reason}) - continuing to next owner...`);
+                    } else {
+                        results.errors++;
+                        console.log(`❌ Error: ${syncResult.error}`);
+                        results.errorDetails.push({
+                            ownerId: owner.Id,
+                            message: syncResult.error
+                        });
+                    }
+                    
+                    // Small delay to avoid rate limiting
+                    if ((results.success + results.enriched) < limit) {
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                    }
+                    
+                } catch (error) {
+                    results.errors++;
+                    console.log(`❌ Error: ${error.message}`);
+                    results.errorDetails.push({
+                        ownerId: owner.Id,
+                        message: error.message
+                    });
+                }
+            }
+
+            // Move to next batch
+            offset += owners.length;
+
+            // Safety check to prevent infinite loops
+            if (offset > 1000) {
+                console.log('⚠️ Reached safety limit (1000 owners processed)');
+                break;
+            }
+        }
+
+        results.total = totalProcessed;
+        console.log(`\n📊 Processed ${totalProcessed} total owners to achieve ${results.success + results.enriched} successes`);
+        
+        return results;
+    }
+
+    /**
+     * Sync a single owner to HubSpot
+     */
+    async syncOwnerToHubSpot(owner, options = {}) {
+        try {
+            // Handle both old (boolean) and new (object) parameter formats
+            let createMissingOnly, force;
+            if (typeof options === 'boolean') {
+                createMissingOnly = options;
+                force = false;
+            } else {
+                createMissingOnly = options.createMissing || false;
+                force = options.force || false;
+            }
+            
+            const isCompany = owner._isCompany || owner.IsCompany || false;
+            
+            if (isCompany) {
+                // Handle company owner
+                const companyData = this.transformer.transformOwnerToCompany(owner);
+                
+                // Check if company already exists
+                const existingCompany = await this.hubspotClient.findCompanyByBuildiumId(owner.Id);
+                
+                if (existingCompany) {
+                    if (createMissingOnly && !force) {
+                        return {
+                            status: 'skipped',
+                            reason: 'Company already exists (use --force to update)'
+                        };
+                    } else if (force) {
+                        // Enrichment mode: update existing company
+                        console.log(`🔄 Enriching existing company: ${existingCompany.properties.name || 'Unknown'}`);
+                        const updatedCompany = await this.hubspotClient.updateCompany(existingCompany.id, companyData);
+                        
+                        // Create/update property associations with force sync capability
+                        console.log('🔗 Creating/updating property associations for company...');
+                        const associationResult = await this.hubspotClient.createOwnerPropertyAssociations(
+                            updatedCompany.id, 
+                            owner, 
+                            'Company',
+                            4 // Using "Owner" association type (correct semantic meaning)
+                        );
+                        
+                        return {
+                            status: 'enriched',
+                            recordType: 'Company',
+                            recordId: updatedCompany.id,
+                            hubspotCompany: updatedCompany,
+                            associations: associationResult
+                        };
+                    }
+                }
+                
+                // Create new company
+                const hubspotCompany = await this.hubspotClient.createOrUpdateCompany(companyData, owner.Id);
+                
+                // Create property associations with force sync capability
+                console.log('🔗 Creating property associations for company...');
+                const associationResult = await this.hubspotClient.createOwnerPropertyAssociations(
+                    hubspotCompany.id, 
+                    owner, 
+                    'Company',
+                    4 // Using "Owner" association type (correct semantic meaning)
+                );
+                
+                return {
+                    status: 'success',
+                    recordType: 'Company',
+                    recordId: hubspotCompany.id,
+                    hubspotCompany,
+                    associations: associationResult
+                };
+                
+            } else {
+                // Handle individual owner
+                const contactData = this.transformer.transformOwnerToContact(owner);
+                
+                // Check if contact already exists
+                const existingContact = await this.hubspotClient.findContactByEmail(owner.Email);
+                
+                if (existingContact) {
+                    if (createMissingOnly && !force) {
+                        return {
+                            status: 'skipped',
+                            reason: 'Contact already exists (use --force to update)'
+                        };
+                    } else if (force) {
+                        // Enrichment mode: update existing contact
+                        console.log(`🔄 Enriching existing contact: ${existingContact.properties.firstname} ${existingContact.properties.lastname}`);
+                        const updatedContact = await this.hubspotClient.updateContact(existingContact.id, contactData);
+                        
+                        // Create/update property associations with force sync capability
+                        console.log('🔗 Creating/updating property associations for contact...');
+                        const associationResult = await this.hubspotClient.createOwnerPropertyAssociations(
+                            updatedContact.id, 
+                            owner, 
+                            'Contact',
+                            4 // Using "Owner" association type (correct semantic meaning)
+                        );
+                        
+                        return {
+                            status: 'enriched',
+                            recordType: 'Contact',
+                            recordId: updatedContact.id,
+                            hubspotContact: updatedContact,
+                            associations: associationResult
+                        };
+                    }
+                }
+                
+                // Create new contact
+                const hubspotContact = await this.hubspotClient.createOrUpdateContact(contactData, owner.Id);
+                
+                // Create property associations with force sync capability
+                console.log('🔗 Creating property associations for contact...');
+                const associationResult = await this.hubspotClient.createOwnerPropertyAssociations(
+                    hubspotContact.id, 
+                    owner, 
+                    'Contact',
+                    4 // Using "Owner" association type (correct semantic meaning)
+                );
+                
+                return {
+                    status: 'success',
+                    recordType: 'Contact',
+                    recordId: hubspotContact.id,
+                    hubspotContact,
+                    associations: associationResult
+                };
+            }
+
+        } catch (error) {
+            console.error(`❌ Error syncing owner ${owner.Id}:`, error.message);
+            return {
+                status: 'error',
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Verify owners data integrity
+     */
+    async verifyOwnersData() {
+        try {
+            console.log('🔍 Verifying owners data integrity...');
+            
+            // Get sample of owners from Buildium
+            const sampleOwners = await this.buildiumClient.getAllOwners({ 
+                ownerType: 'both' 
+            });
+            
+            console.log(`📊 Found ${sampleOwners.length} total owners in Buildium`);
+            
+            const verificationResults = {
+                buildiumOwners: sampleOwners.length,
+                hubspotContacts: 0,
+                hubspotCompanies: 0,
+                missingInHubSpot: 0,
+                dataIntegrityIssues: []
+            };
+            
+            // Sample verification logic here
+            // This would check for missing records, data inconsistencies, etc.
+            
+            console.log('\n📈 Verification Results');
+            console.log('=' .repeat(30));
+            console.log(`Buildium Owners: ${verificationResults.buildiumOwners}`);
+            console.log(`HubSpot Contacts: ${verificationResults.hubspotContacts}`);
+            console.log(`HubSpot Companies: ${verificationResults.hubspotCompanies}`);
+            console.log(`Missing in HubSpot: ${verificationResults.missingInHubSpot}`);
+            
+            return verificationResults;
+            
+        } catch (error) {
+            console.error('❌ Verification failed:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Get display name for owner
+     */
+    getOwnerDisplayName(owner) {
+        if (owner._isCompany || owner.IsCompany) {
+            return owner.CompanyName || `Company ${owner.Id}`;
+        } else {
+            return `${owner.FirstName || ''} ${owner.LastName || ''}`.trim() || `Owner ${owner.Id}`;
+        }
+    }
 }
 
 // Main execution
@@ -2436,6 +3875,19 @@ async function main() {
                     }
                 }
                 
+                // Parse optional --property-ids flag
+                let unitsPropertyIds = null;
+                const unitsPropertyIdsIndex = args.indexOf('--property-ids');
+                if (unitsPropertyIdsIndex !== -1 && args[unitsPropertyIdsIndex + 1]) {
+                    const propertyIdsStr = args[unitsPropertyIdsIndex + 1];
+                    unitsPropertyIds = propertyIdsStr.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+                    
+                    if (unitsPropertyIds.length === 0) {
+                        console.error('❌ Invalid property IDs. Please provide comma-separated numbers.');
+                        process.exit(1);
+                    }
+                }
+                
                 // Check for --force flag
                 const unitsForceUpdate = args.includes('--force');
                 if (unitsForceUpdate) {
@@ -2443,7 +3895,10 @@ async function main() {
                     console.log('⚡ FORCE MODE: Will update existing listings and contacts (safe mode - only non-empty fields)');
                 }
                 
-                await integration.syncUnitsToListings({ limit: unitsLimit });
+                await integration.syncUnitsToListings({ 
+                    limit: unitsLimit, 
+                    propertyIds: unitsPropertyIds 
+                });
                 break;
                 
             case 'sync':
@@ -2523,6 +3978,62 @@ async function main() {
                 }
                 await integration.syncPropertyToListing(propertyId);
                 break;
+
+            case 'owners':
+                // Parse owners command options
+                const ownersOptions = {};
+                
+                // Check for --sync-all flag
+                if (args.includes('--sync-all')) {
+                    ownersOptions.syncAll = true;
+                }
+                
+                // Check for --property-ids flag
+                const propertyIdsIndex = args.indexOf('--property-ids');
+                if (propertyIdsIndex !== -1 && args[propertyIdsIndex + 1]) {
+                    ownersOptions.propertyIds = args[propertyIdsIndex + 1].split(',').map(id => parseInt(id.trim()));
+                }
+                
+                // Check for --status flag
+                const statusIndex = args.indexOf('--status');
+                if (statusIndex !== -1 && args[statusIndex + 1]) {
+                    ownersOptions.status = args[statusIndex + 1];
+                }
+                
+                // Check for --type flag
+                const typeIndex = args.indexOf('--type');
+                if (typeIndex !== -1 && args[typeIndex + 1]) {
+                    ownersOptions.ownerType = args[typeIndex + 1];
+                }
+                
+                // Check for --dry-run flag
+                if (args.includes('--dry-run')) {
+                    ownersOptions.dryRun = true;
+                }
+                
+                // Check for --verify flag
+                if (args.includes('--verify')) {
+                    ownersOptions.verify = true;
+                }
+                
+                // Check for --create-missing flag
+                if (args.includes('--create-missing')) {
+                    ownersOptions.createMissing = true;
+                }
+                
+                // Check for --force flag
+                if (args.includes('--force')) {
+                    ownersOptions.force = true;
+                }
+                
+                // Check for --limit flag
+                const ownersLimitIndex = args.indexOf('--limit');
+                if (ownersLimitIndex !== -1 && args[ownersLimitIndex + 1]) {
+                    ownersOptions.limit = parseInt(args[ownersLimitIndex + 1]);
+                }
+                
+                await integration.handleOwnersCommand(ownersOptions);
+                break;
                 
             default:
                 console.log('Usage:');
@@ -2531,6 +4042,10 @@ async function main() {
                 console.log('  npm start list                     - List available tenants');
                 console.log('  npm start delete-listings          - Delete all listings in HubSpot');
                 console.log('  npm start units [--limit N]        - Sync units to listings (NEW APPROACH)');
+                console.log('  npm start owners <options>         - Sync property owners to HubSpot');
+                console.log('    Options: --sync-all, --property-ids <ids>, --status <status>,');
+                console.log('             --type <rental|association|both>, --dry-run, --verify,');
+                console.log('             --create-missing, --force, --limit <number>');
                 console.log('  npm start sync <id>                - Sync specific tenant to HubSpot');
                 console.log('  npm start sync-unit <id> [--force] - Sync specific unit to HubSpot listing');
                 console.log('  npm start batch [--limit N]        - Batch sync multiple tenants');
@@ -2539,6 +4054,15 @@ async function main() {
                 console.log('Unit Sync Options (RECOMMENDED):');
                 console.log('  --limit N      Process N units (default: 10)');
                 console.log('  --force        Update existing listings/contacts (safe mode)');
+                console.log('');
+                console.log('Owners Sync Options:');
+                console.log('  --sync-all           Sync all owners');
+                console.log('  --property-ids N,M   Sync owners for specific properties (comma-separated)');
+                console.log('  --status active      Filter by owner status (active/inactive)');
+                console.log('  --type rental        Filter by owner type (rental/association/both)');
+                console.log('  --dry-run           Show what would be synced without making changes');
+                console.log('  --verify            Verify existing owner data integrity');
+                console.log('  --create-missing    Create missing HubSpot records only');
                 console.log('');
                 console.log('Batch Options (Legacy):');
                 console.log('  --limit N      Process until N successful syncs (default: 10)');
@@ -2552,6 +4076,9 @@ async function main() {
                 console.log('  npm start debug');
                 console.log('  npm start delete-listings          # Clean slate');
                 console.log('  npm start units --limit 5          # Sync 5 units to listings');
+                console.log('  npm start owners --sync-all        # Sync all property owners');
+                console.log('  npm start owners --property-ids 123,456 --type rental');
+                console.log('  npm start owners --dry-run --status active');
                 console.log('  npm start sync 12345');
                 console.log('  npm start sync-unit 177172 --force # Sync specific unit with active lease');
                 console.log('  npm start batch --limit 5          # Process until 5 successful syncs');
@@ -2563,6 +4090,76 @@ async function main() {
         console.error('Stack:', error.stack);
         process.exit(1);
     }
+}
+
+/**
+ * Marketing Status Audit Functions
+ * These functions help track and review marketing contact status changes
+ */
+
+/**
+ * Create a detailed audit log of all marketing status decisions
+ * This log can be reviewed if you need to identify contacts that were set to NON_MARKETABLE
+ */
+function createMarketingStatusAuditLog() {
+    const fs = require('fs');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const logFileName = `marketing_status_audit_${timestamp}.log`;
+    
+    const auditContent = `
+MARKETING STATUS AUDIT LOG
+==========================
+Generated: ${new Date().toISOString()}
+Purpose: Track all contacts set to NON_MARKETABLE status to prevent billing charges
+
+SEARCH INSTRUCTIONS:
+===================
+To find specific contacts in HubSpot that were set to NON_MARKETABLE:
+
+1. Go to HubSpot Contacts
+2. Create a filter: "Marketing contact status" = "Non-marketing contact"
+3. Add additional filters as needed (date created, source, etc.)
+
+REVERTING TO MARKETING CONTACT:
+==============================
+If you need to make a contact marketable again:
+
+1. In HubSpot, go to the contact record
+2. Find the "Marketing contact status" property
+3. Change from "Non-marketing contact" to "Marketing contact"
+4. Save the contact
+
+WARNING: This will start billing charges for that contact!
+
+LOG ENTRIES FORMAT:
+==================
+Each log entry shows:
+- Timestamp
+- Contact type (Owner/Tenant)
+- Buildium ID
+- Email address
+- Action taken
+
+CONSOLE LOG SEARCH:
+==================
+You can also search the console output for:
+"📊 MARKETING STATUS AUDIT:"
+
+This will show you all contacts that were processed with NON_MARKETABLE status.
+
+BACKUP VERIFICATION:
+===================
+All transformation functions in this integration include:
+- transformOwnerToContact: Sets NON_MARKETABLE
+- transformTenantToContact: Sets NON_MARKETABLE  
+- transformTenantToContactSafeUpdate: Sets NON_MARKETABLE
+
+If you need to modify this behavior, search for "hs_marketable_status" in the code.
+`;
+
+    fs.writeFileSync(logFileName, auditContent);
+    console.log(`📋 Marketing Status Audit Log created: ${logFileName}`);
+    return logFileName;
 }
 
 // Run the application

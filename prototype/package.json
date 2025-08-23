@@ -8,6 +8,7 @@
     "dev": "node --watch index.js"
   },
   "dependencies": {
+    "@hubspot/api-client": "^13.1.0",
     "axios": "^1.6.0",
     "dotenv": "^16.3.0",
     "xml-js": "^1.6.11"
