@@ -144,3 +144,22 @@ residential-tenancies-act.xml
 alberta-act-template.xml
 ATA.txt
 TODO.md
+
+# Investigation scripts (prevent Copilot regeneration)
+prototype/utils/analyze_*.js
+prototype/utils/marketing_*.js
+prototype/utils/verify_*.js
+prototype/utils/update_*.js
+prototype/utils/test_*.js
+prototype/utils/check_*.js
+prototype/utils/debug_*.js
+prototype/utils/contact_*.js
+prototype/utils/correct_*.js
+prototype/cleanup_*.js
+prototype/test_marketing_*.js
+prototype/verify_*.js
+prototype/debug_*.js
+prototype/check_*.js
+prototype/create_*.js
+prototype/find_*.js
+show_data.js
