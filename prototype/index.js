@@ -543,6 +543,46 @@ class BuildiumClient {
     }
 
     /**
+     * Get leases updated since a specific date (for lease-centric sync)
+     * This is the core method for efficient incremental synchronization
+     * Uses Buildium's lastupdatedfrom filter to fetch only changed leases
+     */
+    async getLeasesUpdatedSince(lastUpdated, options = {}) {
+        try {
+            const { limit = 100, offset = 0 } = options;
+            
+            // Format date for Buildium API (expects ISO string)
+            const formattedDate = lastUpdated instanceof Date ? lastUpdated.toISOString() : lastUpdated;
+            
+            console.log(`🔍 Fetching leases updated since ${formattedDate}...`);
+            
+            const params = {
+                limit,
+                offset,
+                lastupdatedfrom: formattedDate
+            };
+            
+            const response = await this.makeRequestWithRetry(() =>
+                axios.get(`${this.baseURL}/leases`, {
+                    headers: {
+                        'x-buildium-client-id': this.clientId,
+                        'x-buildium-client-secret': this.clientSecret,
+                        'Content-Type': 'application/json'
+                    },
+                    params,
+                    timeout: 30000 // 30 second timeout
+                })
+            );
+
+            console.log(`✅ Retrieved ${response.data.length} leases updated since ${formattedDate}`);
+            return response.data;
+        } catch (error) {
+            console.error(`❌ Error fetching leases updated since ${lastUpdated}:`, error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
      * Get rental owners from Buildium
      * Supports filtering by property IDs and status
      */
@@ -1200,6 +1240,152 @@ class HubSpotClient {
     }
 
     /**
+     * Create multiple listings in HubSpot in batch for efficiency
+     * Uses HubSpot's batch API to create up to 100 listings at once
+     * Includes duplicate detection by buildium_unit_id
+     */
+    async createListingsBatch(listings, dryRun = false, force = false, limit = null) {
+        try {
+            if (!Array.isArray(listings) || listings.length === 0) {
+                throw new Error('listings must be a non-empty array');
+            }
+
+            console.log(`🏠 Creating ${listings.length} listing(s) in HubSpot batch...`);
+            if (limit) {
+                console.log(`🔢 Limit: Will stop after ${limit} successful operations (created + updated)`);
+            }
+            
+            if (dryRun) {
+                console.log('🔄 DRY RUN MODE - Would create batch with data:', JSON.stringify(listings, null, 2));
+                return listings.map((listing, index) => ({ 
+                    id: `dry-run-listing-${index}`, 
+                    properties: listing.properties 
+                }));
+            }
+
+            // Check for existing listings and handle based on force flag
+            console.log('🔍 Checking for existing listings...');
+            const newListings = [];
+            const skippedListings = [];
+            const updatedListings = [];
+            let successfulOperations = 0; // Track created + updated for limit
+
+            for (let i = 0; i < listings.length; i++) {
+                // Check limit before processing
+                if (limit && successfulOperations >= limit) {
+                    console.log(`🔢 Reached limit of ${limit} successful operations. Stopping processing.`);
+                    break;
+                }
+                
+                const listing = listings[i];
+                const unitId = listing.properties?.buildium_unit_id;
+                
+                if (unitId) {
+                    const existing = await this.searchListingByUnitId(unitId);
+                    if (existing) {
+                        if (force) {
+                            // Extract address info for logging
+                            const address = listing.properties?.hs_address_1 || '';
+                            const city = listing.properties?.hs_city || '';
+                            const state = listing.properties?.hs_state_province || '';
+                            const addressStr = [address, city, state].filter(Boolean).join(', ') || 'No address';
+                            
+                            // Extract lease info for logging
+                            const leaseId = listing.properties?.buildium_lease_id || 'N/A';
+                            const leaseStatus = listing.properties?.lease_status || 'N/A';
+                            const rent = listing.properties?.buildium_market_rent || 'N/A';
+                            const tenant = listing.properties?.primary_tenant || 'N/A';
+                            
+                            // Extract and format lease dates
+                            const leaseStart = listing.properties?.lease_start_date || 'N/A';
+                            const leaseEnd = listing.properties?.lease_end_date || 'N/A';
+                            const startDate = leaseStart !== 'N/A' ? new Date(leaseStart).toLocaleDateString() : 'N/A';
+                            const endDate = leaseEnd !== 'N/A' ? new Date(leaseEnd).toLocaleDateString() : 'N/A';
+                            
+                            // Extract next lease info
+                            const nextStart = listing.properties?.next_lease_start || '';
+                            const nextTenant = listing.properties?.next_lease_tenant || '';
+                            const nextStartDate = nextStart ? new Date(nextStart).toLocaleDateString() : 'None';
+                            const nextLeaseInfo = nextStart ? `Next lease: ${nextStartDate}${nextTenant ? ` (${nextTenant})` : ''}` : 'No future lease';
+                            
+                            console.log(`🔄 Force updating existing listing: ${existing.id} (Unit: ${unitId})`);
+                            console.log(`📍 Address: ${addressStr}`);
+                            
+                            if (leaseStatus === 'No Current Lease') {
+                                console.log(`📋 Current Lease: NONE - Unit is available`);
+                                console.log(`📅 No active lease period`);
+                            } else {
+                                console.log(`📋 Current Lease: ${leaseId} | Status: ${leaseStatus} | Rent: $${rent}`);
+                                console.log(`📅 Current Period: ${startDate} → ${endDate} | Tenant: ${tenant}`);
+                            }
+                            
+                            console.log(`🔮 ${nextLeaseInfo}`);
+                            try {
+                                const updateData = {
+                                    properties: listing.properties
+                                };
+                                const updateResponse = await this.updateListing(existing.id, updateData);
+                                updatedListings.push({ unitId, listingId: existing.id, updated: updateResponse });
+                                console.log(`✅ Updated listing: ${existing.id} for unit ${unitId}`);
+                                successfulOperations++; // Count updates toward limit
+                            } catch (error) {
+                                console.error(`❌ Failed to update listing for unit ${unitId}:`, error.message);
+                            }
+                        } else {
+                            console.log(`⏭️  Skipping duplicate: Unit ID ${unitId} already exists (Listing ID: ${existing.id})`);
+                            skippedListings.push({ unitId, existingId: existing.id });
+                        }
+                    } else {
+                        newListings.push(listing);
+                    }
+                } else {
+                    // No unit ID to check - include it (might be intentional)
+                    newListings.push(listing);
+                }
+            }
+
+            console.log(`📊 Processing results: ${newListings.length} new, ${updatedListings.length} updated, ${skippedListings.length} skipped`);
+
+            if (newListings.length === 0) {
+                console.log('ℹ️  No new listings to create');
+                return { created: [], updated: updatedListings, skipped: skippedListings };
+            }
+
+            // HubSpot batch API can handle up to 100 objects at once
+            const batchSize = 100;
+            const createdResults = [];
+
+            for (let i = 0; i < newListings.length; i += batchSize) {
+                const batch = newListings.slice(i, i + batchSize);
+                
+                console.log(`📦 Processing batch ${Math.floor(i/batchSize) + 1} (${batch.length} listings)`);
+                
+                const batchRequest = {
+                    inputs: batch
+                };
+
+                const response = await this.makeRequestWithRetry(() =>
+                    axios.post(`${this.baseURL}/crm/v3/objects/0-420/batch`, batchRequest, {
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                );
+
+                createdResults.push(...response.data.results);
+                console.log(`✅ Batch ${Math.floor(i/batchSize) + 1} completed: ${response.data.results.length} listings created`);
+            }
+
+            console.log(`✅ Final results: ${createdResults.length} created, ${updatedListings.length} updated, ${skippedListings.length} skipped`);
+            return { created: createdResults, updated: updatedListings, skipped: skippedListings };
+        } catch (error) {
+            console.error('❌ Error creating listings batch in HubSpot:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
      * Get all listings from HubSpot
      */
     async getAllListings() {
@@ -1242,21 +1428,26 @@ class HubSpotClient {
         try {
             console.log(`🔍 Searching for existing listing with Buildium Unit ID: ${unitId}`);
             
-            const response = await axios.post(`${this.baseURL}/crm/v3/objects/0-420/search`, {
-                filterGroups: [{
-                    filters: [{
-                        propertyName: 'buildium_unit_id',
-                        operator: 'EQ',
-                        value: unitId
-                    }]
-                }],
-                properties: ['hs_name', 'hs_address_1', 'hs_city', 'buildium_unit_id']
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${this.accessToken}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await this.makeRequestWithRetry(() =>
+                axios.post(`${this.baseURL}/crm/v3/objects/0-420/search`, {
+                    filterGroups: [{
+                        filters: [{
+                            propertyName: 'buildium_unit_id',
+                            operator: 'EQ',
+                            value: unitId
+                        }]
+                    }],
+                    properties: ['hs_name', 'hs_address_1', 'hs_city', 'buildium_unit_id']
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                }),
+                3, // maxRetries
+                200, // initialDelay
+                true // isSearchOperation - uses 550ms base delay and proper exponential backoff
+            );
 
             if (response.data.results.length > 0) {
                 console.log('✅ Found existing listing with matching Buildium Unit ID');
@@ -1316,7 +1507,7 @@ class HubSpotClient {
      */
     async createContactListingAssociation(contactId, listingId, associationTypeId = 2) {
         try {
-            const typeName = associationTypeId === 4 ? 'Property Owner' : associationTypeId === 2 ? 'Active Tenant' : associationTypeId === 6 ? 'Inactive Tenant' : `Type ${associationTypeId}`;
+            const typeName = associationTypeId === 4 ? 'Property Owner' : associationTypeId === 2 ? 'Active Tenant' : associationTypeId === 6 ? 'Inactive Tenant' : associationTypeId === 11 ? 'Future Tenant' : `Type ${associationTypeId}`;
             console.log(`🔗 Creating ${typeName} association between Contact ${contactId} and Listing ${listingId}...`);
             
             if (process.env.DRY_RUN === 'true') {
@@ -2331,6 +2522,87 @@ class IntegrationPrototype {
 
         } catch (error) {
             console.error('💥 Sync failed:', error.message);
+            return { status: 'error', error: error.message };
+        }
+    }
+
+    /**
+     * Sync a future tenant to HubSpot contact and create Future Tenant association
+     * Similar to syncTenantToContact but uses Future Tenant association type (ID: 11)
+     */
+    async syncFutureTenantToContact(tenantId, unitId) {
+        try {
+            console.log('🔮 Starting Future Tenant sync...');
+            console.log('=' .repeat(50));
+            
+            // Step 1: Fetch tenant from Buildium
+            const tenant = await this.buildiumClient.getTenant(tenantId);
+            
+            console.log('📋 Future Tenant Data:');
+            console.log(`   Name: ${tenant.FirstName} ${tenant.LastName}`);
+            console.log(`   Email: ${tenant.Email}`);
+            console.log(`   ID: ${tenant.Id}`);
+            console.log('');
+
+            // Step 2: Check if contact already exists in HubSpot
+            let hubspotContact = null;
+            if (tenant.Email) {
+                const existingContact = await this.hubspotClient.searchContactByEmail(tenant.Email);
+                if (existingContact) {
+                    console.log('✅ Contact already exists in HubSpot:');
+                    console.log(`   HubSpot ID: ${existingContact.id}`);
+                    hubspotContact = existingContact;
+                    
+                    if (this.forceUpdate) {
+                        console.log('⚡ Force update enabled, updating with latest data...');
+                        const hubspotContactData = this.transformer.transformTenantToContactSafeUpdate(tenant);
+                        hubspotContact = await this.hubspotClient.updateContact(existingContact.id, hubspotContactData);
+                        console.log('✅ Contact updated successfully!');
+                    }
+                } else {
+                    // Create new contact
+                    console.log('🆕 Creating new contact for future tenant...');
+                    const hubspotContactData = this.transformer.transformTenantToContact(tenant);
+                    hubspotContact = await this.hubspotClient.createContact(hubspotContactData);
+                    console.log('✅ Contact created successfully!');
+                    console.log(`   HubSpot Contact ID: ${hubspotContact.id}`);
+                }
+            } else {
+                console.log('⚠️ No email found for tenant, skipping contact creation');
+                return { status: 'skipped', reason: 'no_email' };
+            }
+
+            // Step 3: Find the listing by Unit ID
+            const hubspotListing = await this.hubspotClient.searchListingByUnitId(unitId);
+            if (!hubspotListing) {
+                console.log('⚠️ No listing found for unit ID:', unitId);
+                return { status: 'error', error: 'listing_not_found' };
+            }
+
+            console.log(`✅ Found listing: ${hubspotListing.id} for unit ${unitId}`);
+
+            // Step 4: Create Future Tenant association between contact and listing
+            await this.hubspotClient.createContactListingAssociation(
+                hubspotContact.id, 
+                hubspotListing.id,
+                11  // Future Tenant association type ID
+            );
+            console.log('✅ Created "Future Tenant" association');
+
+            console.log('🎉 Future Tenant sync completed successfully!');
+            console.log(`   HubSpot Contact ID: ${hubspotContact.id}`);
+            console.log(`   HubSpot Listing ID: ${hubspotListing.id}`);
+            console.log('   Association: Contact ↔ Listing (Future Tenant)');
+            
+            return { 
+                status: 'success', 
+                buildiumTenant: tenant, 
+                hubspotContact: hubspotContact,
+                hubspotListing: hubspotListing
+            };
+
+        } catch (error) {
+            console.error('💥 Future Tenant sync failed:', error.message);
             return { status: 'error', error: error.message };
         }
     }
