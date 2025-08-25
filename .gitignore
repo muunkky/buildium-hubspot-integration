@@ -144,6 +144,7 @@ residential-tenancies-act.xml
 alberta-act-template.xml
 ATA.txt
 TODO.md
+docs/legal_xml/
 
 # Investigation scripts (prevent Copilot regeneration)
 prototype/utils/analyze_*.js
