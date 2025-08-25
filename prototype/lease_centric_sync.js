@@ -19,6 +19,7 @@ async function runLeaseCentricSync() {
         const args = process.argv.slice(2);
         const dryRun = args.includes('--dry-run') || process.env.DRY_RUN === 'true';
         const force = args.includes('--force');
+        const updateLifecycle = args.includes('--lifecycle');
         
         // Parse limit flag
         let limit = null;
@@ -41,7 +42,7 @@ async function runLeaseCentricSync() {
             console.log(`🔢 LIMIT MODE - Process until ${limit} successful operations`);
         }
 
-        const stats = await syncManager.syncLeases(dryRun, force, 7, 50, limit);
+        const stats = await syncManager.syncLeases(dryRun, force, 7, 50, limit, updateLifecycle);
         
         console.log('\n🎉 SYNC SUMMARY');
         console.log('='.repeat(30));
@@ -82,6 +83,8 @@ async function main() {
         console.log('Options:');
         console.log('  --dry-run        - Preview mode (no actual changes)');
         console.log('  --force          - Update existing listings with new lease data');
+        console.log('  --lifecycle      - Update tenant associations (Future→Active→Inactive)');
+        console.log('  --limit N        - Stop after N successful operations');
         console.log('  --help, -h       - Show this help message');
         console.log('');
         console.log('Environment variables:');
@@ -91,6 +94,7 @@ async function main() {
         console.log('  node lease_centric_sync.js --dry-run       # Safe preview');
         console.log('  node lease_centric_sync.js                 # Live sync (skip existing)');
         console.log('  node lease_centric_sync.js --force         # Live sync (update existing)');
+        console.log('  node lease_centric_sync.js --lifecycle     # Include tenant transitions');
         console.log('  node lease_centric_sync.js --dry-run --force # Preview force mode');
         return;
     }

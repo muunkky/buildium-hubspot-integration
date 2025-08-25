@@ -4,6 +4,7 @@
  */
 
 const { BuildiumClient, HubSpotClient, IntegrationPrototype } = require('./index.js');
+const TenantLifecycleManager = require('./TenantLifecycleManager.js');
 
 class LeaseCentricSyncManager {
     constructor(integration = null) {
@@ -23,7 +24,7 @@ class LeaseCentricSyncManager {
     }
 
     /**
-     * Main sync method - orchestrates complete workflow
+     * Main sync method - orchestrates complete workflow with automatic lifecycle management
      */
     async syncLeases(dryRun = false, force = false, sinceDays = 7, batchSize = 50, limit = null) {
         console.log('🚀 STARTING LEASE-CENTRIC SYNC');
@@ -31,6 +32,7 @@ class LeaseCentricSyncManager {
         console.log(`📅 Sync mode: ${dryRun ? 'DRY RUN' : 'LIVE'}`);
         console.log(`⏰ Looking back: ${sinceDays} days`);
         console.log(`🔄 Force update: ${force ? 'YES - Update existing listings' : 'NO - Skip duplicates'}`);
+        console.log('🔄 Tenant lifecycle management: AUTOMATIC (Future→Active→Inactive)');
         
         const startTime = Date.now();
         const stats = {
@@ -43,15 +45,23 @@ class LeaseCentricSyncManager {
 
         try {
             // Step 1: Get updated leases
-            const sinceDate = new Date(Date.now() - (sinceDays * 24 * 60 * 60 * 1000));
-            console.log(`\n🔍 Fetching leases updated since ${sinceDate.toISOString()}`);
+            let leases;
+            if (sinceDays === null) {
+                // Get ALL leases (no date filter)
+                console.log(`\n🔍 Fetching ALL leases from Buildium (no date filter)...`);
+                leases = await this.buildiumClient.getAllLeases();
+            } else {
+                // Get leases since specific date
+                const sinceDate = new Date(Date.now() - (sinceDays * 24 * 60 * 60 * 1000));
+                console.log(`\n🔍 Fetching leases updated since ${sinceDate.toISOString()}`);
+                leases = await this.buildiumClient.getLeasesUpdatedSince(sinceDate);
+            }
             
-            const leases = await this.buildiumClient.getLeasesUpdatedSince(sinceDate);
             stats.leasesChecked = leases.length;
-            console.log(`✅ Retrieved ${leases.length} updated leases`);
+            console.log(`✅ Retrieved ${leases.length} ${sinceDays === null ? 'total' : 'updated'} leases`);
 
             if (leases.length === 0) {
-                console.log('ℹ️  No updated leases found - sync complete');
+                console.log('ℹ️  No leases found - sync complete');
                 return stats;
             }
 
@@ -87,7 +97,19 @@ class LeaseCentricSyncManager {
                 console.log(`   Would sync ${futureTenants.length} future tenants`);
             }
 
-            // Step 5: Update last sync time
+            // Step 6: Automatic tenant associations lifecycle management
+            console.log('\n🔄 Updating tenant association lifecycle (automatic)...');
+            const lifecycleManager = new TenantLifecycleManager(this.hubspotClient, this.buildiumClient);
+            // Calculate appropriate date for lifecycle management
+            const lifecycleDate = sinceDays === null ? new Date('2020-01-01') : new Date(Date.now() - (sinceDays * 24 * 60 * 60 * 1000));
+            const lifecycleStats = await lifecycleManager.updateTenantAssociations(dryRun, limit, lifecycleDate, limit); // pass limit as maxLeases for incremental sync
+            const totalLifecycleUpdates = lifecycleStats.futureToActive + lifecycleStats.activeToInactive + lifecycleStats.futureToInactive;
+            console.log(`✅ Lifecycle updates: ${totalLifecycleUpdates}`);
+            if (totalLifecycleUpdates === 0) {
+                console.log('   ✨ All tenant associations are up to date!');
+            }
+
+            // Step 7: Update last sync time
             await this.updateLastSyncTime();
 
             const duration = Date.now() - startTime;

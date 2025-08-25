@@ -53,22 +53,28 @@ async function checkSpecificAssociations() {
             console.log(`   - Listing ${assoc.toObjectId} (Type: ${assoc.associationTypes[0]?.typeId})`);
         });
         
-        // Verify the specific association exists
-        const hasOwnerAssociation = contactAssociations.data.results.some(assoc => 
+        // Verify the specific association exists and check type
+        const ownerAssociation = contactAssociations.data.results.find(assoc => 
             assoc.toObjectId === listingId && 
-            assoc.associationTypes.some(type => type.typeId === 4) // Type 4 = Owner
+            assoc.associationTypes.some(type => type.typeId === 4 || type.typeId === 8) // Type 4 = Rental Owner, Type 8 = Association Owner
         );
         
         console.log('\n🎯 VERIFICATION RESULTS:');
         console.log(`✅ Contact ${contactId} exists: YES`);
         console.log(`✅ Listing ${listingId} exists: YES`);
-        console.log(`✅ Owner association exists: ${hasOwnerAssociation ? 'YES' : 'NO'}`);
+        console.log(`✅ Owner association exists: ${ownerAssociation ? 'YES' : 'NO'}`);
         
-        if (hasOwnerAssociation) {
+        if (ownerAssociation) {
+            const associationType = ownerAssociation.associationTypes[0];
+            const typeId = associationType.typeId;
+            const typeLabel = associationType.label || 'Unknown';
+            const ownerType = typeId === 8 ? 'Association Owner (HOA/Condo)' : 'Rental Property Owner';
+            
             console.log('\n🏆 SUCCESS: Owner association verified!');
             console.log('   👤 Contact: Vishesh Sonawala (sonawalavishesh@gmail.com)');
             console.log('   🏠 Property: 140054 → Listing: 455100848030');
-            console.log('   🔗 Association Type: Owner (ID: 4)');
+            console.log(`   🔗 Association Type: ${typeLabel} (ID: ${typeId})`);
+            console.log(`   📋 Owner Type: ${ownerType}`);
         } else {
             console.log('\n❌ FAILURE: Owner association not found');
         }

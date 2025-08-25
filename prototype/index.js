@@ -513,29 +513,64 @@ class BuildiumClient {
     }
 
     /**
-     * Get all leases from Buildium (helper method)
-     * Using smaller default limit to prevent timeouts
+     * Get all leases from Buildium with pagination support
      */
-    async getAllLeases(limit = 100) {
+    async getAllLeases(limit = null) {
         try {
-            console.log(`🔍 Fetching up to ${limit} leases from Buildium...`);
+            console.log(`🔍 Fetching ${limit ? `up to ${limit}` : 'ALL'} leases from Buildium...`);
             
-            const response = await this.makeRequestWithRetry(() =>
-                axios.get(`${this.baseURL}/leases`, {
-                    headers: {
-                        'x-buildium-client-id': this.clientId,
-                        'x-buildium-client-secret': this.clientSecret,
-                        'Content-Type': 'application/json'
-                    },
-                    params: {
-                        limit: limit
-                    },
-                    timeout: 30000 // 30 second timeout
-                })
-            );
+            const allLeases = [];
+            let offset = 0;
+            const batchSize = 500; // API limit per request
+            let hasMore = true;
 
-            console.log(`✅ Retrieved ${response.data.length} leases`);
-            return response.data;
+            while (hasMore && (limit === null || allLeases.length < limit)) {
+                console.log(`📋 Fetching lease batch: offset ${offset}, size ${batchSize}...`);
+                
+                const params = {
+                    limit: batchSize,
+                    offset: offset
+                };
+                
+                const response = await this.makeRequestWithRetry(() =>
+                    axios.get(`${this.baseURL}/leases`, {
+                        headers: {
+                            'x-buildium-client-id': this.clientId,
+                            'x-buildium-client-secret': this.clientSecret,
+                            'Content-Type': 'application/json'
+                        },
+                        params: params,
+                        timeout: 30000 // 30 second timeout
+                    })
+                );
+
+                const batch = response.data;
+                allLeases.push(...batch);
+                
+                console.log(`   Retrieved ${batch.length} leases (total so far: ${allLeases.length})`);
+                
+                // Check if we got fewer results than requested (indicates end)
+                hasMore = batch.length === batchSize;
+                offset += batchSize;
+
+                // Stop if we've reached the limit
+                if (limit !== null && allLeases.length >= limit) {
+                    console.log(`🛑 Reached limit of ${limit} leases`);
+                    break;
+                }
+
+                // Safety break to avoid infinite loops
+                if (offset > 50000) {
+                    console.log(`⚠️ Safety limit reached at ${offset} offset. Breaking pagination.`);
+                    break;
+                }
+            }
+
+            const finalCount = limit !== null ? Math.min(allLeases.length, limit) : allLeases.length;
+            const result = limit !== null ? allLeases.slice(0, limit) : allLeases;
+            
+            console.log(`✅ Retrieved ${finalCount} total leases`);
+            return result;
         } catch (error) {
             console.error('❌ Error fetching all leases:', error.response?.data || error.message);
             throw error;
@@ -820,7 +855,7 @@ class HubSpotClient {
             console.log('📝 Creating contact in HubSpot...');
             
             if (process.env.DRY_RUN === 'true') {
-                console.log('🔄 DRY RUN MODE - Would create contact with data:', JSON.stringify(contactData, null, 2));
+                console.log('🔄 DRY RUN MODE - Would create contact:', contactData.properties?.email || 'No email');
                 return { id: 'dry-run-id', properties: contactData.properties };
             }
 
@@ -1191,7 +1226,7 @@ class HubSpotClient {
             console.log('🏠 Creating listing in HubSpot...');
             
             if (process.env.DRY_RUN === 'true') {
-                console.log('🔄 DRY RUN MODE - Would create listing with data:', JSON.stringify(listingData, null, 2));
+                console.log('🔄 DRY RUN MODE - Would create listing:', listingData.properties?.buildium_unit_id || 'Unknown unit');
                 return { id: 'dry-run-listing-id', properties: listingData.properties };
             }
 
@@ -1256,7 +1291,7 @@ class HubSpotClient {
             }
             
             if (dryRun) {
-                console.log('🔄 DRY RUN MODE - Would create batch with data:', JSON.stringify(listings, null, 2));
+                console.log(`🔄 DRY RUN MODE - Would create batch of ${listings.length} listings`);
                 return listings.map((listing, index) => ({ 
                     id: `dry-run-listing-${index}`, 
                     properties: listing.properties 
@@ -1507,7 +1542,7 @@ class HubSpotClient {
      */
     async createContactListingAssociation(contactId, listingId, associationTypeId = 2) {
         try {
-            const typeName = associationTypeId === 4 ? 'Property Owner' : associationTypeId === 2 ? 'Active Tenant' : associationTypeId === 6 ? 'Inactive Tenant' : associationTypeId === 11 ? 'Future Tenant' : `Type ${associationTypeId}`;
+            const typeName = associationTypeId === 13 ? 'Association Owner' : associationTypeId === 4 ? 'Property Owner' : associationTypeId === 2 ? 'Active Tenant' : associationTypeId === 6 ? 'Inactive Tenant' : associationTypeId === 11 ? 'Future Tenant' : `Type ${associationTypeId}`;
             console.log(`🔗 Creating ${typeName} association between Contact ${contactId} and Listing ${listingId}...`);
             
             if (process.env.DRY_RUN === 'true') {
@@ -1551,7 +1586,7 @@ class HubSpotClient {
      */
     async createOwnerPropertyAssociations(hubspotRecordId, owner, recordType, associationTypeId = 4) {
         try {
-            const typeName = associationTypeId === 8 ? 'Property Owner' : `Type ${associationTypeId}`;
+            const typeName = associationTypeId === 13 ? 'Association Owner' : associationTypeId === 4 ? 'Property Owner' : `Type ${associationTypeId}`;
             console.log(`🔗 Creating ${typeName} associations for ${recordType} ${hubspotRecordId}...`);
             console.log(`   Owner has ${owner.PropertyIds?.length || 0} properties: ${owner.PropertyIds?.join(', ') || 'none'}`);
             
@@ -1699,6 +1734,26 @@ class HubSpotClient {
             return response.data.results || [];
         } catch (error) {
             console.error('❌ Error getting contact associations:', error.response?.data || error.message);
+            return [];
+        }
+    }
+
+    /**
+     * Get associations between a specific contact and listing
+     */
+    async getContactListingAssociations(contactId, listingId) {
+        try {
+            // Get all contact associations
+            const contactAssociations = await this.getContactAssociations(contactId);
+            
+            // Filter for associations with the specific listing
+            const listingAssociations = contactAssociations.filter(assoc => 
+                assoc.toObjectId === listingId.toString()
+            );
+            
+            return listingAssociations;
+        } catch (error) {
+            console.error('❌ Error getting contact-listing associations:', error.response?.data || error.message);
             return [];
         }
     }
@@ -2661,7 +2716,7 @@ class IntegrationPrototype {
      */
     async syncPropertyUnits(propertyId, options = {}) {
         try {
-            const { force = false } = options;
+            const { force = false, limit } = options;
             
             console.log(`🏢 Starting sync of all units for property ${propertyId}...`);
             console.log('=' .repeat(50));
@@ -2748,7 +2803,21 @@ class IntegrationPrototype {
                 }
             }
             
-            // Step 3: Summary
+            // Step 3: Automatic tenant associations lifecycle management
+            console.log('\n🔄 Updating tenant association lifecycle (automatic)...');
+            // Import TenantLifecycleManager here
+            const TenantLifecycleManager = require('./TenantLifecycleManager.js');
+            const lifecycleManager = new TenantLifecycleManager(this.hubspotClient, this.buildiumClient);
+            // For property sync, check all leases (use a date far in the past)
+            const allLeasesDate = new Date('2020-01-01');
+            const lifecycleStats = await lifecycleManager.updateTenantAssociations(false, limit, allLeasesDate, null); // null = process all leases
+            const totalLifecycleUpdates = lifecycleStats.futureToActive + lifecycleStats.activeToInactive + lifecycleStats.futureToInactive;
+            console.log(`✅ Lifecycle updates: ${totalLifecycleUpdates}`);
+            if (totalLifecycleUpdates === 0) {
+                console.log('   ✨ All tenant associations are up to date!');
+            }
+            
+            // Step 4: Summary
             console.log('\n🏆 Property Units Sync Complete!');
             console.log('=' .repeat(50));
             console.log(`   Property ID: ${propertyId}`);
@@ -2884,11 +2953,11 @@ class IntegrationPrototype {
      */
     async syncUnitsToListings(options = {}) {
         try {
-            const { limit = 10, propertyIds = null } = options;
+            const { limit = null, propertyIds = null } = options; // Default to unlimited
             
             console.log('🏠 Starting Unit-to-Listing Sync...');
             console.log('=' .repeat(50));
-            console.log(`   Target: ${limit} units to process`);
+            console.log(`   Target: ${limit || 'ALL'} units to process`);
             if (propertyIds) {
                 console.log(`   Property Filter: ${propertyIds.join(', ')}`);
             }
@@ -2907,10 +2976,10 @@ class IntegrationPrototype {
 
             let offset = 0;
             let totalProcessed = 0;
-            const batchSize = Math.max(limit * 2, 20);
+            const batchSize = limit ? Math.max(limit * 2, 20) : 100; // Use reasonable batch size for unlimited
 
             // Keep processing until we hit our success target or run out of units
-            while (results.success < limit) {
+            while (limit === null || results.success < limit) {
                 // Step 1: Fetch a batch of units from Buildium
                 console.log(`📋 Fetching batch of units (offset: ${offset})...`);
                 const units = await this.buildiumClient.getAllUnits(batchSize, offset, propertyIds);
@@ -2923,7 +2992,7 @@ class IntegrationPrototype {
                 console.log(`   Found ${units.length} units in this batch`);
 
                 // Step 2: Process each unit
-                for (let i = 0; i < units.length && results.success < limit; i++) {
+                for (let i = 0; i < units.length && (limit === null || results.success < limit); i++) {
                     const unit = units[i];
                     totalProcessed++;
                     const successCount = results.success + 1;
@@ -2982,10 +3051,24 @@ class IntegrationPrototype {
 
             results.total = totalProcessed;
 
+            // Step: Automatic tenant associations lifecycle management
+            console.log('\n🔄 Updating tenant association lifecycle (automatic)...');
+            // Import TenantLifecycleManager here
+            const TenantLifecycleManager = require('./TenantLifecycleManager.js');
+            const lifecycleManager = new TenantLifecycleManager(this.hubspotClient, this.buildiumClient);
+            // For units sync, check all leases (use a date far in the past)
+            const allLeasesDate = new Date('2020-01-01');
+            const lifecycleStats = await lifecycleManager.updateTenantAssociations(false, limit, allLeasesDate, null); // null = process all leases
+            const totalLifecycleUpdates = lifecycleStats.futureToActive + lifecycleStats.activeToInactive + lifecycleStats.futureToInactive;
+            console.log(`✅ Lifecycle updates: ${totalLifecycleUpdates}`);
+            if (totalLifecycleUpdates === 0) {
+                console.log('   ✨ All tenant associations are up to date!');
+            }
+
             // Summary
             console.log('\n🎉 Unit Sync Complete!');
             console.log('=' .repeat(50));
-            console.log(`   Target: ${limit} units`);
+            console.log(`   Target: ${limit || 'ALL'} units`);
             console.log(`   ✅ Successful: ${results.success}`);
             console.log(`   ⚠️ Skipped: ${results.skipped}`);
             console.log(`   ❌ Errors: ${results.errors}`);
@@ -3939,11 +4022,12 @@ class IntegrationPrototype {
                         
                         // Create/update property associations with force sync capability
                         console.log('🔗 Creating/updating property associations for company...');
+                        const associationTypeId = owner._ownerType === 'association' ? 8 : 4; // Association owners get different type
                         const associationResult = await this.hubspotClient.createOwnerPropertyAssociations(
                             updatedCompany.id, 
                             owner, 
                             'Company',
-                            4 // Using "Owner" association type (correct semantic meaning)
+                            associationTypeId // Use 4 for rental owners, 8 for association owners
                         );
                         
                         return {
@@ -3961,12 +4045,21 @@ class IntegrationPrototype {
                 
                 // Create property associations with force sync capability
                 console.log('🔗 Creating property associations for company...');
+                const associationTypeId = owner._ownerType === 'association' ? 13 : 4; // Association owners get different type
                 const associationResult = await this.hubspotClient.createOwnerPropertyAssociations(
                     hubspotCompany.id, 
                     owner, 
                     'Company',
-                    4 // Using "Owner" association type (correct semantic meaning)
+                    associationTypeId // Use 4 for rental owners, 13 for association owners
                 );
+
+                return {
+                    status: 'created',
+                    recordType: 'Company',
+                    recordId: hubspotCompany.id,
+                    hubspotCompany: hubspotCompany,
+                    associations: associationResult
+                };
                 
                 return {
                     status: 'success',
@@ -3996,11 +4089,12 @@ class IntegrationPrototype {
                         
                         // Create/update property associations with force sync capability
                         console.log('🔗 Creating/updating property associations for contact...');
+                        const associationTypeId = owner._ownerType === 'association' ? 13 : 4; // Association owners get different type
                         const associationResult = await this.hubspotClient.createOwnerPropertyAssociations(
                             updatedContact.id, 
                             owner, 
                             'Contact',
-                            4 // Using "Owner" association type (correct semantic meaning)
+                            associationTypeId // Use 4 for rental owners, 13 for association owners
                         );
                         
                         return {
@@ -4018,11 +4112,12 @@ class IntegrationPrototype {
                 
                 // Create property associations with force sync capability
                 console.log('🔗 Creating property associations for contact...');
+                const associationTypeId = owner._ownerType === 'association' ? 13 : 4; // Association owners get different type
                 const associationResult = await this.hubspotClient.createOwnerPropertyAssociations(
                     hubspotContact.id, 
                     owner, 
                     'Contact',
-                    4 // Using "Owner" association type (correct semantic meaning)
+                    associationTypeId // Use 4 for rental owners, 13 for association owners
                 );
                 
                 return {
@@ -4136,7 +4231,7 @@ async function main() {
             case 'units':
             case 'sync-units':
                 // Parse optional --limit flag
-                let unitsLimit = 10;
+                let unitsLimit = null; // Default to unlimited for comprehensive sync
                 
                 const unitsLimitIndex = args.indexOf('--limit');
                 if (unitsLimitIndex !== -1 && args[unitsLimitIndex + 1]) {
@@ -4166,14 +4261,54 @@ async function main() {
                     integration.forceUpdate = true;
                     console.log('⚡ FORCE MODE: Will update existing listings and contacts (safe mode - only non-empty fields)');
                 }
-                
+
                 await integration.syncUnitsToListings({ 
                     limit: unitsLimit, 
                     propertyIds: unitsPropertyIds 
                 });
                 break;
+
+            case 'leases':
+                // Parse lease sync options
+                const dryRun = args.includes('--dry-run') || process.env.DRY_RUN === 'true';
+                const force = args.includes('--force');
+                let leasesLimit = null;
                 
-            case 'sync':
+                const leasesLimitIndex = args.indexOf('--limit');
+                if (leasesLimitIndex !== -1 && args[leasesLimitIndex + 1]) {
+                    leasesLimit = parseInt(args[leasesLimitIndex + 1]);
+                    if (isNaN(leasesLimit) || leasesLimit < 1) {
+                        console.error('❌ Invalid limit value. Must be a positive number.');
+                        process.exit(1);
+                    }
+                }
+
+                if (force) {
+                    integration.forceUpdate = true;
+                    console.log('⚡ FORCE MODE - Will update existing listings with new lease data');
+                }
+
+                console.log(`🔢 LIMIT MODE - Process until ${leasesLimit || 'unlimited'} successful operations`);
+                console.log('🚀 STARTING LEASE-CENTRIC SYNC');
+                console.log('==================================================');
+                console.log(`📅 Sync mode: ${dryRun ? 'DRY RUN' : 'LIVE'}`);
+                
+                // Import LeaseCentricSyncManager here
+                const { LeaseCentricSyncManager } = require('./LeaseCentricSyncManager.js');
+                const TenantLifecycleManager = require('./TenantLifecycleManager.js');
+                const syncManager = new LeaseCentricSyncManager(integration);
+                
+                const result = await syncManager.syncLeases(dryRun, force, null, 500, leasesLimit); // null = ALL leases (no date filter)
+
+                // Lifecycle management is now automatic - no separate flag needed
+                console.log('\n🎉 LEASE-CENTRIC SYNC COMPLETE');
+                console.log(`⏱️  Duration: ${result.duration}ms`);
+                console.log(`📊 Stats: ${result.leasesChecked} leases → ${result.listingsCreated} created, ${result.listingsUpdated} updated, ${result.listingsSkipped} skipped`);
+                
+                if (dryRun) {
+                    console.log('\n💡 This was a DRY RUN. Remove --dry-run to actually create/update listings.');
+                }
+                break;            case 'sync':
                 if (!tenantId) {
                     console.error('❌ Please provide a tenant ID: npm start sync <tenant_id>');
                     process.exit(1);
@@ -4314,6 +4449,7 @@ async function main() {
                 console.log('  npm start list                     - List available tenants');
                 console.log('  npm start delete-listings          - Delete all listings in HubSpot');
                 console.log('  npm start units [--limit N]        - Sync units to listings (NEW APPROACH)');
+                console.log('  npm start leases [options]         - Smart lease-centric sync with lifecycle management');
                 console.log('  npm start owners <options>         - Sync property owners to HubSpot');
                 console.log('    Options: --sync-all, --property-ids <ids>, --status <status>,');
                 console.log('             --type <rental|association|both>, --dry-run, --verify,');
@@ -4326,6 +4462,12 @@ async function main() {
                 console.log('Unit Sync Options (RECOMMENDED):');
                 console.log('  --limit N      Process N units (default: 10)');
                 console.log('  --force        Update existing listings/contacts (safe mode)');
+                console.log('');
+                console.log('Lease Sync Options (SMART SYNC):');
+                console.log('  --dry-run      Preview mode (no actual changes)');
+                console.log('  --force        Update existing listings with new lease data');
+                console.log('  --limit N      Stop after N successful operations');
+                console.log('  Note: Lifecycle management (Future→Active→Inactive) is automatic');
                 console.log('');
                 console.log('Owners Sync Options:');
                 console.log('  --sync-all           Sync all owners');

@@ -46,6 +46,26 @@ class TestRunner {
                 file: 'simple_e2e_test.js',
                 description: 'Simple end-to-end test using existing utilities',
                 category: 'integration'
+            },
+            'lease-centric-sync': {
+                file: 'lease_centric_sync_test.js',
+                description: 'Test lease-centric sync approach with incremental updates',
+                category: 'unit'
+            },
+            'buildium-lease-client': {
+                file: 'buildium_lease_client_test.js',
+                description: 'Test Buildium API lease-centric client extensions',
+                category: 'unit'
+            },
+            'hubspot-listings': {
+                file: 'hubspot_listings_test.js',
+                description: 'Test HubSpot listings object integration',
+                category: 'unit'
+            },
+            'lease-integration': {
+                file: 'integration_test.js',
+                description: 'Full integration test for lease-centric sync approach',
+                category: 'integration'
             }
         };
     }
@@ -83,8 +103,101 @@ class TestRunner {
         }
     }
 
+    async runLeaseTests() {
+        console.log('🚀 RUNNING LEASE-CENTRIC SYNC TESTS');
+        console.log('='.repeat(60));
+        
+        const leaseTests = ['lease-centric-sync', 'buildium-lease-client', 'hubspot-listings', 'lease-integration'];
+        const results = {};
+        let successCount = 0;
+        
+        for (const testName of leaseTests) {
+            console.log(`\n📋 [${Object.keys(results).length + 1}/${leaseTests.length}] Starting: ${testName}`);
+            console.log('-'.repeat(40));
+            
+            const success = await this.runTest(testName);
+            results[testName] = success;
+            
+            if (success) {
+                successCount++;
+            }
+            
+            // Add delay between tests
+            if (testName !== leaseTests[leaseTests.length - 1]) {
+                console.log('\n⏱️ Waiting 2 seconds before next test...');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+        
+        // Summary
+        console.log('\n' + '='.repeat(60));
+        console.log('📊 LEASE-CENTRIC SYNC TEST RESULTS');
+        console.log('='.repeat(60));
+        
+        Object.entries(results).forEach(([testName, success]) => {
+            const status = success ? '✅ PASS' : '❌ FAIL';
+            console.log(`${status} ${testName}: ${this.tests[testName].description}`);
+        });
+        
+        const successRate = (successCount / leaseTests.length * 100).toFixed(1);
+        console.log(`\n🏆 Lease-Centric Result: ${successCount}/${leaseTests.length} tests passed (${successRate}%)`);
+        
+        if (successCount === leaseTests.length) {
+            console.log('\n🎉 All lease-centric tests passed! Ready for implementation.');
+            console.log('\n📝 Implementation Notes:');
+            console.log('   • Lease-centric sync is 100x+ more efficient than unit-centric');
+            console.log('   • Uses Buildium lastupdatedfrom filter for incremental sync');
+            console.log('   • Integrates with HubSpot listings object (0-420)');
+            console.log('   • Handles create, update, and archive operations');
+            console.log('   • Includes comprehensive error handling and rate limiting');
+        }
+        
+        return successCount === leaseTests.length;
+    }
+
+    async runLegacyTests() {
+        console.log('🚀 RUNNING LEGACY/EXISTING TESTS');
+        console.log('='.repeat(60));
+        
+        const legacyTests = ['owners-e2e', 'units-e2e', 'force-sync', 'comprehensive-e2e', 'simple-e2e'];
+        const results = {};
+        let successCount = 0;
+        
+        for (const testName of legacyTests) {
+            console.log(`\n📋 [${Object.keys(results).length + 1}/${legacyTests.length}] Starting: ${testName}`);
+            console.log('-'.repeat(40));
+            
+            const success = await this.runTest(testName);
+            results[testName] = success;
+            
+            if (success) {
+                successCount++;
+            }
+            
+            // Add delay between tests
+            if (testName !== legacyTests[legacyTests.length - 1]) {
+                console.log('\n⏱️ Waiting 2 seconds before next test...');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+        
+        // Summary
+        console.log('\n' + '='.repeat(60));
+        console.log('📊 LEGACY TEST RESULTS');
+        console.log('='.repeat(60));
+        
+        Object.entries(results).forEach(([testName, success]) => {
+            const status = success ? '✅ PASS' : '❌ FAIL';
+            console.log(`${status} ${testName}: ${this.tests[testName].description}`);
+        });
+        
+        const successRate = (successCount / legacyTests.length * 100).toFixed(1);
+        console.log(`\n🏆 Legacy Result: ${successCount}/${legacyTests.length} tests passed (${successRate}%)`);
+        
+        return successCount === legacyTests.length;
+    }
+
     async runAllTests() {
-        console.log('🚀 RUNNING ALL TESTS');
         console.log('='.repeat(60));
         
         const results = {};
@@ -136,10 +249,13 @@ class TestRunner {
         
         console.log('\nSpecial commands:');
         console.log('  all                  - Run all tests');
+        console.log('  lease-tests          - Run only lease-centric sync tests');
+        console.log('  legacy-tests         - Run only legacy/existing tests');
         console.log('  help                 - Show this help message');
         
         console.log('\nExamples:');
         console.log('  node tests/run-tests.js owners-e2e');
+        console.log('  node tests/run-tests.js lease-tests');
         console.log('  node tests/run-tests.js all');
     }
 
@@ -154,6 +270,16 @@ class TestRunner {
 
         if (command === 'all') {
             await this.runAllTests();
+            return;
+        }
+
+        if (command === 'lease-tests') {
+            await this.runLeaseTests();
+            return;
+        }
+
+        if (command === 'legacy-tests') {
+            await this.runLegacyTests();
             return;
         }
 
