@@ -4,9 +4,9 @@
   "description": "A comprehensive integration system for syncing property data and tenant contacts between Buildium and HubSpot",
   "main": "prototype/index.js",
   "scripts": {
-    "start": "node prototype/utils/sync_10_units.js",
-    "sync": "node prototype/utils/sync_10_units.js",
-    "sync:force": "node prototype/utils/sync_10_units.js --force",
+    "start": "node prototype/index.js",
+    "sync": "node prototype/index.js",
+    "sync:force": "node prototype/index.js --force",
     "test:contact": "node prototype/utils/test_contact_creation.js",
     "clean:listings": "node prototype/utils/delete_all_listings.js"
   },
