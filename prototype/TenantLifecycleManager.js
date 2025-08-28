@@ -28,7 +28,7 @@ class TenantLifecycleManager {
     /**
      * Main method - updates tenant associations based on lease status changes
      */
-    async updateTenantAssociations(dryRun = false, limit = null, sinceDate = null, maxLeases = null) {
+    async updateTenantAssociations(dryRun = false, limit = null, sinceDate = null, maxLeases = null, unitId = null) {
         console.log('🔄 Checking tenant association lifecycle transitions...');
         const stats = {
             futureToActive: 0,
@@ -38,13 +38,19 @@ class TenantLifecycleManager {
         };
 
         try {
-            // Default to last 30 days if no date specified
-            const defaultSinceDate = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000));
-            const queryDate = sinceDate || defaultSinceDate;
-            
-            // Get ALL leases by default (no arbitrary caps)
-            console.log('📊 Fetching ALL leases from Buildium (paginated)...');
-            const leases = await this.getAllLeasesWithPagination(queryDate, maxLeases);
+            let leases;
+            if (unitId) {
+                console.log(`🎯 Targeting lifecycle check for unit: ${unitId}`);
+                leases = await this.buildiumClient.getAllLeasesForUnit(unitId);
+            } else {
+                // Default to last 30 days if no date specified
+                const defaultSinceDate = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000));
+                const queryDate = sinceDate || defaultSinceDate;
+                
+                // Get ALL leases by default (no arbitrary caps)
+                console.log('📊 Fetching ALL leases from Buildium (paginated)...');
+                leases = await this.getAllLeasesWithPagination(queryDate, maxLeases);
+            }
 
             console.log(`📋 Found ${leases.length} leases to check for lifecycle updates`);
 

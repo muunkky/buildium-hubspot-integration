@@ -26,11 +26,15 @@ class LeaseCentricSyncManager {
     /**
      * Main sync method - orchestrates complete workflow with automatic lifecycle management
      */
-    async syncLeases(dryRun = false, force = false, sinceDays = 7, batchSize = 50, limit = null) {
+    async syncLeases(dryRun = false, force = false, sinceDays = 7, batchSize = 50, limit = null, unitId = null) {
         console.log('🚀 STARTING LEASE-CENTRIC SYNC');
         console.log('='.repeat(50));
         console.log(`📅 Sync mode: ${dryRun ? 'DRY RUN' : 'LIVE'}`);
-        console.log(`⏰ Looking back: ${sinceDays} days`);
+        if (unitId) {
+            console.log(`🎯 Targeting specific unit: ${unitId}`);
+        } else {
+            console.log(`⏰ Looking back: ${sinceDays} days`);
+        }
         console.log(`🔄 Force update: ${force ? 'YES - Update existing listings' : 'NO - Skip duplicates'}`);
         console.log('🔄 Tenant lifecycle management: AUTOMATIC (Future→Active→Inactive)');
         
@@ -46,14 +50,20 @@ class LeaseCentricSyncManager {
         try {
             // Step 1: Get updated leases
             let leases;
-            if (sinceDays === null) {
+            if (unitId) {
+                console.log(`
+🔍 Fetching all leases for unit ${unitId}...`);
+                leases = await this.buildiumClient.getAllLeasesForUnit(unitId);
+            } else if (sinceDays === null) {
                 // Get ALL leases (no date filter)
-                console.log(`\n🔍 Fetching ALL leases from Buildium (no date filter)...`);
+                console.log(`
+🔍 Fetching ALL leases from Buildium (no date filter)...`);
                 leases = await this.buildiumClient.getAllLeases();
             } else {
                 // Get leases since specific date
                 const sinceDate = new Date(Date.now() - (sinceDays * 24 * 60 * 60 * 1000));
-                console.log(`\n🔍 Fetching leases updated since ${sinceDate.toISOString()}`);
+                console.log(`
+🔍 Fetching leases updated since ${sinceDate.toISOString()}`);
                 leases = await this.buildiumClient.getLeasesUpdatedSince(sinceDate);
             }
             
@@ -102,7 +112,7 @@ class LeaseCentricSyncManager {
             const lifecycleManager = new TenantLifecycleManager(this.hubspotClient, this.buildiumClient);
             // Calculate appropriate date for lifecycle management
             const lifecycleDate = sinceDays === null ? new Date('2020-01-01') : new Date(Date.now() - (sinceDays * 24 * 60 * 60 * 1000));
-            const lifecycleStats = await lifecycleManager.updateTenantAssociations(dryRun, limit, lifecycleDate, limit); // pass limit as maxLeases for incremental sync
+            const lifecycleStats = await lifecycleManager.updateTenantAssociations(dryRun, limit, lifecycleDate, limit, unitId); // pass limit as maxLeases for incremental sync
             const totalLifecycleUpdates = lifecycleStats.futureToActive + lifecycleStats.activeToInactive + lifecycleStats.futureToInactive;
             console.log(`✅ Lifecycle updates: ${totalLifecycleUpdates}`);
             if (totalLifecycleUpdates === 0) {

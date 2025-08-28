@@ -461,7 +461,7 @@ class BuildiumClient {
             
             // Filter by exact unit ID to handle any edge cases
             const exactLeases = allPropertyLeases.filter(lease => 
-                lease.UnitId === unitId || lease.Unit?.Id === unitId
+                lease.UnitId == unitId || lease.Unit?.Id == unitId
             );
             
             console.log(`✅ Confirmed ${exactLeases.length} exact lease(s) for unit ${unitId}`);
@@ -4273,7 +4273,8 @@ async function main() {
                 const dryRun = args.includes('--dry-run') || process.env.DRY_RUN === 'true';
                 const force = args.includes('--force');
                 let leasesLimit = null;
-                
+                let leaseUnitId = null;
+
                 const leasesLimitIndex = args.indexOf('--limit');
                 if (leasesLimitIndex !== -1 && args[leasesLimitIndex + 1]) {
                     leasesLimit = parseInt(args[leasesLimitIndex + 1]);
@@ -4281,6 +4282,11 @@ async function main() {
                         console.error('❌ Invalid limit value. Must be a positive number.');
                         process.exit(1);
                     }
+                }
+
+                const unitIdIndex = args.indexOf('--unit-id');
+                if (unitIdIndex !== -1 && args[unitIdIndex + 1]) {
+                    leaseUnitId = args[unitIdIndex + 1];
                 }
 
                 if (force) {
@@ -4298,7 +4304,7 @@ async function main() {
                 const TenantLifecycleManager = require('./TenantLifecycleManager.js');
                 const syncManager = new LeaseCentricSyncManager(integration);
                 
-                const result = await syncManager.syncLeases(dryRun, force, null, 500, leasesLimit); // null = ALL leases (no date filter)
+                const result = await syncManager.syncLeases(dryRun, force, null, 500, leasesLimit, leaseUnitId); // null = ALL leases (no date filter)
 
                 // Lifecycle management is now automatic - no separate flag needed
                 console.log('\n🎉 LEASE-CENTRIC SYNC COMPLETE');
