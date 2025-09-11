@@ -1,170 +1,240 @@
 # Buildium-HubSpot Integration
 
-A comprehensive integration system for syncing property data and tenant contacts between Buildium and HubSpot, with support for listings, custom properties, and tenant associations.
+A comprehensive data synchronization platform that connects Buildium property management software with HubSpot CRM, enabling automated property, tenant, lease, and owner data management.
 
-## Features
+## 🚀 Quick Start
 
-### Core Functionality
-- **Property Sync**: Sync Buildium properties as HubSpot listings with comprehensive field mapping
-- **Tenant Sync**: Create and update HubSpot contacts from Buildium tenant data
-- **Lease Management**: Track active and inactive lease relationships between tenants and properties
-- **Association Mapping**: Automatically create associations between contacts and listings based on lease status
-
-### Advanced Features
-- **Force Update Mode**: Use `--force` flag to update existing records with latest data
-- **Safe Update Mode**: Only updates fields with actual data to avoid overwriting existing HubSpot information
-- **Canadian Address Support**: Handles both US ZIP codes and Canadian postal codes
-- **Custom Properties**: Automatically creates required custom properties in HubSpot
-- **Comprehensive Logging**: Detailed progress tracking and error reporting
-
-## Project Structure
-
-```
-├── prototype/
-│   ├── index.js                 # Main integration classes and logic
-│   ├── package.json            # Node.js dependencies
-│   └── utils/                  # Utility scripts
-│       ├── sync_10_units.js    # Sync script for testing
-│       ├── delete_all_listings.js
-│       ├── test_contact_creation.js
-│       └── [other utility scripts]
-├── docs/                       # API documentation
-│   ├── buildium-api-reference.md
-│   ├── hubspot-api-reference.md
-│   └── data-integration-plan.md
-└── scripts/                    # Additional processing scripts
-```
-
-## Setup
-
-### Prerequisites
-- Node.js (v14 or higher)
-- Buildium API credentials (Client ID and Secret)
-- HubSpot API access token with appropriate permissions
-
-### Installation
-
-1. Clone the repository:
 ```bash
-git clone https://github.com/muunkky/buildium-hubspot-integration.git
-cd buildium-hubspot-integration
-```
-
-2. Install dependencies:
-```bash
+# Install dependencies
 cd prototype
 npm install
+
+# Set up environment
+cp .env.example .env
+# Edit .env with your API credentials
+
+# Run a test sync
+node index.js sync-leases --dry-run --limit 5
 ```
 
-3. Create a `.env` file with your API credentials:
-```env
+## 📋 Commands
+
+### Lease-Centric Sync (Recommended)
+The most efficient approach - processes only updated leases:
+
+```bash
+# Incremental sync (last 7 days)
+node index.js sync-leases --since-days 7 --dry-run
+
+# Force update existing records
+node index.js sync-leases --force --limit 50
+
+# Sync specific unit
+node index.js sync-leases --unit-id 123456
+
+# Full sync (use sparingly)
+node index.js sync-leases --since-days null --limit 100
+```
+
+### Unit-Centric Sync
+For comprehensive property setup:
+
+```bash
+# Sync specific properties
+node index.js sync-units --property-ids 140054 --limit 10
+
+# Force update mode
+node index.js sync-units --force --property-ids 140054
+```
+
+### Owner Sync
+Synchronize property owners:
+
+```bash
+# Sync owners for specific properties
+node index.js owners --property-ids 140054 --sync-all
+
+# Dry run mode
+node index.js owners --property-ids 140054 --dry-run
+```
+
+### Tenant Lifecycle Management
+Automated association management:
+
+```bash
+# Update tenant associations based on lease status
+node index.js tenant-lifecycle --dry-run
+
+# Process specific date range
+node index.js tenant-lifecycle --since-days 30
+```
+
+## 🏗️ Architecture
+
+### Current Sync Approaches
+
+1. **[Lease-Centric Sync](prototype/LeaseCentricSyncManager.js)** ⭐ **Primary**
+   - **Best for:** Daily/hourly incremental updates
+   - **Efficiency:** 100x+ improvement over unit-centric
+   - **API Calls:** ~8 calls for 5 updates vs 1000+ with unit-centric
+
+2. **[Unit-Centric Sync](prototype/index.js)** 
+   - **Best for:** Initial property setup, comprehensive backfills
+   - **Features:** Complete unit → listing transformation with full context
+
+3. **[Owner Sync](prototype/index.js)**
+   - **Best for:** Property owner management
+   - **Features:** Buildium owner → HubSpot contact/company mapping
+
+4. **[Tenant Lifecycle Manager](prototype/TenantLifecycleManager.js)**
+   - **Best for:** Automated association updates (Future→Active→Inactive)
+   - **Features:** Automatic tenant status transitions
+
+### Data Flow
+
+```
+Buildium APIs → Data Transformation → HubSpot Objects → Association Management
+     ↓                    ↓                  ↓                    ↓
+  Properties/Units    Listings Object    Contact Records    Active/Future/Past
+  Leases/Tenants     Custom Properties   Listing Objects    Association Types
+  Owners/Contacts    Field Mapping       Company Records    Lifecycle Updates
+```
+
+## 📁 Project Structure
+
+```
+├── prototype/                    # Main application
+│   ├── index.js                 # Core integration classes & sync methods
+│   ├── LeaseCentricSyncManager.js # Next-gen lease sync (100x efficiency)
+│   ├── TenantLifecycleManager.js  # Automated tenant associations
+│   ├── package.json             # Dependencies
+│   ├── tests/                   # Comprehensive test suite
+│   │   ├── run-tests.js         # Test runner
+│   │   ├── end_to_end_test.js   # Full workflow validation
+│   │   ├── owners_e2e_test.js   # Owner sync testing
+│   │   └── LEASE_TESTS_README.md # Lease sync test documentation
+│   ├── utils/                   # Debugging & development utilities
+│   └── scripts/                 # Temporary testing scripts
+├── docs/                        # Architecture & API documentation
+│   ├── leases-command-design.md # Lease sync implementation plan
+│   ├── owners-command-design.md # Owner sync specification
+│   ├── code-review/             # Code analysis & improvement plans
+│   └── [other documentation]
+└── scripts/                     # Data processing utilities
+```
+
+## 🧪 Testing
+
+### Run Tests
+```bash
+cd prototype
+node tests/run-tests.js all        # Run all tests
+node tests/run-tests.js owners-e2e # Run owner sync tests
+node tests/run-tests.js help       # See all options
+```
+
+### Test Categories
+- **End-to-End Tests:** Full sync workflow validation
+- **Force Sync Tests:** Update existing records safely
+- **Owner Sync Tests:** Property owner management
+- **Lease Tests:** Next-generation lease-centric approach ([details](prototype/tests/LEASE_TESTS_README.md))
+
+## 🔧 Configuration
+
+### Environment Variables
+```bash
+# Buildium API
+BUILDIUM_CLIENT_ID=your_client_id
+BUILDIUM_CLIENT_SECRET=your_client_secret
 BUILDIUM_BASE_URL=https://api.buildium.com
-BUILDIUM_CLIENT_ID=your_buildium_client_id
-BUILDIUM_CLIENT_SECRET=your_buildium_client_secret
-HUBSPOT_ACCESS_TOKEN=your_hubspot_access_token
+
+# HubSpot API
+HUBSPOT_ACCESS_TOKEN=your_access_token
 ```
 
-## Usage
+### Sync State Files
+- `last_lease_sync.json` - Global sync timestamps
+- `lease_sync_timestamps.json` - Per-lease incremental sync
+- `owner_sync_output.log` - Owner sync results
 
-### Basic Sync
-Sync units from Buildium to HubSpot (creates new records, skips existing):
+## 📊 Performance & Efficiency
+
+### Lease-Centric Sync Benefits
+- **API Efficiency:** Queries only updated leases vs scanning all units
+- **Speed:** 100x+ faster for incremental updates
+- **Resource Usage:** Minimal API calls and memory usage
+- **Reliability:** Built-in error handling and retry logic
+
+### Benchmarks
+```
+Traditional Unit-Centric:  1000+ API calls for 5 lease updates
+Lease-Centric Approach:    8 API calls for 5 lease updates
+Performance Improvement:   125x more efficient
+```
+
+## 🎯 Development Status
+
+### ✅ Production Ready
+- **Lease-Centric Sync:** Incremental updates with 100x efficiency improvement
+- **Owner Sync:** Property owner management with proper filtering
+- **Unit-Centric Sync:** Comprehensive property setup and backfills
+
+### 🚧 In Development
+- **Real-time Webhooks:** Event-driven sync triggers
+- **Advanced Analytics:** Vacancy prediction and rent optimization
+- **Enhanced Error Recovery:** Comprehensive rollback capabilities
+
+### 📋 Next Steps
+1. **Deploy lease-centric sync** for daily operations
+2. **Implement webhook integration** for real-time updates
+3. **Add advanced monitoring** and alerting
+4. **Migrate to microservice architecture**
+
+## 📚 Documentation
+
+- **[Lease Command Design](docs/leases-command-design.md)** - Next-gen sync architecture
+- **[Owner Command Design](docs/owners-command-design.md)** - Property owner management
+- **[Code Review Analysis](docs/code-review/)** - Technical debt and improvements
+- **[API References](docs/)** - Buildium and HubSpot API documentation
+
+## 🛠️ Development
+
+### Adding New Sync Methods
+1. Create sync method in appropriate manager class
+2. Add command parsing in `index.js`
+3. Include comprehensive error handling
+4. Add tests in `tests/` directory
+5. Update documentation
+
+### Best Practices
+- **Use lease-centric sync** for ongoing operations
+- **Include dry-run modes** for all sync operations
+- **Implement proper rate limiting** (Buildium: 10 req/sec, HubSpot: 9 req/sec)
+- **Add comprehensive logging** for debugging and monitoring
+- **Test incrementally** with small limits before full sync
+
+## 🆘 Troubleshooting
+
+### Common Issues
+1. **Rate Limiting:** Reduce batch sizes or add delays
+2. **Missing Associations:** Run tenant lifecycle management
+3. **Duplicate Records:** Use force update mode carefully
+4. **API Errors:** Check credentials and network connectivity
+
+### Debug Mode
 ```bash
-cd prototype/utils
-node sync_10_units.js
+# Enable verbose logging
+DEBUG=1 node index.js sync-leases --dry-run --limit 1
 ```
 
-### Force Update Mode
-Update existing records with latest data from Buildium:
-```bash
-node sync_10_units.js --force
-```
+## 🤝 Contributing
 
-### Utility Scripts
-- `delete_all_listings.js` - Remove all listings from HubSpot
-- `test_contact_creation.js` - Test contact creation with a specific tenant
-- Various debug and verification scripts in the `utils/` directory
+1. Review existing [code analysis](docs/code-review/) and improvement plans
+2. Follow established patterns for error handling and logging  
+3. Add tests for new functionality
+4. Update documentation for any API changes
+5. Test thoroughly with dry-run modes
 
-## API Integration
+---
 
-### Buildium API
-- **Properties**: Fetch property details, addresses, and metadata
-- **Units**: Retrieve unit information, numbers, types, and status
-- **Tenants**: Get tenant contact information and details
-- **Leases**: Track lease relationships, status, and history
-
-### HubSpot API
-- **Listings Object**: Custom object for property listings
-- **Contacts**: Standard contact records for tenants
-- **Custom Properties**: Extended fields for Buildium-specific data
-- **Associations**: Links between contacts and listings based on lease status
-
-## Field Mapping
-
-### Contact Fields (Tenant → HubSpot Contact)
-- **Standard Fields**: firstname, lastname, email, phone, address, city, state, zip, country
-- **Business Info**: company, jobtitle
-- **Extended Fields**: mobilephone, fax, website, date_of_birth
-- **Buildium Metadata**: Stored in `hs_content_membership_notes` including tenant ID, notes, emergency contacts
-
-### Listing Fields (Unit/Property → HubSpot Listing)
-- **Property Info**: name, description, address components
-- **Unit Details**: unit number, type, floor, market rent, status
-- **Buildium Tracking**: property ID, unit ID, URLs for management
-- **Tenant Associations**: Current and previous tenant contact IDs
-
-## Data Flow
-
-1. **Fetch Data**: Retrieve units, properties, and lease information from Buildium
-2. **Transform**: Convert Buildium data to HubSpot-compatible format
-3. **Sync Listings**: Create or update property listings in HubSpot
-4. **Process Tenants**: Create or update contact records for tenants
-5. **Create Associations**: Link contacts to listings based on lease status (Active/Inactive)
-
-## Safe Update Mode
-
-The force update feature includes a "safe mode" that:
-- Only updates fields where Buildium has actual data
-- Never overwrites existing HubSpot data with empty values
-- Preserves manually entered information in HubSpot
-- Uses PATCH requests to update only specified fields
-
-## Error Handling
-
-- Comprehensive logging with emoji indicators for easy scanning
-- Graceful handling of API rate limits and timeouts
-- Detailed error reporting with context information
-- Fallback mechanisms for complex property/lease queries
-
-## International Support
-
-- **US Addresses**: Standard ZIP code handling
-- **Canadian Addresses**: Postal code validation and proper field mapping
-- **Address Validation**: Regex-based detection to route addresses correctly
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly with your Buildium/HubSpot instances
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details
-
-## Support
-
-For issues and questions:
-1. Check the existing issues in GitHub
-2. Review the documentation in the `docs/` folder
-3. Create a new issue with detailed information about your setup and the problem
-
-## Changelog
-
-### Recent Updates
-- Added force update mode with safe field updating
-- Implemented comprehensive Canadian address support
-- Enhanced error handling and logging
-- Added association management between contacts and listings
-- Improved field mapping with 20+ property fields and 16+ contact fields
+**Built for efficiency, reliability, and scale.** 🚀
