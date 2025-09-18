@@ -277,27 +277,43 @@ class LeaseCentricSyncManager {
                 .sort((a, b) => new Date(a.LeaseFromDate) - new Date(b.LeaseFromDate))[0]; // Earliest future lease
 
             if (referenceLease) {
+                const propertyLabel = referenceLease.Property?.Name
+                    || referenceLease.PropertyName
+                    || referenceLease.Unit?.PropertyName
+                    || (referenceLease.PropertyId ? `Property ${referenceLease.PropertyId}` : 'Unknown Property');
+                const unitLabel = referenceLease.UnitNumber
+                    || referenceLease.Unit?.UnitNumber
+                    || referenceLease.Unit?.Name
+                    || referenceLease.UnitId?.toString()
+                    || 'Unit';
+
+                const listingName = `${propertyLabel} - Unit ${unitLabel}`.trim();
+
                 const listing = {
                     properties: {
                         // Core identifiers
                         buildium_unit_id: referenceLease.UnitId?.toString(),
                         buildium_lease_id: activeLease ? activeLease.Id?.toString() : '', // Only if there's an active lease
                         buildium_property_id: referenceLease.PropertyId?.toString(),
-                        
+
+                        // Listing names (HubSpot requires hs_name)
+                        hs_name: listingName,
+                        name: listingName,
+
                         // Rent info (use existing property)
                         buildium_market_rent: activeLease ? this.extractRent(activeLease) : '',
-                        
+
                         // Address info (use existing HubSpot standard properties) 
                         hs_address_1: referenceLease.UnitAddress?.AddressLine1 || '',
                         hs_city: referenceLease.UnitAddress?.City || '',
                         hs_state_province: referenceLease.UnitAddress?.State || '',
                         hs_zip: referenceLease.UnitAddress?.PostalCode || '',
-                        
+
                         // Current lease info (only if there's an active lease)
                         lease_start_date: activeLease ? activeLease.LeaseFromDate : '',
                         lease_end_date: activeLease ? activeLease.LeaseToDate : '',
                         lease_status: activeLease ? activeLease.LeaseStatus : 'Past', // Use 'Past' instead of 'No Current Lease'
-                        
+
                         // Tenant info (only if active lease)
                         primary_tenant: activeLease ? this.extractPrimaryTenant(activeLease) : '',
 
