@@ -1577,7 +1577,7 @@ class HubSpotClient {
                 };
 
                 const response = await this.makeRequestWithRetry(() =>
-                    axios.post(`${this.baseURL}/crm/v3/objects/0-420/batch`, batchRequest, {
+                    axios.post(`${this.baseURL}/crm/v3/objects/0-420/batch/create`, batchRequest, {
                         headers: {
                             'Authorization': `Bearer ${this.accessToken}`,
                             'Content-Type': 'application/json'
