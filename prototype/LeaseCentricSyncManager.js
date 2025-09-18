@@ -176,7 +176,7 @@ class LeaseCentricSyncManager {
             // Step 3: Create/update listings in batches
             if (!dryRun) {
                 console.log('\n📦 Creating/updating listings in batches...');
-                const result = await this.hubspotClient.createListingsBatch(listings, false, force, limit);
+                const result = await this.hubspotClient.createListingsBatch(listings, false, force, limit, hubspotListingCache);
                 
                 stats.listingsCreated = result.created ? result.created.length : 0;
                 stats.listingsUpdated = result.updated ? result.updated.length : 0;
@@ -191,7 +191,7 @@ class LeaseCentricSyncManager {
 
             } else {
                 console.log('\n🔄 DRY RUN - Would create/update listings');
-                const result = await this.hubspotClient.createListingsBatch(listings, true, force, limit);
+                const result = await this.hubspotClient.createListingsBatch(listings, true, force, limit, hubspotListingCache);
                 stats.listingsCreated = result.created ? result.created.length : listings.length;
                 stats.listingsUpdated = result.updated ? result.updated.length : 0;
                 stats.listingsSkipped = result.skipped ? result.skipped.length : 0;

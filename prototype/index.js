@@ -1431,7 +1431,7 @@ class HubSpotClient {
      * Uses HubSpot's batch API to create up to 100 listings at once
      * Includes duplicate detection by buildium_unit_id
      */
-    async createListingsBatch(listings, dryRun = false, force = false, limit = null) {
+    async createListingsBatch(listings, dryRun = false, force = false, limit = null, existingListingsByUnitId = null) {
         try {
             if (!Array.isArray(listings) || listings.length === 0) {
                 throw new Error('listings must be a non-empty array');
@@ -1468,7 +1468,20 @@ class HubSpotClient {
                 const unitId = listing.properties?.buildium_unit_id;
                 
                 if (unitId) {
-                    const existing = await this.searchListingByUnitId(unitId);
+                    let existing = null;
+                    let cacheHasEntry = false;
+                    if (existingListingsByUnitId && Object.prototype.hasOwnProperty.call(existingListingsByUnitId, unitId)) {
+                        existing = existingListingsByUnitId[unitId] || null;
+                        cacheHasEntry = true;
+                    }
+
+                    if (!cacheHasEntry) {
+                        existing = await this.searchListingByUnitId(unitId);
+                        if (existingListingsByUnitId) {
+                            existingListingsByUnitId[unitId] = existing || null;
+                        }
+                    }
+
                     if (existing) {
                         if (force) {
                             // FORCE MODE: Always update existing listings
@@ -1479,6 +1492,9 @@ class HubSpotClient {
                                 };
                                 const updateResponse = await this.updateListing(existing.id, updateData);
                                 updatedListings.push({ unitId, listingId: existing.id, updated: updateResponse });
+                                if (existingListingsByUnitId) {
+                                    existingListingsByUnitId[unitId] = updateResponse;
+                                }
                                 console.log(`✅ Force updated listing: ${existing.id} for unit ${unitId}`);
                                 successfulOperations++; // Count updates toward limit
                             } catch (error) {
@@ -1537,6 +1553,9 @@ class HubSpotClient {
                                     
                                     const updateResponse = await this.updateListing(existing.id, leaseUpdateData);
                                     updatedListings.push({ unitId, listingId: existing.id, updated: updateResponse, reason: 'lease_data_changed' });
+                                    if (existingListingsByUnitId) {
+                                        existingListingsByUnitId[unitId] = updateResponse;
+                                    }
                                     console.log(`✅ Updated lease data for listing: ${existing.id}`);
                                     successfulOperations++; // Count updates toward limit
                                 } catch (error) {
@@ -1585,7 +1604,17 @@ class HubSpotClient {
                     })
                 );
 
-                createdResults.push(...response.data.results);
+                const createdBatchResults = response.data.results || [];
+                createdResults.push(...createdBatchResults);
+
+                if (existingListingsByUnitId) {
+                    createdBatchResults.forEach(created => {
+                        const createdUnitId = created?.properties?.buildium_unit_id;
+                        if (createdUnitId) {
+                            existingListingsByUnitId[createdUnitId] = created;
+                        }
+                    });
+                }
                 console.log(`✅ Batch ${Math.floor(i/batchSize) + 1} completed: ${response.data.results.length} listings created`);
             }
 
