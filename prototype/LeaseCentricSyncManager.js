@@ -71,6 +71,18 @@ class LeaseCentricSyncManager {
             }
             
             stats.leasesChecked = leases.length;
+            const unitIdsForBatch = Array.from(new Set(leases.map(lease => lease.UnitId?.toString()).filter(Boolean)));
+            const hubspotListingCache = Object.create(null);
+            if (unitIdsForBatch.length > 0) {
+                const batchListings = await this.hubspotClient.getListingsByUnitIds(unitIdsForBatch);
+                batchListings.forEach(listing => {
+                    const unitKey = listing.properties?.buildium_unit_id;
+                    if (unitKey) {
+                        hubspotListingCache[unitKey] = listing;
+                    }
+                });
+                console.log(`Prefetched ${Object.keys(hubspotListingCache).length} HubSpot listing(s) using batch read.`);
+            }
             console.log(`✅ Retrieved ${leases.length} ${sinceDays === null ? 'total' : 'updated'} leases`);
 
             // Filter leases based on individual timestamps and HubSpot last updated value
@@ -89,7 +101,16 @@ class LeaseCentricSyncManager {
 
                 // Additional logic: If Buildium has LastUpdatedDateTime and HubSpot is missing it, sync
                 if (!shouldSync && lease.LastUpdatedDateTime) {
-                    const hubspotListing = await this.hubspotClient.searchListingByUnitId(lease.UnitId?.toString());
+                    const unitKey = lease.UnitId?.toString();
+                    let hubspotListing = null;
+                    if (unitKey) {
+                        if (Object.prototype.hasOwnProperty.call(hubspotListingCache, unitKey)) {
+                            hubspotListing = hubspotListingCache[unitKey];
+                        } else {
+                            hubspotListing = await this.hubspotClient.searchListingByUnitId(unitKey);
+                            hubspotListingCache[unitKey] = hubspotListing || null;
+                        }
+                    }
                     const hubspotLastUpdated = hubspotListing?.properties?.buildium_lease_last_updated;
                     if (hubspotLastUpdated == null) {
                         shouldSync = true;
@@ -113,7 +134,15 @@ class LeaseCentricSyncManager {
 
             // Step 2: Transform leases to listings
             console.log('\n🔄 Transforming leases to listing format...');
-            const listings = this.transformLeasesToListings(filteredLeases);
+            const filteredUnitIds = Array.from(new Set(filteredLeases.map(lease => lease.UnitId?.toString()).filter(Boolean)));
+            let leasesForTransformation = filteredLeases;
+            if (filteredUnitIds.length > 0) {
+                const batchLeases = await this.buildiumClient.getLeasesByUnitIds(filteredUnitIds);
+                if (batchLeases.length > 0) {
+                    leasesForTransformation = batchLeases.filter(lease => filteredUnitIds.includes(lease.UnitId?.toString()));
+                }
+            }
+            const listings = this.transformLeasesToListings(leasesForTransformation);
             console.log(`✅ Transformed ${listings.length} listings`);
 
             // Step 3: Create/update listings in batches

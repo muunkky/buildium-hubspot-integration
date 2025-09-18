@@ -578,6 +578,77 @@ class BuildiumClient {
     }
 
     /**
+     * Batch fetch leases for multiple unit IDs to minimize API calls.
+     */
+    async getLeasesByUnitIds(unitIds, options = {}) {
+        try {
+            const uniqueUnitIds = Array.from(new Set((unitIds || []).map(id => id?.toString()).filter(Boolean)));
+            if (uniqueUnitIds.length === 0) {
+                console.log('No unit IDs provided for batch lease fetch.');
+                return [];
+            }
+
+            const {
+                chunkSize = 25,
+                limitPerRequest = 100,
+                maxOffset = 50000
+            } = options;
+
+            const leasesById = new Map();
+
+            for (let index = 0; index < uniqueUnitIds.length; index += chunkSize) {
+                const chunk = uniqueUnitIds.slice(index, index + chunkSize);
+                console.log(`Fetching leases for ${chunk.length} unit(s) (chunk starting at index ${index})...`);
+
+                let offset = 0;
+                let hasMore = true;
+
+                while (hasMore) {
+                    const response = await this.makeRequestWithRetry(() =>
+                        axios.get(`${this.baseURL}/leases`, {
+                            headers: {
+                                'x-buildium-client-id': this.clientId,
+                                'x-buildium-client-secret': this.clientSecret,
+                                'Content-Type': 'application/json'
+                            },
+                            params: {
+                                unitids: chunk,
+                                limit: limitPerRequest,
+                                offset: offset
+                            },
+                            paramsSerializer: params => this.buildParamsSerializer(params),
+                            timeout: 30000
+                        })
+                    );
+
+                    const pageData = Array.isArray(response.data) ? response.data : [];
+                    pageData.forEach(lease => {
+                        if (lease?.Id != null) {
+                            leasesById.set(lease.Id, lease);
+                        }
+                    });
+
+                    console.log(`   Retrieved ${pageData.length} lease(s) at offset ${offset}.`);
+                    hasMore = pageData.length === limitPerRequest;
+                    offset += limitPerRequest;
+
+                    if (offset >= maxOffset) {
+                        console.warn(`Reached max offset ${offset} for unit chunk; stopping pagination.`);
+                        break;
+                    }
+                }
+            }
+
+            const leases = Array.from(leasesById.values());
+            console.log(`Batch lease fetch retrieved ${leases.length} unique lease(s).`);
+            return leases;
+        } catch (error) {
+            console.error('Error fetching leases by unit IDs:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
      * Get leases updated since a specific date (for lease-centric sync)
      * This is the core method for efficient incremental synchronization
      * Uses Buildium's lastupdatedfrom filter to fetch only changed leases
@@ -1441,6 +1512,59 @@ class HubSpotClient {
             return { created: createdResults, updated: updatedListings, skipped: skippedListings };
         } catch (error) {
             console.error('❌ Error creating listings batch in HubSpot:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Batch read listings by Buildium unit IDs using HubSpot's batch endpoint.
+     */
+    async getListingsByUnitIds(unitIds, options = {}) {
+        try {
+            const uniqueUnitIds = Array.from(new Set((unitIds || []).map(id => id?.toString()).filter(Boolean)));
+            if (uniqueUnitIds.length === 0) {
+                console.log('[HubSpotClient] No unit IDs provided for batch read.');
+                return [];
+            }
+
+            const {
+                properties = [
+                    'buildium_unit_id',
+                    'buildium_lease_id',
+                    'buildium_property_id',
+                    'buildium_lease_last_updated',
+                    'hs_lastmodifieddate'
+                ],
+                chunkSize = 100
+            } = options;
+
+            const listings = [];
+
+            for (let index = 0; index < uniqueUnitIds.length; index += chunkSize) {
+                const chunk = uniqueUnitIds.slice(index, index + chunkSize);
+                console.log(`[HubSpotClient] Batch reading ${chunk.length} listing(s) by unit ID (chunk ${Math.floor(index / chunkSize) + 1}).`);
+
+                const requestBody = {
+                    idProperty: 'buildium_unit_id',
+                    properties,
+                    inputs: chunk.map(id => ({ id }))
+                };
+
+                const response = await this.makeRequestWithRetry(() =>
+                    axios.post(`${this.baseURL}/crm/v3/objects/0-420/batch/read`, requestBody, {
+                        headers: this.getHeaders()
+                    })
+                );
+
+                const batchResults = response.data?.results || [];
+                listings.push(...batchResults);
+                console.log(`[HubSpotClient] Retrieved ${batchResults.length} listing(s) in current chunk.`);
+            }
+
+            console.log(`[HubSpotClient] Batch read fetched ${listings.length} listing(s) total.`);
+            return listings;
+        } catch (error) {
+            console.error('[HubSpotClient] Batch read failed:', error.response?.data || error.message);
             throw error;
         }
     }
