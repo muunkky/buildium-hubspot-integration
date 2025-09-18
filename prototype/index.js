@@ -1319,56 +1319,81 @@ class HubSpotClient {
                     const existing = await this.searchListingByUnitId(unitId);
                     if (existing) {
                         if (force) {
-                            // Extract address info for logging
-                            const address = listing.properties?.hs_address_1 || '';
-                            const city = listing.properties?.hs_city || '';
-                            const state = listing.properties?.hs_state_province || '';
-                            const addressStr = [address, city, state].filter(Boolean).join(', ') || 'No address';
-                            
-                            // Extract lease info for logging
-                            const leaseId = listing.properties?.buildium_lease_id || 'N/A';
-                            const leaseStatus = listing.properties?.lease_status || 'N/A';
-                            const rent = listing.properties?.buildium_market_rent || 'N/A';
-                            const tenant = listing.properties?.primary_tenant || 'N/A';
-                            
-                            // Extract and format lease dates
-                            const leaseStart = listing.properties?.lease_start_date || 'N/A';
-                            const leaseEnd = listing.properties?.lease_end_date || 'N/A';
-                            const startDate = leaseStart !== 'N/A' ? new Date(leaseStart).toLocaleDateString() : 'N/A';
-                            const endDate = leaseEnd !== 'N/A' ? new Date(leaseEnd).toLocaleDateString() : 'N/A';
-                            
-                            // Extract next lease info
-                            const nextStart = listing.properties?.next_lease_start || '';
-                            const nextTenant = listing.properties?.next_lease_tenant || '';
-                            const nextStartDate = nextStart ? new Date(nextStart).toLocaleDateString() : 'None';
-                            const nextLeaseInfo = nextStart ? `Next lease: ${nextStartDate}${nextTenant ? ` (${nextTenant})` : ''}` : 'No future lease';
-                            
+                            // FORCE MODE: Always update existing listings
                             console.log(`🔄 Force updating existing listing: ${existing.id} (Unit: ${unitId})`);
-                            console.log(`📍 Address: ${addressStr}`);
-                            
-                            if (leaseStatus === 'No Current Lease') {
-                                console.log(`📋 Current Lease: NONE - Unit is available`);
-                                console.log(`📅 No active lease period`);
-                            } else {
-                                console.log(`📋 Current Lease: ${leaseId} | Status: ${leaseStatus} | Rent: $${rent}`);
-                                console.log(`📅 Current Period: ${startDate} → ${endDate} | Tenant: ${tenant}`);
-                            }
-                            
-                            console.log(`🔮 ${nextLeaseInfo}`);
                             try {
                                 const updateData = {
                                     properties: listing.properties
                                 };
                                 const updateResponse = await this.updateListing(existing.id, updateData);
                                 updatedListings.push({ unitId, listingId: existing.id, updated: updateResponse });
-                                console.log(`✅ Updated listing: ${existing.id} for unit ${unitId}`);
+                                console.log(`✅ Force updated listing: ${existing.id} for unit ${unitId}`);
                                 successfulOperations++; // Count updates toward limit
                             } catch (error) {
-                                console.error(`❌ Failed to update listing for unit ${unitId}:`, error.message);
+                                console.error(`❌ Failed to force update listing for unit ${unitId}:`, error.message);
                             }
                         } else {
-                            console.log(`⏭️  Skipping duplicate: Unit ID ${unitId} already exists (Listing ID: ${existing.id})`);
-                            skippedListings.push({ unitId, existingId: existing.id });
+                            // SMART MODE: Check if lease data actually changed
+                            const leaseId = listing.properties?.buildium_lease_id;
+                            const leaseLastUpdated = listing.properties?.lease_last_updated;
+                            
+                            // Check if we should update lease-related fields
+                            let shouldUpdateLease = false;
+                            if (leaseId && leaseLastUpdated) {
+                                // Compare key lease data fields and last updated timestamp
+                                const existingRent = existing.properties?.buildium_market_rent || '';
+                                const newRent = listing.properties?.buildium_market_rent || '';
+                                const existingStatus = existing.properties?.lease_status || '';
+                                const newStatus = listing.properties?.lease_status || '';
+                                const existingTenant = existing.properties?.primary_tenant || '';
+                                const newTenant = listing.properties?.primary_tenant || '';
+                                const existingLastUpdated = existing.properties?.lease_last_updated || '';
+                                const newLastUpdated = listing.properties?.lease_last_updated || '';
+
+                                // If last_updated is newer OR any key field differs, update
+                                let lastUpdatedIsNewer = false;
+                                if (existingLastUpdated && newLastUpdated) {
+                                    // Compare ISO strings
+                                    lastUpdatedIsNewer = new Date(newLastUpdated) > new Date(existingLastUpdated);
+                                }
+
+                                shouldUpdateLease = lastUpdatedIsNewer ||
+                                    (existingRent !== newRent) ||
+                                    (existingStatus !== newStatus) ||
+                                    (existingTenant !== newTenant);
+                            }
+                            
+                            if (shouldUpdateLease) {
+                                console.log(`🔄 Updating lease data for existing listing: ${existing.id} (Unit: ${unitId})`);
+                                console.log(`📋 Lease changes detected - updating lease-related fields only`);
+                                
+                                try {
+                                    // Update only lease-related fields
+                                    const leaseUpdateData = {
+                                        properties: {
+                                            buildium_market_rent: listing.properties?.buildium_market_rent,
+                                            lease_status: listing.properties?.lease_status,
+                                            lease_start_date: listing.properties?.lease_start_date,
+                                            lease_end_date: listing.properties?.lease_end_date,
+                                            primary_tenant: listing.properties?.primary_tenant,
+                                            buildium_lease_id: listing.properties?.buildium_lease_id,
+                                            lease_last_updated: listing.properties?.lease_last_updated,
+                                            next_lease_start: listing.properties?.next_lease_start,
+                                            next_lease_tenant: listing.properties?.next_lease_tenant
+                                        }
+                                    };
+                                    
+                                    const updateResponse = await this.updateListing(existing.id, leaseUpdateData);
+                                    updatedListings.push({ unitId, listingId: existing.id, updated: updateResponse, reason: 'lease_data_changed' });
+                                    console.log(`✅ Updated lease data for listing: ${existing.id}`);
+                                    successfulOperations++; // Count updates toward limit
+                                } catch (error) {
+                                    console.error(`❌ Failed to update lease data for unit ${unitId}:`, error.message);
+                                }
+                            } else {
+                                console.log(`⏭️  Skipping: Unit ID ${unitId} exists with current lease data (Listing ID: ${existing.id})`);
+                                skippedListings.push({ unitId, existingId: existing.id, reason: 'no_lease_changes' });
+                            }
                         }
                     } else {
                         newListings.push(listing);
@@ -3274,7 +3299,8 @@ class IntegrationPrototype {
                 // Status and metadata
                 buildium_unit_status: unit.IsOccupied ? 'Occupied' : 'Vacant',
                 buildium_created_date: unit.CreatedDateTime ? new Date(unit.CreatedDateTime).toISOString() : '',
-                buildium_last_modified: unit.LastModifiedDateTime ? new Date(unit.LastModifiedDateTime).toISOString() : ''
+                    buildium_last_modified: unit.LastModifiedDateTime ? new Date(unit.LastModifiedDateTime).toISOString() : '',
+                    buildium_lease_last_updated: unit.LastUpdatedDateTime ? new Date(unit.LastUpdatedDateTime).toISOString() : ''
             }
         };
 
@@ -3386,6 +3412,8 @@ class IntegrationPrototype {
         if (unit.IsOccupied !== undefined) safeUpdateFields.buildium_unit_status = unit.IsOccupied ? 'Occupied' : 'Vacant';
         if (unit.CreatedDateTime) safeUpdateFields.buildium_created_date = new Date(unit.CreatedDateTime).toISOString();
         if (unit.LastModifiedDateTime) safeUpdateFields.buildium_last_modified = new Date(unit.LastModifiedDateTime).toISOString();
+        // Always set buildium_lease_last_updated if available
+        if (unit.LastUpdatedDateTime) safeUpdateFields.buildium_lease_last_updated = new Date(unit.LastUpdatedDateTime).toISOString();
 
         const listingData = {
             properties: safeUpdateFields

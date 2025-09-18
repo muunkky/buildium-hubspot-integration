@@ -66,6 +66,16 @@ class TestRunner {
                 file: 'integration_test.js',
                 description: 'Full integration test for lease-centric sync approach',
                 category: 'integration'
+            },
+            'lease-update-bug': {
+                file: 'lease_update_bug_test.js',
+                description: 'Comprehensive test suite for lease update bug with assertions',
+                category: 'unit'
+            },
+            'lease-update-bug-simple': {
+                file: 'lease_update_bug_simple.js',
+                description: 'Simple demonstration of lease update bug',
+                category: 'unit'
             }
         };
     }

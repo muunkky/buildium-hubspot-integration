@@ -316,6 +316,58 @@ describe('Lease-Centric Sync', function() {
     });
 
     describe('Incremental Sync', function() {
+        it('should demonstrate lease update bug (existing listing skip)', async function() {
+            // This test documents the current bug behavior
+            const sinceTime = '2024-01-01T00:00:00.000Z';
+            
+            // Setup mock lease that was updated (should trigger update)
+            buildiumClient.addMockLease({
+                id: 1,
+                unitId: 101,
+                status: 'Active',
+                lastUpdated: '2024-01-02T00:00:00.000Z', // AFTER sinceTime
+                rent: { amount: 1800 }, // Rent increased
+                leaseFromDate: '2024-01-01',
+                leaseToDate: '2024-12-31'
+            });
+
+            buildiumClient.addMockUnit({
+                id: 101,
+                propertyId: 201,
+                unitNumber: 'A1',
+                type: 'Apartment'
+            });
+
+            buildiumClient.addMockProperty({
+                id: 201,
+                name: 'Test Property',
+                address: { city: 'Test City' }
+            });
+
+            // Mock existing listing in HubSpot (this causes the bug)
+            hubspotClient.addMockListing({
+                id: 'existing_listing_123',
+                properties: {
+                    buildium_lease_id: '1',
+                    buildium_unit_id: '101',
+                    rent_amount: 1500 // OLD rent amount
+                }
+            });
+
+            const results = await leaseCentricSync.syncLeasesIncremental(sinceTime);
+
+            // BUG: Current implementation will not update the existing listing
+            // even though the lease was updated (passed timestamp filter)
+            
+            // This assertion documents the current WRONG behavior:
+            assert.equal(results.updated, 0, 'BUG: Should update existing listing but currently skips it');
+            
+            // What the result SHOULD be after fixing the bug:
+            // assert.equal(results.updated, 1, 'Should update existing listing with new lease data');
+            
+            console.log('🐛 BUG DOCUMENTED: Lease updates skip existing listings even when lease data changed');
+        });
+
         it('should only fetch leases updated since specified time', async function() {
             const sinceTime = '2024-01-01T00:00:00.000Z';
             

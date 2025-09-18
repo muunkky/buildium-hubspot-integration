@@ -21,6 +21,7 @@ class LeaseCentricSyncManager {
             this.integration = new IntegrationPrototype();
         }
         this.lastSyncFile = 'last_lease_sync.json';
+        this.leaseTimestampsFile = 'lease_sync_timestamps.json';
     }
 
     /**
@@ -48,6 +49,8 @@ class LeaseCentricSyncManager {
         };
 
         try {
+            const lastSyncTimestamps = await this.getLastSyncTimestamps();
+
             // Step 1: Get updated leases
             let leases;
             if (unitId) {
@@ -70,14 +73,47 @@ class LeaseCentricSyncManager {
             stats.leasesChecked = leases.length;
             console.log(`✅ Retrieved ${leases.length} ${sinceDays === null ? 'total' : 'updated'} leases`);
 
-            if (leases.length === 0) {
-                console.log('ℹ️  No leases found - sync complete');
+            // Filter leases based on individual timestamps and HubSpot last updated value
+            const filteredLeases = [];
+            for (const lease of leases) {
+                const lastSync = lastSyncTimestamps[lease.Id];
+                let shouldSync = false;
+                let syncReason = '';
+                if (!lastSync) {
+                    shouldSync = true;
+                    syncReason = 'No previous sync timestamp (new lease)';
+                } else if (lease.LastUpdatedDateTime && new Date(lease.LastUpdatedDateTime) > new Date(lastSync)) {
+                    shouldSync = true;
+                    syncReason = 'Buildium lease LastUpdatedDateTime is newer than last sync timestamp';
+                }
+
+                // Additional logic: If Buildium has LastUpdatedDateTime and HubSpot is missing it, sync
+                if (!shouldSync && lease.LastUpdatedDateTime) {
+                    const hubspotListing = await this.hubspotClient.searchListingByUnitId(lease.UnitId?.toString());
+                    const hubspotLastUpdated = hubspotListing?.properties?.buildium_lease_last_updated;
+                    if (hubspotLastUpdated == null) {
+                        shouldSync = true;
+                        syncReason = 'HubSpot listing missing buildium_lease_last_updated';
+                    }
+                }
+                if (shouldSync) {
+                    filteredLeases.push(lease);
+                    console.log(`🔄 Will sync lease ${lease.Id} (Unit ${lease.UnitId}): ${syncReason}`);
+                } else {
+                    console.log(`⏭️  Skipping lease ${lease.Id} (Unit ${lease.UnitId}): No changes detected`);
+                }
+            }
+
+            console.log(`✅ Filtered down to ${filteredLeases.length} leases needing sync.`);
+
+            if (filteredLeases.length === 0) {
+                console.log('ℹ️  No new lease updates to sync - sync complete');
                 return stats;
             }
 
             // Step 2: Transform leases to listings
             console.log('\n🔄 Transforming leases to listing format...');
-            const listings = this.transformLeasesToListings(leases);
+            const listings = this.transformLeasesToListings(filteredLeases);
             console.log(`✅ Transformed ${listings.length} listings`);
 
             // Step 3: Create/update listings in batches
@@ -88,6 +124,14 @@ class LeaseCentricSyncManager {
                 stats.listingsCreated = result.created ? result.created.length : 0;
                 stats.listingsUpdated = result.updated ? result.updated.length : 0;
                 stats.listingsSkipped = result.skipped ? result.skipped.length : 0;
+
+                // Update timestamps for successfully synced leases
+                const newTimestamps = { ...lastSyncTimestamps };
+                filteredLeases.forEach(lease => {
+                    newTimestamps[lease.Id] = new Date().toISOString();
+                });
+                await this.saveLastSyncTimestamps(newTimestamps);
+
             } else {
                 console.log('\n🔄 DRY RUN - Would create/update listings');
                 const result = await this.hubspotClient.createListingsBatch(listings, true, force, limit);
@@ -99,11 +143,11 @@ class LeaseCentricSyncManager {
             // Step 4: Sync future tenants
             if (!dryRun) {
                 console.log('\n🔮 Syncing future tenants...');
-                const futureTenantsSynced = await this.syncFutureTenants(leases);
+                const futureTenantsSynced = await this.syncFutureTenants(filteredLeases);
                 console.log(`✅ Synced ${futureTenantsSynced} future tenants`);
             } else {
                 console.log('\n🔮 DRY RUN - Would sync future tenants');
-                const futureTenants = this.extractFutureTenants(leases);
+                const futureTenants = this.extractFutureTenants(filteredLeases);
                 console.log(`   Would sync ${futureTenants.length} future tenants`);
             }
 
@@ -340,6 +384,35 @@ class LeaseCentricSyncManager {
         } catch (error) {
             // If no file exists, return a default (7 days ago)
             return new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
+        }
+    }
+
+    /**
+     * Get per-lease timestamps
+     */
+    async getLastSyncTimestamps() {
+        const fs = require('fs').promises;
+        try {
+            const data = await fs.readFile(this.leaseTimestampsFile, 'utf8');
+            return JSON.parse(data);
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                return {}; // Return empty object if file doesn't exist
+            }
+            console.error('❌ Error reading lease timestamps:', error.message);
+            return {};
+        }
+    }
+
+    /**
+     * Save per-lease timestamps
+     */
+    async saveLastSyncTimestamps(timestamps) {
+        const fs = require('fs').promises;
+        try {
+            await fs.writeFile(this.leaseTimestampsFile, JSON.stringify(timestamps, null, 2));
+        } catch (error) {
+            console.error('❌ Error saving lease timestamps:', error.message);
         }
     }
 }
