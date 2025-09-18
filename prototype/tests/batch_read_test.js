@@ -5,20 +5,24 @@ const { BuildiumClient, HubSpotClient } = require('../index.js');
 async function testBuildiumBatchLeases() {
     process.env.BUILDIUM_BASE_URL = 'https://buildium.example.com';
     const originalGet = axios.get;
-    const captured = [];
+    const capturedRequests = [];
 
     axios.get = async (url, config) => {
-        captured.push({ url, params: { ...config.params } });
-        const { unitids, offset } = config.params;
-        if (offset === 0) {
-            return {
-                data: unitids.map((id, idx) => ({
-                    Id: Number(id) * 10 + idx,
-                    UnitId: Number(id)
-                }))
-            };
+        capturedRequests.push({ url, params: { ...config.params } });
+        const { propertyids = [], offset = 0 } = config.params;
+        if (offset > 0) {
+            return { data: [] };
         }
-        return { data: [] };
+
+        const propertySet = new Set(propertyids.map(id => id.toString()));
+        const page = [];
+        if (propertySet.has('201')) {
+            page.push({ Id: 1001, UnitId: 101 }, { Id: 1002, UnitId: 102 });
+        }
+        if (propertySet.has('202')) {
+            page.push({ Id: 2001, UnitId: 103 });
+        }
+        return { data: page };
     };
 
     try {
@@ -26,16 +30,33 @@ async function testBuildiumBatchLeases() {
         client.clientId = 'test';
         client.clientSecret = 'secret';
 
-        const leases = await client.getLeasesByUnitIds(['101', '102', '103'], {
-            chunkSize: 2,
-            limitPerRequest: 2
+        const fallbackCalls = [];
+        client.getAllLeasesForUnit = async unitId => {
+            fallbackCalls.push(unitId);
+            return [{ Id: 4001, UnitId: Number(unitId) }];
+        };
+
+        const descriptors = [
+            { unitId: '101', propertyId: 201 },
+            { unitId: '102', propertyId: 201 },
+            { unitId: '103', propertyId: 202 },
+            { unitId: '104' } // missing property - exercises fallback
+        ];
+        const leases = await client.getLeasesByUnitIds(descriptors, {
+            propertyChunkSize: 2,
+            limitPerRequest: 5
         });
 
-        assert.strictEqual(captured.length, 3, 'should paginate and chunk requests');
-        assert.deepStrictEqual(captured[0].params.unitids, ['101', '102'], 'first chunk should contain first two unit ids');
-        assert.deepStrictEqual(captured[2].params.unitids, ['103'], 'second chunk should handle remaining ids');
+        assert.strictEqual(capturedRequests.length, 1, 'should request property chunk once');
+        assert.deepStrictEqual(
+            capturedRequests[0].params.propertyids.map(id => id.toString()),
+            ['201', '202'],
+            'should batch property ids into a single request'
+        );
+        assert.deepStrictEqual(fallbackCalls, ['104'], 'should fallback to per-unit fetch when property is missing');
+
         const sortedUnitIds = leases.map(lease => String(lease.UnitId)).sort();
-        assert.deepStrictEqual(sortedUnitIds, ['101', '102', '103'], 'should return unique leases for each unit');
+        assert.deepStrictEqual(sortedUnitIds, ['101', '102', '103', '104'], 'should collect leases only for requested units');
     } finally {
         axios.get = originalGet;
     }

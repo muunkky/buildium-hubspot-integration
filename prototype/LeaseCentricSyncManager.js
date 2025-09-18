@@ -134,12 +134,40 @@ class LeaseCentricSyncManager {
 
             // Step 2: Transform leases to listings
             console.log('\n🔄 Transforming leases to listing format...');
-            const filteredUnitIds = Array.from(new Set(filteredLeases.map(lease => lease.UnitId?.toString()).filter(Boolean)));
+            const unitDescriptorMap = new Map();
+            filteredLeases.forEach(lease => {
+                const unitId = lease.UnitId?.toString();
+                if (!unitId) {
+                    return;
+                }
+
+                if (!unitDescriptorMap.has(unitId)) {
+                    unitDescriptorMap.set(unitId, {
+                        unitId,
+                        propertyId: lease.PropertyId ?? lease.Unit?.PropertyId ?? null,
+                        unitNumber: lease.UnitNumber ?? lease.Unit?.UnitNumber ?? null
+                    });
+                } else {
+                    const descriptor = unitDescriptorMap.get(unitId);
+                    if (!descriptor.propertyId && (lease.PropertyId || lease.Unit?.PropertyId)) {
+                        descriptor.propertyId = lease.PropertyId ?? lease.Unit?.PropertyId ?? null;
+                    }
+                    if (!descriptor.unitNumber && (lease.UnitNumber || lease.Unit?.UnitNumber)) {
+                        descriptor.unitNumber = lease.UnitNumber ?? lease.Unit?.UnitNumber ?? null;
+                    }
+                }
+            });
+
+            const unitDescriptors = Array.from(unitDescriptorMap.values());
             let leasesForTransformation = filteredLeases;
-            if (filteredUnitIds.length > 0) {
-                const batchLeases = await this.buildiumClient.getLeasesByUnitIds(filteredUnitIds);
+            if (unitDescriptors.length > 0) {
+                const batchLeases = await this.buildiumClient.getLeasesByUnitIds(unitDescriptors);
                 if (batchLeases.length > 0) {
-                    leasesForTransformation = batchLeases.filter(lease => filteredUnitIds.includes(lease.UnitId?.toString()));
+                    const allowedUnitIds = new Set(unitDescriptors.map(descriptor => descriptor.unitId));
+                    leasesForTransformation = batchLeases.filter(lease => {
+                        const unitId = lease?.UnitId != null ? lease.UnitId.toString() : null;
+                        return unitId && allowedUnitIds.has(unitId);
+                    });
                 }
             }
             const listings = this.transformLeasesToListings(leasesForTransformation);

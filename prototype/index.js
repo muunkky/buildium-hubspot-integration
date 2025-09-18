@@ -578,31 +578,101 @@ class BuildiumClient {
     }
 
     /**
-     * Batch fetch leases for multiple unit IDs to minimize API calls.
+     * Batch fetch leases for multiple units by grouping requests per property.
      */
-    async getLeasesByUnitIds(unitIds, options = {}) {
+    async getLeasesByUnitIds(unitIdentifiers, options = {}) {
         try {
-            const uniqueUnitIds = Array.from(new Set((unitIds || []).map(id => id?.toString()).filter(Boolean)));
-            if (uniqueUnitIds.length === 0) {
-                console.log('No unit IDs provided for batch lease fetch.');
+            const normalizedUnits = [];
+            const seenUnitIds = new Set();
+
+            (unitIdentifiers || []).forEach(item => {
+                if (!item) {
+                    return;
+                }
+
+                if (typeof item === 'string' || typeof item === 'number') {
+                    const unitId = item.toString();
+                    if (!seenUnitIds.has(unitId)) {
+                        normalizedUnits.push({ unitId });
+                        seenUnitIds.add(unitId);
+                    }
+                    return;
+                }
+
+                if (typeof item === 'object') {
+                    const rawUnitId = item.unitId ?? item.UnitId ?? item.id ?? item.Id;
+                    if (!rawUnitId) {
+                        return;
+                    }
+
+                    const unitId = rawUnitId.toString();
+                    const normalizedEntry = {
+                        unitId,
+                        propertyId: item.propertyId ?? item.PropertyId ?? item.property_id ?? null,
+                        unitNumber: item.unitNumber ?? item.UnitNumber ?? item.unit_number ?? null
+                    };
+
+                    if (!seenUnitIds.has(unitId)) {
+                        normalizedUnits.push(normalizedEntry);
+                        seenUnitIds.add(unitId);
+                    } else {
+                        const existing = normalizedUnits.find(entry => entry.unitId === unitId);
+                        if (existing) {
+                            if (!existing.propertyId && normalizedEntry.propertyId) {
+                                existing.propertyId = normalizedEntry.propertyId;
+                            }
+                            if (!existing.unitNumber && normalizedEntry.unitNumber) {
+                                existing.unitNumber = normalizedEntry.unitNumber;
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (normalizedUnits.length === 0) {
+                console.log('No unit identifiers provided for batch lease fetch.');
                 return [];
             }
 
             const {
-                chunkSize = 25,
-                limitPerRequest = 100,
+                propertyChunkSize = 5,
+                limitPerRequest = 200,
                 maxOffset = 50000
             } = options;
 
+            const propertyToUnits = new Map();
+            const unitsMissingProperty = [];
+
+            normalizedUnits.forEach(info => {
+                if (info.propertyId) {
+                    const propertyKey = info.propertyId.toString();
+                    if (!propertyToUnits.has(propertyKey)) {
+                        propertyToUnits.set(propertyKey, { unitIds: new Set(), unitNumbers: new Set() });
+                    }
+                    propertyToUnits.get(propertyKey).unitIds.add(info.unitId);
+                    if (info.unitNumber) {
+                        propertyToUnits.get(propertyKey).unitNumbers.add(info.unitNumber.toString());
+                    }
+                } else {
+                    unitsMissingProperty.push(info);
+                }
+            });
+
             const leasesById = new Map();
+            const propertyIds = Array.from(propertyToUnits.keys());
 
-            for (let index = 0; index < uniqueUnitIds.length; index += chunkSize) {
-                const chunk = uniqueUnitIds.slice(index, index + chunkSize);
-                console.log(`Fetching leases for ${chunk.length} unit(s) (chunk starting at index ${index})...`);
+            const chunk = (array, size) => {
+                const chunks = [];
+                for (let i = 0; i < array.length; i += size) {
+                    chunks.push(array.slice(i, i + size));
+                }
+                return chunks;
+            };
 
+            for (const propertyChunk of chunk(propertyIds, propertyChunkSize)) {
+                console.log(`Fetching leases for property chunk (${propertyChunk.join(', ')})...`);
                 let offset = 0;
                 let hasMore = true;
-
                 while (hasMore) {
                     const response = await this.makeRequestWithRetry(() =>
                         axios.get(`${this.baseURL}/leases`, {
@@ -612,7 +682,7 @@ class BuildiumClient {
                                 'Content-Type': 'application/json'
                             },
                             params: {
-                                unitids: chunk,
+                                propertyids: propertyChunk,
                                 limit: limitPerRequest,
                                 offset: offset
                             },
@@ -623,8 +693,9 @@ class BuildiumClient {
 
                     const pageData = Array.isArray(response.data) ? response.data : [];
                     pageData.forEach(lease => {
-                        if (lease?.Id != null) {
-                            leasesById.set(lease.Id, lease);
+                        const unitId = lease?.UnitId != null ? lease.UnitId.toString() : null;
+                        if (unitId && seenUnitIds.has(unitId)) {
+                            leasesById.set(lease.Id ?? `${unitId}-${lease.LeaseFromDate ?? lease.LeaseToDate ?? leasesById.size}`, lease);
                         }
                     });
 
@@ -633,14 +704,24 @@ class BuildiumClient {
                     offset += limitPerRequest;
 
                     if (offset >= maxOffset) {
-                        console.warn(`Reached max offset ${offset} for unit chunk; stopping pagination.`);
+                        console.warn(`Reached max offset ${offset} for property chunk; stopping pagination.`);
                         break;
                     }
                 }
             }
 
-            const leases = Array.from(leasesById.values());
-            console.log(`Batch lease fetch retrieved ${leases.length} unique lease(s).`);
+            if (unitsMissingProperty.length > 0) {
+                console.log(`Fetching leases individually for ${unitsMissingProperty.length} unit(s) lacking property metadata...`);
+                for (const info of unitsMissingProperty) {
+                    const fallbackLeases = await this.getAllLeasesForUnit(info.unitId);
+                    fallbackLeases.forEach(lease => {
+                        leasesById.set(lease.Id ?? `${info.unitId}-${lease.LeaseFromDate ?? leasesById.size}`, lease);
+                    });
+                }
+            }
+
+            const leases = Array.from(leasesById.values()).filter(lease => seenUnitIds.has(lease?.UnitId?.toString?.()));
+            console.log(`Batch lease fetch retrieved ${leases.length} lease(s) across ${normalizedUnits.length} unit(s).`);
             return leases;
         } catch (error) {
             console.error('Error fetching leases by unit IDs:', error.response?.data || error.message);
