@@ -298,7 +298,6 @@ class LeaseCentricSyncManager {
 
                         // Listing names (HubSpot requires hs_name)
                         hs_name: listingName,
-                        name: listingName,
 
                         // Rent info (use existing property)
                         buildium_market_rent: activeLease ? this.extractRent(activeLease) : '',
