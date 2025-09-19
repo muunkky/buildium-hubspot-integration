@@ -4,6 +4,7 @@
  */
 
 const { BuildiumClient, HubSpotClient } = require('./index.js');
+const { performance } = require('node:perf_hooks');
 
 class TenantLifecycleManager {
     constructor(hubspotClient = null, buildiumClient = null) {
@@ -62,7 +63,8 @@ class TenantLifecycleManager {
     /**
      * Run lifecycle transitions for an explicit lease list.
      * We track the allowed unit IDs so downstream processing cannot wander past
-     * the leases selected by the sync orchestrator.
+     * the leases selected by the sync orchestrator, and cache Buildium/HubSpot lookups
+     * so repeated tenants on the same run avoid extra API calls.
      */
     async updateTenantAssociationsForLeases(leases, options = {}) {
         const stats = this.createEmptyStats();
@@ -88,12 +90,19 @@ class TenantLifecycleManager {
 
         const tenantCache = new Map();
         const contactCache = new Map();
+        const associationCache = new Map();
 
         // Cache Buildium tenant and HubSpot contact lookups so repeated tenants on
         // the same run do not trigger duplicate API calls.
         for (const lease of leasesToProcess) {
+            const leaseStart = performance.now();
             try {
-                await this.processLeaseLifecycle(lease, dryRun, stats, { listingCache, logger, allowedUnitIds, verifyUnitScope, tenantCache, contactCache });
+                await this.processLeaseLifecycle(lease, dryRun, stats, { listingCache, logger, allowedUnitIds, verifyUnitScope, tenantCache, contactCache, associationCache });
+                emitLifecycleEvent(logger, 'lease.processed', {
+                    leaseId: lease?.Id || null,
+                    unitId: lease?.UnitId || null,
+                    durationMs: Math.round(performance.now() - leaseStart)
+                });
             } catch (error) {
                 stats.errors += 1;
                 emitLifecycleError(logger, error, { leaseId: lease?.Id || null });
@@ -141,7 +150,7 @@ class TenantLifecycleManager {
     }
 
     async processLeaseLifecycle(lease, dryRun, stats, options = {}) {
-        const { listingCache = null, logger = null, allowedUnitIds = null, verifyUnitScope = false, tenantCache = null, contactCache = null } = options;
+        const { listingCache = null, logger = null, allowedUnitIds = null, verifyUnitScope = false, tenantCache = null, contactCache = null, associationCache = null } = options;
 
         const leaseUnitId = lease?.UnitId != null ? lease.UnitId.toString() : null;
         // Guard against accidental drift: a limited sync should only touch the units
@@ -190,7 +199,8 @@ class TenantLifecycleManager {
                 listingCache,
                 logger,
                 tenantCache,
-                contactCache
+                contactCache,
+                associationCache
             });
         }
     }
@@ -200,7 +210,7 @@ class TenantLifecycleManager {
      * data cached earlier in the run to avoid redundant API calls.
      */
     async updateTenantAssociation(tenantReference, lease, targetAssociationType, transitionType, options = {}) {
-        const { dryRun = false, stats = null, listingCache = null, logger = null, tenantCache = null, contactCache = null } = options;
+        const { dryRun = false, stats = null, listingCache = null, logger = null, tenantCache = null, contactCache = null, associationCache = null } = options;
 
         try {
             let tenant = tenantCache && tenantCache.has(tenantReference.Id)
@@ -253,7 +263,7 @@ class TenantLifecycleManager {
                 return;
             }
 
-            const currentAssociations = await this.getCurrentAssociations(contact.id, listing.id);
+            const currentAssociations = await this.getCurrentAssociations(contact.id, listing.id, associationCache);
             const needsUpdate = await this.shouldUpdateAssociation(
                 currentAssociations,
                 targetAssociationType,
@@ -287,6 +297,9 @@ class TenantLifecycleManager {
                     lease,
                     logger
                 );
+                if (associationCache) {
+                    associationCache.delete(contact.id);
+                }
                 emitLifecycleEvent(logger, 'association.updated', {
                     contactId: contact.id,
                     listingId: listing.id,
@@ -306,9 +319,15 @@ class TenantLifecycleManager {
         }
     }
 
-    async getCurrentAssociations(contactId, listingId) {
+    async getCurrentAssociations(contactId, listingId, associationCache = null) {
         try {
+            if (associationCache && associationCache.has(contactId)) {
+                return associationCache.get(contactId) || [];
+            }
             const associations = await this.hubspotClient.getContactListingAssociations(contactId, listingId);
+            if (associationCache) {
+                associationCache.set(contactId, associations || []);
+            }
             return associations || [];
         } catch (error) {
             console.error(`[tenant-lifecycle] error fetching associations: ${error.message}`);
