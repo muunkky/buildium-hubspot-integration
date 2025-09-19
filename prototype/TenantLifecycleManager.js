@@ -3,139 +3,148 @@
  * Handles the transition of tenant associations based on lease status changes
  */
 
+const { BuildiumClient, HubSpotClient } = require('./index.js');
+
 class TenantLifecycleManager {
     constructor(hubspotClient = null, buildiumClient = null) {
-        // Accept clients as parameters to avoid circular dependency
-        if (hubspotClient && buildiumClient) {
-            this.hubspotClient = hubspotClient;
-            this.buildiumClient = buildiumClient;
-        } else {
-            // Fallback: import and create clients if not provided
-            const { BuildiumClient, HubSpotClient } = require('./index.js');
-            this.hubspotClient = new HubSpotClient();
-            this.buildiumClient = new BuildiumClient();
-        }
-        
-        // Association type constants (matching HubSpot's bidirectional IDs)
+        this.hubspotClient = hubspotClient || new HubSpotClient();
+        this.buildiumClient = buildiumClient || new BuildiumClient();
+
         this.ASSOCIATION_TYPES = {
-            FUTURE_TENANT: 11,     // Future Tenant (Contact → Listing)
-            ACTIVE_TENANT: 2,      // Active Tenant (Contact → Listing)  
-            INACTIVE_TENANT: 6,    // Inactive Tenant (Contact → Listing)
-            OWNER: 4               // Owner (Contact → Listing)
+            FUTURE_TENANT: 11,
+            ACTIVE_TENANT: 2,
+            INACTIVE_TENANT: 6,
+            OWNER: 4
         };
     }
 
-    /**
-     * Main method - updates tenant associations based on lease status changes
-     */
-    async updateTenantAssociations(dryRun = false, limit = null, sinceDate = null, maxLeases = null, unitId = null) {
-        console.log('🔄 Checking tenant association lifecycle transitions...');
-        const stats = {
+    createEmptyStats() {
+        return {
             futureToActive: 0,
             activeToInactive: 0,
             futureToInactive: 0,
             errors: 0
         };
-
-        try {
-            let leases;
-            if (unitId) {
-                console.log(`🎯 Targeting lifecycle check for unit: ${unitId}`);
-                leases = await this.buildiumClient.getAllLeasesForUnit(unitId);
-            } else {
-                // Default to last 30 days if no date specified
-                const defaultSinceDate = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000));
-                const queryDate = sinceDate || defaultSinceDate;
-                
-                // Get ALL leases by default (no arbitrary caps)
-                console.log('📊 Fetching ALL leases from Buildium (paginated)...');
-                leases = await this.getAllLeasesWithPagination(queryDate, maxLeases);
-            }
-
-            console.log(`📋 Found ${leases.length} leases to check for lifecycle updates`);
-
-            let processedCount = 0;
-            for (const lease of leases) {
-                // Respect the limit if specified
-                if (limit && processedCount >= limit) {
-                    console.log(`⏹️ Lifecycle check stopped at limit: ${limit}`);
-                    break;
-                }
-
-                try {
-                    await this.processLeaseLifecycle(lease, dryRun, stats);
-                    processedCount++;
-                } catch (error) {
-                    console.error(`❌ Error processing lease ${lease.Id}:`, error.message);
-                    stats.errors++;
-                }
-            }
-
-            return stats;
-        } catch (error) {
-            console.error('❌ Lifecycle update failed:', error.message);
-            stats.errors++;
-            return stats;
-        }
     }
 
-    /**
-     * Get ALL leases using pagination to avoid API limits
-     */
-    async getAllLeasesWithPagination(sinceDate, maxLeases = null) {
+    async updateTenantAssociations(
+        dryRun = false,
+        limit = null,
+        sinceDate = null,
+        maxLeases = null,
+        unitId = null,
+        options = {}
+    ) {
+        const listingCache = options.listingCache || Object.create(null);
+        const logger = options.logger || null;
+        const verifyUnitScope = options.verifyUnitScope !== false;
+
+        let leases = [];
+        if (unitId) {
+            emitLifecycleEvent(logger, 'fetch.unit', { unitId });
+            leases = await this.buildiumClient.getAllLeasesForUnit(unitId);
+        } else {
+            const defaultSinceDate = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000));
+            const queryDate = sinceDate || defaultSinceDate;
+            emitLifecycleEvent(logger, 'fetch.updated-since', { since: queryDate.toISOString() });
+            leases = await this.getAllLeasesWithPagination(queryDate, maxLeases, logger);
+        }
+
+        emitLifecycleEvent(logger, 'fetch.complete', { leases: leases.length });
+        return this.updateTenantAssociationsForLeases(leases, { dryRun, limit, listingCache, logger, verifyUnitScope });
+    }
+
+    async updateTenantAssociationsForLeases(leases, options = {}) {
+        const stats = this.createEmptyStats();
+
+        if (!Array.isArray(leases) || leases.length === 0) {
+            return stats;
+        }
+
+        const { dryRun = false, limit = null, listingCache = null, logger = null, verifyUnitScope = true } = options;
+        const leasesToProcess = limit !== null ? leases.slice(0, limit) : leases;
+
+        if (limit !== null && leases.length > limit) {
+            emitLifecycleEvent(logger, 'limit.apply', { limit, truncated: leases.length - limit });
+        }
+
+        const allowedUnitIds = new Set();
+        leasesToProcess.forEach(lease => {
+            const unitId = lease?.UnitId != null ? lease.UnitId.toString() : null;
+            if (unitId) {
+                allowedUnitIds.add(unitId);
+            }
+        });
+
+        for (const lease of leasesToProcess) {
+            try {
+                await this.processLeaseLifecycle(lease, dryRun, stats, { listingCache, logger, allowedUnitIds, verifyUnitScope });
+            } catch (error) {
+                stats.errors += 1;
+                emitLifecycleError(logger, error, { leaseId: lease?.Id || null });
+            }
+        }
+
+        return stats;
+    }
+
+    async getAllLeasesWithPagination(sinceDate, maxLeases = null, logger = null) {
         const allLeases = [];
         let offset = 0;
-        const batchSize = 500; // API limit per request
+        const batchSize = 500;
         let hasMore = true;
 
         while (hasMore && (maxLeases === null || allLeases.length < maxLeases)) {
-            console.log(`🔍 Fetching lease batch: offset ${offset}, size ${batchSize}...`);
-            
+            emitLifecycleEvent(logger, 'fetch.batch', { offset, batchSize });
+
             const batch = await this.buildiumClient.getLeasesUpdatedSince(
                 sinceDate,
-                { limit: batchSize, offset: offset }
+                { limit: batchSize, offset }
             );
 
             allLeases.push(...batch);
-            
-            // Check if we got fewer results than requested (indicates end)
             hasMore = batch.length === batchSize;
             offset += batchSize;
 
-            console.log(`   Retrieved ${batch.length} leases (total so far: ${allLeases.length})`);
+            emitLifecycleEvent(logger, 'fetch.batch.complete', { received: batch.length, total: allLeases.length });
 
-            // Stop if we've reached the maxLeases limit
             if (maxLeases !== null && allLeases.length >= maxLeases) {
-                console.log(`🛑 Reached maxLeases limit of ${maxLeases}`);
+                emitLifecycleEvent(logger, 'limit.maxLeases', { maxLeases });
                 break;
             }
 
-            // Safety break to avoid infinite loops (very high limit)
-            if (offset > 50000) { // Safety limit for extremely large datasets
-                console.log(`⚠️ Safety limit reached at ${offset} offset. Breaking pagination.`);
+            if (offset > 50000) {
+                emitLifecycleWarn(logger, 'fetch.batch.safety-stop', { offset });
                 break;
             }
         }
 
-        const finalCount = maxLeases !== null ? Math.min(allLeases.length, maxLeases) : allLeases.length;
-        const result = maxLeases !== null ? allLeases.slice(0, maxLeases) : allLeases;
-        
-        console.log(`✅ Total leases to process: ${finalCount}`);
-        return result;
+        if (maxLeases !== null && allLeases.length > maxLeases) {
+            return allLeases.slice(0, maxLeases);
+        }
+        return allLeases;
     }
 
-    /**
-     * Process lifecycle transitions for a single lease
-     */
-    async processLeaseLifecycle(lease, dryRun, stats) {
+    async processLeaseLifecycle(lease, dryRun, stats, options = {}) {
+        const { listingCache = null, logger = null, allowedUnitIds = null, verifyUnitScope = false } = options;
+
+        const leaseUnitId = lease?.UnitId != null ? lease.UnitId.toString() : null;
+        if (verifyUnitScope) {
+            if (!leaseUnitId) {
+                emitLifecycleWarn(logger, 'lease.unit-missing', { leaseId: lease?.Id || null });
+            } else if (allowedUnitIds && allowedUnitIds.size > 0 && !allowedUnitIds.has(leaseUnitId)) {
+                const scopeError = new Error(`Lifecycle scope mismatch for lease ${lease.Id} (unit ${leaseUnitId})`);
+                emitLifecycleError(logger, scopeError, { leaseId: lease.Id, unitId: leaseUnitId, expectedUnits: Array.from(allowedUnitIds) });
+                throw scopeError;
+            }
+        }
         let targetAssociationType;
         let transitionType;
 
-        // Determine the target association based on lease status
         switch (lease.LeaseStatus) {
             case 'Future':
                 targetAssociationType = this.ASSOCIATION_TYPES.FUTURE_TENANT;
-                transitionType = 'futureToActive'; // This might change to active
+                transitionType = 'futureToActive';
                 break;
             case 'Active':
                 targetAssociationType = this.ASSOCIATION_TYPES.ACTIVE_TENANT;
@@ -148,131 +157,141 @@ class TenantLifecycleManager {
                 transitionType = 'activeToInactive';
                 break;
             default:
-                console.log(`⚠️ Unknown lease status: ${lease.LeaseStatus} for lease ${lease.Id}`);
+                emitLifecycleWarn(logger, 'lease.status-unknown', { leaseId: lease.Id, status: lease.LeaseStatus });
                 return;
         }
 
-        // Skip if no tenants
         if (!lease.Tenants || lease.Tenants.length === 0) {
+            emitLifecycleEvent(logger, 'lease.no-tenants', { leaseId: lease.Id, unitId: lease.UnitId });
             return;
         }
 
-        // Process each tenant in the lease
         for (const tenantReference of lease.Tenants) {
-            await this.updateTenantAssociation(
-                tenantReference, 
-                lease, 
-                targetAssociationType, 
-                transitionType, 
-                dryRun, 
-                stats
-            );
+            await this.updateTenantAssociation(tenantReference, lease, targetAssociationType, transitionType, {
+                dryRun,
+                stats,
+                listingCache,
+                logger
+            });
         }
     }
 
-    /**
-     * Update a specific tenant's association
-     */
-    async updateTenantAssociation(tenantReference, lease, targetAssociationType, transitionType, dryRun, stats) {
+    async updateTenantAssociation(tenantReference, lease, targetAssociationType, transitionType, options = {}) {
+        const { dryRun = false, stats = null, listingCache = null, logger = null } = options;
+
         try {
-            // Step 1: Get full tenant details from Buildium
             const tenant = await this.buildiumClient.getTenant(tenantReference.Id);
             if (!tenant) {
-                console.log(`⚠️ Tenant not found in Buildium: ${tenantReference.Id}`);
+                emitLifecycleWarn(logger, 'tenant.missing', { tenantId: tenantReference.Id });
                 return;
             }
 
-            // Step 2: Find the tenant's contact in HubSpot
             let contact = null;
             if (tenant.Email) {
                 contact = await this.hubspotClient.searchContactByEmail(tenant.Email);
             }
 
             if (!contact) {
-                console.log(`⚠️ Contact not found for tenant ${tenant.FirstName} ${tenant.LastName} (${tenant.Email || 'no email'})`);
+                emitLifecycleWarn(logger, 'contact.missing', {
+                    tenantId: tenantReference.Id,
+                    email: tenant.Email || null
+                });
                 return;
             }
 
-            // Step 3: Find the listing for this unit
-            const listing = await this.hubspotClient.searchListingByUnitId(lease.UnitId);
+            const unitKey = lease.UnitId?.toString();
+            let listing = null;
+
+            if (unitKey && listingCache && Object.prototype.hasOwnProperty.call(listingCache, unitKey)) {
+                listing = listingCache[unitKey];
+            } else if (unitKey) {
+                listing = await this.hubspotClient.searchListingByUnitId(unitKey);
+                if (listingCache) {
+                    listingCache[unitKey] = listing || null;
+                }
+            }
+
             if (!listing) {
-                console.log(`⚠️ Listing not found for unit ${lease.UnitId}`);
+                emitLifecycleWarn(logger, 'listing.missing', { unitId: lease.UnitId });
                 return;
             }
 
-            // Step 4: Check current associations
             const currentAssociations = await this.getCurrentAssociations(contact.id, listing.id);
-            
-            // Step 5: Determine if update is needed
             const needsUpdate = await this.shouldUpdateAssociation(
-                currentAssociations, 
-                targetAssociationType, 
+                currentAssociations,
+                targetAssociationType,
                 transitionType
             );
 
             if (!needsUpdate) {
+                emitLifecycleEvent(logger, 'association.no-change', {
+                    contactId: contact.id,
+                    listingId: listing.id,
+                    transition: transitionType
+                });
                 return;
             }
 
-            // Step 6: Perform the lifecycle transition
             if (dryRun) {
-                console.log(`🔄 DRY RUN - Would update ${transitionType}:`);
-                console.log(`   Contact: ${contact.id} (${tenant.FirstName} ${tenant.LastName})`);
-                console.log(`   Listing: ${listing.id} (Unit ${lease.UnitId})`);
-                console.log(`   New Association: ${this.getAssociationName(targetAssociationType)}`);
+                emitLifecycleEvent(logger, 'association.dry-run', {
+                    contactId: contact.id,
+                    listingId: listing.id,
+                    target: this.getAssociationName(targetAssociationType),
+                    transition: transitionType
+                });
             } else {
                 await this.performAssociationTransition(
-                    contact.id, 
-                    listing.id, 
-                    currentAssociations, 
-                    targetAssociationType, 
+                    contact.id,
+                    listing.id,
+                    currentAssociations,
+                    targetAssociationType,
                     transitionType,
                     tenant,
-                    lease
+                    lease,
+                    logger
                 );
+                emitLifecycleEvent(logger, 'association.updated', {
+                    contactId: contact.id,
+                    listingId: listing.id,
+                    transition: transitionType
+                });
             }
 
-            stats[transitionType]++;
-
+            if (stats && Object.prototype.hasOwnProperty.call(stats, transitionType)) {
+                stats[transitionType] += 1;
+            }
         } catch (error) {
-            console.error(`❌ Error updating tenant association:`, error.message);
+            emitLifecycleError(logger, error, {
+                tenantId: tenantReference?.Id || null,
+                leaseId: lease?.Id || null
+            });
             throw error;
         }
     }
 
-    /**
-     * Get current associations between contact and listing
-     */
     async getCurrentAssociations(contactId, listingId) {
         try {
             const associations = await this.hubspotClient.getContactListingAssociations(contactId, listingId);
             return associations || [];
         } catch (error) {
-            console.error(`❌ Error getting current associations:`, error.message);
+            console.error(`[tenant-lifecycle] error fetching associations: ${error.message}`);
             return [];
         }
     }
 
-    /**
-     * Check if association update is needed
-     */
     async shouldUpdateAssociation(currentAssociations, targetAssociationType, transitionType) {
-        // If no current associations, we need to create the target
         if (!currentAssociations.length) {
             return true;
         }
 
-        // Check if the target association already exists
         const hasTargetAssociation = currentAssociations.some(
             assoc => assoc.associationTypeId === targetAssociationType
         );
 
-        // If we already have the target association, no update needed
         if (hasTargetAssociation) {
             return false;
         }
 
-        // For transitions, check if we have the source association type
         const hasFutureAssociation = currentAssociations.some(
             assoc => assoc.associationTypeId === this.ASSOCIATION_TYPES.FUTURE_TENANT
         );
@@ -292,32 +311,46 @@ class TenantLifecycleManager {
         }
     }
 
-    /**
-     * Perform the actual association transition
-     */
-    async performAssociationTransition(contactId, listingId, currentAssociations, targetAssociationType, transitionType, tenant, lease) {
+    async performAssociationTransition(
+        contactId,
+        listingId,
+        currentAssociations,
+        targetAssociationType,
+        transitionType,
+        tenant,
+        lease,
+        logger = null
+    ) {
         try {
-            // Step 1: Remove old associations that should be transitioned
             for (const assoc of currentAssociations) {
                 if (this.shouldRemoveAssociation(assoc.associationTypeId, transitionType)) {
                     await this.removeAssociation(contactId, listingId, assoc.associationTypeId);
-                    console.log(`🔄 Removed ${this.getAssociationName(assoc.associationTypeId)} association`);
+                    emitLifecycleEvent(logger, 'association.removed', {
+                        contactId,
+                        listingId,
+                        type: this.getAssociationName(assoc.associationTypeId)
+                    });
                 }
             }
 
-            // Step 2: Create new association
             await this.hubspotClient.createContactListingAssociation(contactId, listingId, targetAssociationType);
-            console.log(`✅ ${transitionType}: ${tenant.FirstName} ${tenant.LastName} → ${this.getAssociationName(targetAssociationType)} (Unit ${lease.UnitId})`);
-
+            emitLifecycleEvent(logger, 'association.created', {
+                contactId,
+                listingId,
+                type: this.getAssociationName(targetAssociationType),
+                tenant: `${tenant.FirstName || ''} ${tenant.LastName || ''}`.trim(),
+                unitId: lease.UnitId
+            });
         } catch (error) {
-            console.error(`❌ Failed to transition association:`, error.message);
+            emitLifecycleError(logger, error, {
+                contactId,
+                listingId,
+                transition: transitionType
+            });
             throw error;
         }
     }
 
-    /**
-     * Check if an association should be removed during transition
-     */
     shouldRemoveAssociation(currentAssociationTypeId, transitionType) {
         switch (transitionType) {
             case 'futureToActive':
@@ -331,35 +364,27 @@ class TenantLifecycleManager {
         }
     }
 
-    /**
-     * Remove an association between contact and listing
-     */
     async removeAssociation(contactId, listingId, associationTypeId) {
         try {
             const requestBody = {
                 inputs: [{
                     from: { id: contactId },
                     to: { id: listingId },
-                    associationTypeId: associationTypeId
+                    associationTypeId
                 }]
             };
 
-            const response = await this.hubspotClient.makeRequest(
+            return await this.hubspotClient.makeRequest(
                 'DELETE',
                 '/crm/v4/associations/contacts/0-420/batch/delete',
                 requestBody
             );
-
-            return response;
         } catch (error) {
-            console.error(`❌ Failed to remove association:`, error.message);
+            console.error(`[tenant-lifecycle] failed to remove association: ${error.message}`);
             throw error;
         }
     }
 
-    /**
-     * Get human-readable association name
-     */
     getAssociationName(associationTypeId) {
         const names = {
             [this.ASSOCIATION_TYPES.FUTURE_TENANT]: 'Future Tenant',
@@ -368,6 +393,44 @@ class TenantLifecycleManager {
             [this.ASSOCIATION_TYPES.OWNER]: 'Owner'
         };
         return names[associationTypeId] || `Type ${associationTypeId}`;
+    }
+}
+
+function emitLifecycleEvent(logger, event, meta = null) {
+    if (logger && typeof logger.event === 'function') {
+        logger.event(`tenant-lifecycle.${event}`, meta || undefined);
+    } else {
+        if (meta && Object.keys(meta).length > 0) {
+            console.log(`[tenant-lifecycle] ${event} ${JSON.stringify(meta)}`);
+        } else {
+            console.log(`[tenant-lifecycle] ${event}`);
+        }
+    }
+}
+
+function emitLifecycleWarn(logger, event, meta = null) {
+    if (logger && typeof logger.warn === 'function') {
+        logger.warn(`tenant-lifecycle.${event}`, meta || undefined);
+    } else {
+        if (meta && Object.keys(meta).length > 0) {
+            console.warn(`[tenant-lifecycle] ${event} ${JSON.stringify(meta)}`);
+        } else {
+            console.warn(`[tenant-lifecycle] ${event}`);
+        }
+    }
+}
+
+function emitLifecycleError(logger, error, meta = null) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    if (logger && typeof logger.error === 'function') {
+        const payload = meta ? { scope: 'tenant-lifecycle', ...meta } : { scope: 'tenant-lifecycle' };
+        logger.error(err, payload);
+    } else {
+        const payload = { message: err.message };
+        if (meta && Object.keys(meta).length > 0) {
+            Object.assign(payload, meta);
+        }
+        console.error(`[tenant-lifecycle] error ${JSON.stringify(payload)}`);
     }
 }
 

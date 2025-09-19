@@ -8,7 +8,8 @@
     "sync": "node prototype/index.js",
     "sync:force": "node prototype/index.js --force",
     "test:contact": "node prototype/utils/test_contact_creation.js",
-    "clean:listings": "node prototype/utils/delete_all_listings.js"
+    "clean:listings": "node prototype/utils/delete_all_listings.js",
+    "leases": "node scripts/leases.js"
   },
   "keywords": [
     "buildium",
