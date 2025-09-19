@@ -86,9 +86,14 @@ class TenantLifecycleManager {
             }
         });
 
+        const tenantCache = new Map();
+        const contactCache = new Map();
+
+        // Cache Buildium tenant and HubSpot contact lookups so repeated tenants on
+        // the same run do not trigger duplicate API calls.
         for (const lease of leasesToProcess) {
             try {
-                await this.processLeaseLifecycle(lease, dryRun, stats, { listingCache, logger, allowedUnitIds, verifyUnitScope });
+                await this.processLeaseLifecycle(lease, dryRun, stats, { listingCache, logger, allowedUnitIds, verifyUnitScope, tenantCache, contactCache });
             } catch (error) {
                 stats.errors += 1;
                 emitLifecycleError(logger, error, { leaseId: lease?.Id || null });
@@ -136,7 +141,7 @@ class TenantLifecycleManager {
     }
 
     async processLeaseLifecycle(lease, dryRun, stats, options = {}) {
-        const { listingCache = null, logger = null, allowedUnitIds = null, verifyUnitScope = false } = options;
+        const { listingCache = null, logger = null, allowedUnitIds = null, verifyUnitScope = false, tenantCache = null, contactCache = null } = options;
 
         const leaseUnitId = lease?.UnitId != null ? lease.UnitId.toString() : null;
         // Guard against accidental drift: a limited sync should only touch the units
@@ -183,24 +188,44 @@ class TenantLifecycleManager {
                 dryRun,
                 stats,
                 listingCache,
-                logger
+                logger,
+                tenantCache,
+                contactCache
             });
         }
     }
 
+    /**
+     * Update a single tenant association, reusing Buildium tenant and HubSpot contact
+     * data cached earlier in the run to avoid redundant API calls.
+     */
     async updateTenantAssociation(tenantReference, lease, targetAssociationType, transitionType, options = {}) {
-        const { dryRun = false, stats = null, listingCache = null, logger = null } = options;
+        const { dryRun = false, stats = null, listingCache = null, logger = null, tenantCache = null, contactCache = null } = options;
 
         try {
-            const tenant = await this.buildiumClient.getTenant(tenantReference.Id);
+            let tenant = tenantCache && tenantCache.has(tenantReference.Id)
+                ? tenantCache.get(tenantReference.Id)
+                : null;
+            if (!tenant) {
+                tenant = await this.buildiumClient.getTenant(tenantReference.Id);
+                if (tenantCache) {
+                    tenantCache.set(tenantReference.Id, tenant);
+                }
+            }
             if (!tenant) {
                 emitLifecycleWarn(logger, 'tenant.missing', { tenantId: tenantReference.Id });
                 return;
             }
 
             let contact = null;
-            if (tenant.Email) {
+            const email = tenant.Email ? String(tenant.Email).trim().toLowerCase() : null;
+            if (email && contactCache && contactCache.has(email)) {
+                contact = contactCache.get(email);
+            } else if (tenant.Email) {
                 contact = await this.hubspotClient.searchContactByEmail(tenant.Email);
+                if (contactCache) {
+                    contactCache.set(email, contact || null);
+                }
             }
 
             if (!contact) {
