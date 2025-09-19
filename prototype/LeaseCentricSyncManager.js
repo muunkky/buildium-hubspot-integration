@@ -234,6 +234,8 @@ class LeaseCentricSyncManager {
                 logger.event('future-tenants.preview', { count: futureTenantCandidates.length });
             }
 
+            // Pass the trimmed lease batch through to lifecycle with scope verification so
+            // follow-on association updates cannot escape the limited set we just synchronized.
             const lifecycleManager = new TenantLifecycleManager(this.hubspotClient, this.buildiumClient);
             const lifecycleStats = await lifecycleManager.updateTenantAssociationsForLeases(leasesToProcess, {
                 dryRun,

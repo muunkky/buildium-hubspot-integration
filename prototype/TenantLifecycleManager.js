@@ -27,6 +27,11 @@ class TenantLifecycleManager {
         };
     }
 
+    /**
+     * Update tenant associations for either a specific unit or a filtered time window.
+     * When verifyUnitScope is enabled we assert that lifecycle work only touches the
+     * unit IDs supplied by the caller (typically the limited lease batch).
+     */
     async updateTenantAssociations(
         dryRun = false,
         limit = null,
@@ -54,6 +59,11 @@ class TenantLifecycleManager {
         return this.updateTenantAssociationsForLeases(leases, { dryRun, limit, listingCache, logger, verifyUnitScope });
     }
 
+    /**
+     * Run lifecycle transitions for an explicit lease list.
+     * We track the allowed unit IDs so downstream processing cannot wander past
+     * the leases selected by the sync orchestrator.
+     */
     async updateTenantAssociationsForLeases(leases, options = {}) {
         const stats = this.createEmptyStats();
 
@@ -129,6 +139,8 @@ class TenantLifecycleManager {
         const { listingCache = null, logger = null, allowedUnitIds = null, verifyUnitScope = false } = options;
 
         const leaseUnitId = lease?.UnitId != null ? lease.UnitId.toString() : null;
+        // Guard against accidental drift: a limited sync should only touch the units
+        // supplied by the orchestrator, so we raise immediately if a mismatch slips through.
         if (verifyUnitScope) {
             if (!leaseUnitId) {
                 emitLifecycleWarn(logger, 'lease.unit-missing', { leaseId: lease?.Id || null });

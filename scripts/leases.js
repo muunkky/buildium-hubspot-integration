@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// Wrapper to normalize npm CLI arguments so limit/dry-run flags survive before we hand
+// control to the lease-centric sync entrypoint.
 const { spawn } = require('child_process');
 
 const rawArgs = process.argv.slice(2);
