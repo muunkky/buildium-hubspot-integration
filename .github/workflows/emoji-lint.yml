@@ -1,0 +1,20 @@
+name: Emoji lint
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  find-emojis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Run emoji scan
+        run: |
+          npm ci
+          node scripts/find-emojis.js . || exit 1
