@@ -7,13 +7,13 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 async function testHubSpotOnly() {
-    console.log('🟠 TESTING HUBSPOT BATCH API ONLY');
+    console.log(' TESTING HUBSPOT BATCH API ONLY');
     console.log('='.repeat(50));
     
     try {
         const client = new HubSpotClient();
         
-        console.log('🔍 HubSpot Access Token present:', !!process.env.HUBSPOT_ACCESS_TOKEN);
+        console.log('[SEARCH] HubSpot Access Token present:', !!process.env.HUBSPOT_ACCESS_TOKEN);
         
         const testListings = [{
             properties: {
@@ -23,14 +23,14 @@ async function testHubSpotOnly() {
             }
         }];
         
-        console.log('🚀 Calling createListingsBatch...');
+        console.log(' Calling createListingsBatch...');
         
         const results = await client.createListingsBatch(testListings);
         
-        console.log('✅ Success:', results);
+        console.log('[OK] Success:', results);
         
     } catch (error) {
-        console.error('❌ Error:', error.message);
+        console.error('[FAIL] Error:', error.message);
         if (error.response) {
             console.error('Response status:', error.response.status);
             console.error('Response data:', error.response.data);

@@ -4,7 +4,7 @@ dotenv.config();
 
 async function debugTenantData() {
     try {
-        console.log('🔍 Debugging tenant data structure...');
+        console.log('[SEARCH] Debugging tenant data structure...');
         
         // Get a specific lease to see tenant structure
         const response = await axios.get('https://api.buildium.com/v1/leases', {
@@ -19,7 +19,7 @@ async function debugTenantData() {
             }
         });
         
-        console.log('\n📋 Raw Lease Data for Unit 177194:');
+        console.log('\n[ITEM] Raw Lease Data for Unit 177194:');
         console.log('=' .repeat(60));
         
         response.data.forEach((lease, index) => {
@@ -45,7 +45,7 @@ async function debugTenantData() {
         });
         
     } catch (error) {
-        console.error('❌ Error:', error.response?.data || error.message);
+        console.error('[FAIL] Error:', error.response?.data || error.message);
     }
 }
 

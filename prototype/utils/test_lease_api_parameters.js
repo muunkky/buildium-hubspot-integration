@@ -20,7 +20,7 @@ async function testLeaseAPIParameters() {
     
     const testUnitId = 177184;
     
-    console.log('🧪 Testing different API parameter formats for leases');
+    console.log('[TEST] Testing different API parameter formats for leases');
     console.log(`Target Unit ID: ${testUnitId}\n`);
     
     const testCases = [
@@ -48,17 +48,17 @@ async function testLeaseAPIParameters() {
             console.log(`  Leases for target unit: ${unitSpecificLeases.length}`);
             
             if (unitSpecificLeases.length === leases.length && leases.length > 0) {
-                console.log(`  ✅ SUCCESS: All returned leases are for target unit!`);
+                console.log(`  [OK] SUCCESS: All returned leases are for target unit!`);
             } else if (unitSpecificLeases.length > 0) {
-                console.log(`  ⚠️  PARTIAL: Some leases for target unit, but also others`);
+                console.log(`  [WARN]️  PARTIAL: Some leases for target unit, but also others`);
             } else {
-                console.log(`  ❌ FAILED: No leases for target unit`);
+                console.log(`  [FAIL] FAILED: No leases for target unit`);
             }
             
             console.log();
             
         } catch (error) {
-            console.log(`  ❌ ERROR: ${error.response?.status || error.message}`);
+            console.log(`  [FAIL] ERROR: ${error.response?.status || error.message}`);
             console.log();
         }
     }
@@ -83,7 +83,7 @@ async function testLeaseAPIParameters() {
         console.log(`  Sample unit IDs: ${unitIds.slice(0, 10).join(', ')}`);
         
     } catch (error) {
-        console.log(`  ❌ ERROR: ${error.response?.status || error.message}`);
+        console.log(`  [FAIL] ERROR: ${error.response?.status || error.message}`);
     }
 }
 

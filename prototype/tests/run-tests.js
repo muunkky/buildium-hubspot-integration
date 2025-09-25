@@ -83,14 +83,14 @@ class TestRunner {
     async runTest(testName) {
         const test = this.tests[testName];
         if (!test) {
-            console.error(`❌ Test '${testName}' not found.`);
+            console.error(`[FAIL] Test '${testName}' not found.`);
             this.showHelp();
             return false;
         }
 
-        console.log(`🚀 Running Test: ${testName}`);
-        console.log(`📋 Description: ${test.description}`);
-        console.log(`📂 Category: ${test.category}`);
+        console.log(` Running Test: ${testName}`);
+        console.log(`[ITEM] Description: ${test.description}`);
+        console.log(` Category: ${test.category}`);
         console.log('='.repeat(60));
 
         try {
@@ -101,20 +101,20 @@ class TestRunner {
 
             console.log(stdout);
             if (stderr && !stderr.includes('Warning')) {
-                console.log('⚠️ Warnings:', stderr);
+                console.log('[WARN]️ Warnings:', stderr);
             }
 
-            console.log(`\n✅ Test '${testName}' completed successfully!`);
+            console.log(`\n[OK] Test '${testName}' completed successfully!`);
             return true;
 
         } catch (error) {
-            console.error(`❌ Test '${testName}' failed:`, error.message);
+            console.error(`[FAIL] Test '${testName}' failed:`, error.message);
             return false;
         }
     }
 
     async runLeaseTests() {
-        console.log('🚀 RUNNING LEASE-CENTRIC SYNC TESTS');
+        console.log(' RUNNING LEASE-CENTRIC SYNC TESTS');
         console.log('='.repeat(60));
         
         const leaseTests = ['lease-centric-sync', 'buildium-lease-client', 'hubspot-listings', 'lease-integration'];
@@ -122,7 +122,7 @@ class TestRunner {
         let successCount = 0;
         
         for (const testName of leaseTests) {
-            console.log(`\n📋 [${Object.keys(results).length + 1}/${leaseTests.length}] Starting: ${testName}`);
+            console.log(`\n[ITEM] [${Object.keys(results).length + 1}/${leaseTests.length}] Starting: ${testName}`);
             console.log('-'.repeat(40));
             
             const success = await this.runTest(testName);
@@ -134,27 +134,27 @@ class TestRunner {
             
             // Add delay between tests
             if (testName !== leaseTests[leaseTests.length - 1]) {
-                console.log('\n⏱️ Waiting 2 seconds before next test...');
+                console.log('\n[DURATION]️ Waiting 2 seconds before next test...');
                 await new Promise(resolve => setTimeout(resolve, 2000));
             }
         }
         
         // Summary
         console.log('\n' + '='.repeat(60));
-        console.log('📊 LEASE-CENTRIC SYNC TEST RESULTS');
+        console.log('[STATS] LEASE-CENTRIC SYNC TEST RESULTS');
         console.log('='.repeat(60));
         
         Object.entries(results).forEach(([testName, success]) => {
-            const status = success ? '✅ PASS' : '❌ FAIL';
+            const status = success ? '[OK] PASS' : '[FAIL] FAIL';
             console.log(`${status} ${testName}: ${this.tests[testName].description}`);
         });
         
         const successRate = (successCount / leaseTests.length * 100).toFixed(1);
-        console.log(`\n🏆 Lease-Centric Result: ${successCount}/${leaseTests.length} tests passed (${successRate}%)`);
+        console.log(`\n Lease-Centric Result: ${successCount}/${leaseTests.length} tests passed (${successRate}%)`);
         
         if (successCount === leaseTests.length) {
-            console.log('\n🎉 All lease-centric tests passed! Ready for implementation.');
-            console.log('\n📝 Implementation Notes:');
+            console.log('\n[COMPLETE] All lease-centric tests passed! Ready for implementation.');
+            console.log('\n Implementation Notes:');
             console.log('   • Lease-centric sync is 100x+ more efficient than unit-centric');
             console.log('   • Uses Buildium lastupdatedfrom filter for incremental sync');
             console.log('   • Integrates with HubSpot listings object (0-420)');
@@ -166,7 +166,7 @@ class TestRunner {
     }
 
     async runLegacyTests() {
-        console.log('🚀 RUNNING LEGACY/EXISTING TESTS');
+        console.log(' RUNNING LEGACY/EXISTING TESTS');
         console.log('='.repeat(60));
         
         const legacyTests = ['owners-e2e', 'units-e2e', 'force-sync', 'comprehensive-e2e', 'simple-e2e'];
@@ -174,7 +174,7 @@ class TestRunner {
         let successCount = 0;
         
         for (const testName of legacyTests) {
-            console.log(`\n📋 [${Object.keys(results).length + 1}/${legacyTests.length}] Starting: ${testName}`);
+            console.log(`\n[ITEM] [${Object.keys(results).length + 1}/${legacyTests.length}] Starting: ${testName}`);
             console.log('-'.repeat(40));
             
             const success = await this.runTest(testName);
@@ -186,23 +186,23 @@ class TestRunner {
             
             // Add delay between tests
             if (testName !== legacyTests[legacyTests.length - 1]) {
-                console.log('\n⏱️ Waiting 2 seconds before next test...');
+                console.log('\n[DURATION]️ Waiting 2 seconds before next test...');
                 await new Promise(resolve => setTimeout(resolve, 2000));
             }
         }
         
         // Summary
         console.log('\n' + '='.repeat(60));
-        console.log('📊 LEGACY TEST RESULTS');
+        console.log('[STATS] LEGACY TEST RESULTS');
         console.log('='.repeat(60));
         
         Object.entries(results).forEach(([testName, success]) => {
-            const status = success ? '✅ PASS' : '❌ FAIL';
+            const status = success ? '[OK] PASS' : '[FAIL] FAIL';
             console.log(`${status} ${testName}: ${this.tests[testName].description}`);
         });
         
         const successRate = (successCount / legacyTests.length * 100).toFixed(1);
-        console.log(`\n🏆 Legacy Result: ${successCount}/${legacyTests.length} tests passed (${successRate}%)`);
+        console.log(`\n Legacy Result: ${successCount}/${legacyTests.length} tests passed (${successRate}%)`);
         
         return successCount === legacyTests.length;
     }
@@ -214,7 +214,7 @@ class TestRunner {
         let successCount = 0;
         
         for (const [testName, test] of Object.entries(this.tests)) {
-            console.log(`\n📋 [${Object.keys(results).length + 1}/${Object.keys(this.tests).length}] Starting: ${testName}`);
+            console.log(`\n[ITEM] [${Object.keys(results).length + 1}/${Object.keys(this.tests).length}] Starting: ${testName}`);
             console.log('-'.repeat(40));
             
             const success = await this.runTest(testName);
@@ -226,29 +226,29 @@ class TestRunner {
             
             // Add delay between tests
             if (testName !== Object.keys(this.tests)[Object.keys(this.tests).length - 1]) {
-                console.log('\n⏱️ Waiting 2 seconds before next test...');
+                console.log('\n[DURATION]️ Waiting 2 seconds before next test...');
                 await new Promise(resolve => setTimeout(resolve, 2000));
             }
         }
         
         // Summary
         console.log('\n' + '='.repeat(60));
-        console.log('📊 TEST RESULTS SUMMARY');
+        console.log('[STATS] TEST RESULTS SUMMARY');
         console.log('='.repeat(60));
         
         Object.entries(results).forEach(([testName, success]) => {
-            const status = success ? '✅ PASS' : '❌ FAIL';
+            const status = success ? '[OK] PASS' : '[FAIL] FAIL';
             console.log(`${status} ${testName}: ${this.tests[testName].description}`);
         });
         
         const successRate = (successCount / Object.keys(this.tests).length * 100).toFixed(1);
-        console.log(`\n🏆 Overall Result: ${successCount}/${Object.keys(this.tests).length} tests passed (${successRate}%)`);
+        console.log(`\n Overall Result: ${successCount}/${Object.keys(this.tests).length} tests passed (${successRate}%)`);
         
         return successCount === Object.keys(this.tests).length;
     }
 
     showHelp() {
-        console.log('🧪 Buildium-HubSpot Integration Test Runner');
+        console.log('[TEST] Buildium-HubSpot Integration Test Runner');
         console.log('='.repeat(60));
         console.log('Usage: node tests/run-tests.js [test-name]');
         console.log('\nAvailable tests:');

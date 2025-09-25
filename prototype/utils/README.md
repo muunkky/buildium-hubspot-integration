@@ -47,21 +47,21 @@ These scripts automatically load the `.env` file using `require('dotenv').config
 
 ## Script Categories
 
-### 🔧 **Debugging Tools**
+### [TOOL] **Debugging Tools**
 Scripts that help diagnose issues:
 - Association problems
 - API connectivity
 - Data transformation errors
 - Object creation failures
 
-### 🧪 **Testing Utilities**
+### [TEST] **Testing Utilities**
 Scripts that validate functionality:
 - API endpoints
 - Data integrity
 - Association creation
 - Integration workflows
 
-### 📊 **Data Analysis**
+### [STATS] **Data Analysis**
 Scripts that examine and display data:
 - Property relationships
 - Contact information

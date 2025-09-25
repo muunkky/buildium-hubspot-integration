@@ -42,10 +42,10 @@ async function findCorrectAssociation() {
                     }
                 }
             );
-            console.log('✅ V3 association created successfully!');
+            console.log('[OK] V3 association created successfully!');
             console.log(JSON.stringify(response.data, null, 2));
         } catch (error) {
-            console.log('❌ V3 association failed:', error.response?.data || error.message);
+            console.log('[FAIL] V3 association failed:', error.response?.data || error.message);
         }
         
         // Try just using the simple object ID without object type
@@ -71,10 +71,10 @@ async function findCorrectAssociation() {
                     }
                 }
             );
-            console.log('✅ Simple association created successfully!');
+            console.log('[OK] Simple association created successfully!');
             console.log(JSON.stringify(response.data, null, 2));
         } catch (error) {
-            console.log('❌ Simple association failed:', error.response?.data || error.message);
+            console.log('[FAIL] Simple association failed:', error.response?.data || error.message);
         }
         
     } catch (error) {

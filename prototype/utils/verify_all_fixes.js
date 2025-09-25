@@ -45,7 +45,7 @@ async function verifyBothIssuesFixed() {
         let duplicatesFound = false;
         Object.keys(unitIdGroups).forEach(unitId => {
             if (unitIdGroups[unitId].length > 1) {
-                console.log(`❌ DUPLICATE UNIT ID ${unitId}:`);
+                console.log(`[FAIL] DUPLICATE UNIT ID ${unitId}:`);
                 unitIdGroups[unitId].forEach(listing => {
                     console.log(`   - Listing ${listing.id}: ${listing.properties.hs_name}`);
                 });
@@ -54,7 +54,7 @@ async function verifyBothIssuesFixed() {
         });
         
         if (!duplicatesFound) {
-            console.log('✅ NO DUPLICATES FOUND - All Unit IDs are unique!');
+            console.log('[OK] NO DUPLICATES FOUND - All Unit IDs are unique!');
         }
         
         // Issue 2: Check Active Tenant associations
@@ -81,7 +81,7 @@ async function verifyBothIssuesFixed() {
                 
                 if (assocResponse.data.results && assocResponse.data.results.length > 0) {
                     associationsFound++;
-                    console.log(`✅ Listing ${listing.id} (${listing.properties.hs_name}):`);
+                    console.log(`[OK] Listing ${listing.id} (${listing.properties.hs_name}):`);
                     
                     assocResponse.data.results.forEach(assoc => {
                         console.log(`   - Contact ${assoc.toObjectId}:`);
@@ -98,21 +98,21 @@ async function verifyBothIssuesFixed() {
             }
         }
         
-        console.log(`\n📊 SUMMARY:`);
+        console.log(`\n[STATS] SUMMARY:`);
         console.log(`   Listings checked: ${recentListings.length}`);
         console.log(`   Listings with associations: ${associationsFound}`);
         console.log(`   Active Tenant associations: ${activeTenantAssociationsFound}`);
         
         if (activeTenantAssociationsFound > 0) {
-            console.log('✅ ACTIVE TENANT ASSOCIATIONS WORKING!');
+            console.log('[OK] ACTIVE TENANT ASSOCIATIONS WORKING!');
         } else {
-            console.log('⚠️ No Active Tenant associations found in checked listings');
+            console.log('[WARN]️ No Active Tenant associations found in checked listings');
         }
         
         // Overall status
-        console.log('\n🎯 OVERALL STATUS:');
-        console.log(`   ✅ Duplicate Prevention: ${!duplicatesFound ? 'WORKING' : 'NEEDS ATTENTION'}`);
-        console.log(`   ✅ Active Tenant Field: ${activeTenantAssociationsFound > 0 ? 'WORKING' : 'NEEDS VERIFICATION'}`);
+        console.log('\n[TARGET] OVERALL STATUS:');
+        console.log(`   [OK] Duplicate Prevention: ${!duplicatesFound ? 'WORKING' : 'NEEDS ATTENTION'}`);
+        console.log(`   [OK] Active Tenant Field: ${activeTenantAssociationsFound > 0 ? 'WORKING' : 'NEEDS VERIFICATION'}`);
         
     } catch (error) {
         console.error('Error:', error.response?.data || error.message);

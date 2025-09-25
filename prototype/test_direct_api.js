@@ -10,7 +10,7 @@ async function testDirectAPI() {
     }
     
     try {
-        console.log('🔍 Testing direct Buildium API call...');
+        console.log('[SEARCH] Testing direct Buildium API call...');
         
         const params = { 
             limit: 10, 
@@ -18,7 +18,7 @@ async function testDirectAPI() {
             propertyids: [140054]
         };
         
-        console.log('📋 Request params:', params);
+        console.log('[ITEM] Request params:', params);
         
         const response = await axios.get('https://api.buildium.com/v1/rentals/units', {
             headers: {
@@ -29,20 +29,20 @@ async function testDirectAPI() {
             params
         });
         
-        console.log(`✅ API Response: ${response.data.length} units returned`);
+        console.log(`[OK] API Response: ${response.data.length} units returned`);
         
         if (response.data.length > 0) {
-            console.log('🏠 Sample units:');
+            console.log(' Sample units:');
             response.data.slice(0, 5).forEach((unit, i) => {
                 console.log(`  ${i+1}. Unit ${unit.UnitNumber} (ID: ${unit.Id}) - Property: ${unit.PropertyId}`);
             });
             
             const property140054Units = response.data.filter(unit => unit.PropertyId === 140054);
-            console.log(`🎯 Units actually from property 140054: ${property140054Units.length}`);
+            console.log(`[TARGET] Units actually from property 140054: ${property140054Units.length}`);
         }
         
     } catch (error) {
-        console.error('❌ Error:', error.response?.data || error.message);
+        console.error('[FAIL] Error:', error.response?.data || error.message);
     }
 }
 

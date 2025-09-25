@@ -22,13 +22,13 @@ async function getHubSpotListingProperties() {
             console.log(`Log being generated at ${logPath}`);
             return response.data.results;
         } else {
-            logContent = '❌ Unexpected response format: ' + JSON.stringify(response.data, null, 2);
+            logContent = '[FAIL] Unexpected response format: ' + JSON.stringify(response.data, null, 2);
             fs.writeFileSync(logPath, logContent);
             console.log(`Log being generated at ${logPath}`);
             return [];
         }
     } catch (err) {
-        console.error('❌ Error fetching HubSpot listing properties:', err.response?.data || err.message);
+        console.error('[FAIL] Error fetching HubSpot listing properties:', err.response?.data || err.message);
         throw err;
     }
 }
@@ -50,14 +50,14 @@ async function createBuildiumLeaseLastUpdatedProperty() {
     };
     try {
         const response = await axios.post(url, body, { headers });
-        console.log('✅ Created custom property buildium_lease_last_updated');
+        console.log('[OK] Created custom property buildium_lease_last_updated');
         return response.data;
     } catch (err) {
         if (err.response?.status === 409) {
-            console.log('ℹ️ Custom property buildium_lease_last_updated already exists.');
+            console.log('️ Custom property buildium_lease_last_updated already exists.');
             return null;
         }
-        console.error('❌ Error creating custom property:', err.response?.data || err.message);
+        console.error('[FAIL] Error creating custom property:', err.response?.data || err.message);
         throw err;
     }
 }
@@ -90,7 +90,7 @@ async function getRecentBuildiumLeases() {
         const response = await axios.get(url, { headers });
         return response.data;
     } catch (err) {
-        console.error('❌ Buildium API error:', err.response?.data || err.message);
+        console.error('[FAIL] Buildium API error:', err.response?.data || err.message);
         console.error('  URL:', url);
     console.error('  Client ID:', buildiumClientId ? 'Present' : 'Missing');
     console.error('  Client Secret:', buildiumClientSecret ? 'Present' : 'Missing');
@@ -116,7 +116,7 @@ async function getRecentHubSpotListings() {
         console.dir(response.data, { depth: 5 });
         return response.data.results;
     } catch (err) {
-        console.error('❌ HubSpot API error:', err.response?.data || err.message);
+        console.error('[FAIL] HubSpot API error:', err.response?.data || err.message);
         console.error('  URL:', url);
         console.error('  Access Token:', HUBSPOT_ACCESS_TOKEN ? 'Present' : 'Missing');
         throw err;
@@ -139,23 +139,23 @@ function getMaxLastUpdated(items, field) {
         const properties = await getHubSpotListingProperties();
         const lastUpdatedProp = properties.find(p => p.name === 'buildium_lease_last_updated' || p.name.includes('last_updated'));
         if (lastUpdatedProp) {
-            console.log(`ℹ️ Found last updated property: ${lastUpdatedProp.name}`);
+            console.log(`️ Found last updated property: ${lastUpdatedProp.name}`);
         } else {
-            console.log('🔧 Creating custom property buildium_lease_last_updated...');
+            console.log('[TOOL] Creating custom property buildium_lease_last_updated...');
             await createBuildiumLeaseLastUpdatedProperty();
         }
 
         // Step 2: Fetch Buildium leases
-        console.log('🔍 Fetching recent Buildium leases...');
+        console.log('[SEARCH] Fetching recent Buildium leases...');
         const buildiumLeases = await getRecentBuildiumLeases();
         const buildiumMax = getMaxLastUpdated(buildiumLeases, 'LastUpdatedDateTime');
-        console.log('✅ Newest Buildium lease LastUpdatedDateTime:', buildiumMax);
+        console.log('[OK] Newest Buildium lease LastUpdatedDateTime:', buildiumMax);
 
         // Step 3: Fetch HubSpot listings using buildium_lease_last_updated
-        console.log('🔍 Fetching recent HubSpot listings...');
+        console.log('[SEARCH] Fetching recent HubSpot listings...');
         const hubspotListings = await getRecentHubSpotListings();
         const hubspotMax = getMaxLastUpdated(hubspotListings, 'buildium_lease_last_updated');
-        console.log('✅ Newest HubSpot listing buildium_lease_last_updated:', hubspotMax);
+        console.log('[OK] Newest HubSpot listing buildium_lease_last_updated:', hubspotMax);
 
         // Print a few examples for manual inspection
         console.log('\n--- Buildium Lease Examples ---');
@@ -179,7 +179,7 @@ function getMaxLastUpdated(items, field) {
             });
         });
     } catch (err) {
-        console.error('❌ Diagnostic error (main):', err.response?.data || err.message);
+        console.error('[FAIL] Diagnostic error (main):', err.response?.data || err.message);
         console.error('  Stack:', err.stack);
     }
 })();

@@ -14,21 +14,21 @@ const { BuildiumClient, HubSpotClient } = require('../index.js');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
-console.log('🌐 REAL API INTEGRATION TEST: Lease-Centric Sync');
+console.log(' REAL API INTEGRATION TEST: Lease-Centric Sync');
 console.log('='.repeat(70));
-console.log(`📅 ${new Date().toLocaleString()}`);
-console.log(`⚠️  WARNING: This makes REAL API calls!\n`);
+console.log(`[DATE] ${new Date().toLocaleString()}`);
+console.log(`[WARN]️  WARNING: This makes REAL API calls!\n`);
 
 // Test helpers
 function assert(condition, message) {
     if (!condition) {
-        throw new Error(`❌ Assertion failed: ${message}`);
+        throw new Error(`[FAIL] Assertion failed: ${message}`);
     }
-    console.log(`✅ ${message}`);
+    console.log(`[OK] ${message}`);
 }
 
 async function testRealBuildiumAPI() {
-    console.log('\n🏗️ TESTING REAL BUILDIUM API');
+    console.log('\n️ TESTING REAL BUILDIUM API');
     console.log('-'.repeat(50));
     
     try {
@@ -36,18 +36,18 @@ async function testRealBuildiumAPI() {
         
         // Test with a recent date to get some results
         const testDate = new Date('2024-01-01');
-        console.log(`🔍 Calling real Buildium API: getLeasesUpdatedSince(${testDate.toISOString()})`);
+        console.log(`[SEARCH] Calling real Buildium API: getLeasesUpdatedSince(${testDate.toISOString()})`);
         
         // Make the REAL API call
         const startTime = Date.now();
         const leases = await client.getLeasesUpdatedSince(testDate, { limit: 5 });
         const duration = Date.now() - startTime;
         
-        console.log(`⏱️  API call took ${duration}ms`);
-        console.log(`📊 Retrieved ${leases.length} lease(s) from Buildium`);
+        console.log(`[DURATION]️  API call took ${duration}ms`);
+        console.log(`[STATS] Retrieved ${leases.length} lease(s) from Buildium`);
         
         if (leases.length > 0) {
-            console.log(`📝 Sample lease data:`, {
+            console.log(` Sample lease data:`, {
                 id: leases[0].Id,
                 propertyId: leases[0].PropertyId,
                 unitId: leases[0].UnitId,
@@ -57,20 +57,20 @@ async function testRealBuildiumAPI() {
         }
         
         assert(Array.isArray(leases), 'Should return array of leases');
-        console.log('✅ REAL BUILDIUM API TEST PASSED');
+        console.log('[OK] REAL BUILDIUM API TEST PASSED');
         return { success: true, data: leases, duration };
         
     } catch (error) {
-        console.log(`❌ REAL BUILDIUM API TEST FAILED: ${error.message}`);
+        console.log(`[FAIL] REAL BUILDIUM API TEST FAILED: ${error.message}`);
         if (error.response?.status === 401) {
-            console.log('🔑 Check your Buildium API credentials in .env file');
+            console.log(' Check your Buildium API credentials in .env file');
         }
         return { success: false, error: error.message };
     }
 }
 
 async function testRealHubSpotAPI() {
-    console.log('\n🟠 TESTING REAL HUBSPOT API');
+    console.log('\n TESTING REAL HUBSPOT API');
     console.log('-'.repeat(50));
     
     try {
@@ -96,13 +96,13 @@ async function testRealHubSpotAPI() {
             }
         ];
         
-        console.log(`🔍 Calling real HubSpot API: createListingsBatch(${testListings.length} listings)`);
+        console.log(`[SEARCH] Calling real HubSpot API: createListingsBatch(${testListings.length} listings)`);
         
         if (process.env.DRY_RUN === 'true') {
-            console.log('🔄 DRY_RUN mode enabled - no real listings will be created');
+            console.log('[RETRY] DRY_RUN mode enabled - no real listings will be created');
         } else {
-            console.log('⚠️  REAL LISTINGS WILL BE CREATED OR SKIPPED IF DUPLICATES!');
-            console.log('ℹ️  Using consistent test IDs: api-test-listing-1, api-test-listing-2');
+            console.log('[WARN]️  REAL LISTINGS WILL BE CREATED OR SKIPPED IF DUPLICATES!');
+            console.log('️  Using consistent test IDs: api-test-listing-1, api-test-listing-2');
         }
         
         // Make the REAL API call
@@ -110,11 +110,11 @@ async function testRealHubSpotAPI() {
         const results = await client.createListingsBatch(testListings);
         const duration = Date.now() - startTime;
         
-        console.log(`⏱️  API call took ${duration}ms`);
-        console.log(`📊 Created ${results.length} listing(s) in HubSpot`);
+        console.log(`[DURATION]️  API call took ${duration}ms`);
+        console.log(`[STATS] Created ${results.length} listing(s) in HubSpot`);
         
         if (results.created && results.created.length > 0) {
-            console.log(`📝 Sample listing created:`, {
+            console.log(` Sample listing created:`, {
                 id: results.created[0].id,
                 price: results.created[0].properties?.hs_listing_price,
                 city: results.created[0].properties?.hs_city
@@ -125,23 +125,23 @@ async function testRealHubSpotAPI() {
         const skippedCount = results.skipped ? results.skipped.length : 0;
         
         assert(Array.isArray(results.created || results), 'Should return array of created listings');
-        console.log(`📊 Results: ${createdCount} created, ${skippedCount} skipped as duplicates`);
-        console.log('✅ REAL HUBSPOT API TEST PASSED');
+        console.log(`[STATS] Results: ${createdCount} created, ${skippedCount} skipped as duplicates`);
+        console.log('[OK] REAL HUBSPOT API TEST PASSED');
         return { success: true, data: results, duration };
         
     } catch (error) {
-        console.log(`❌ REAL HUBSPOT API TEST FAILED: ${error.message}`);
+        console.log(`[FAIL] REAL HUBSPOT API TEST FAILED: ${error.message}`);
         if (error.response?.status === 401) {
-            console.log('🔑 Check your HubSpot API credentials in .env file');
+            console.log(' Check your HubSpot API credentials in .env file');
         }
         return { success: false, error: error.message };
     }
 }
 
 async function runRealAPITests() {
-    console.log('🏃 RUNNING REAL API INTEGRATION TESTS');
+    console.log(' RUNNING REAL API INTEGRATION TESTS');
     console.log('='.repeat(70));
-    console.log('⚠️  These tests make ACTUAL API calls and may:');
+    console.log('[WARN]️  These tests make ACTUAL API calls and may:');
     console.log('   • Consume API rate limits');
     console.log('   • Create real data in HubSpot (unless DRY_RUN=true)');
     console.log('   • Take several seconds to complete');
@@ -152,14 +152,14 @@ async function runRealAPITests() {
     const hasHubSpotCreds = process.env.HUBSPOT_ACCESS_TOKEN;
     
     if (!hasBuilidumCreds) {
-        console.log('❌ Missing Buildium credentials (BUILDIUM_CLIENT_ID, BUILDIUM_CLIENT_SECRET)');
+        console.log('[FAIL] Missing Buildium credentials (BUILDIUM_CLIENT_ID, BUILDIUM_CLIENT_SECRET)');
     }
     if (!hasHubSpotCreds) {
-        console.log('❌ Missing HubSpot credentials (HUBSPOT_ACCESS_TOKEN)');
+        console.log('[FAIL] Missing HubSpot credentials (HUBSPOT_ACCESS_TOKEN)');
     }
     
     if (!hasBuilidumCreds || !hasHubSpotCreds) {
-        console.log('\n💡 To run real API tests, ensure you have API credentials in .env file');
+        console.log('\n To run real API tests, ensure you have API credentials in .env file');
         return;
     }
 
@@ -171,7 +171,7 @@ async function runRealAPITests() {
     results.push({ name: 'Buildium API', ...buildiumResult });
     if (buildiumResult.duration) totalDuration += buildiumResult.duration;
     
-    console.log('\n⏱️  Waiting 2 seconds between API tests...');
+    console.log('\n[DURATION]️  Waiting 2 seconds between API tests...');
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     // Test HubSpot API  
@@ -181,12 +181,12 @@ async function runRealAPITests() {
 
     // Summary
     console.log('\n' + '='.repeat(70));
-    console.log('📊 REAL API TEST RESULTS');
+    console.log('[STATS] REAL API TEST RESULTS');
     console.log('='.repeat(70));
     
     let successCount = 0;
     results.forEach(result => {
-        const status = result.success ? '✅ PASS' : '❌ FAIL';
+        const status = result.success ? '[OK] PASS' : '[FAIL] FAIL';
         console.log(`${status} ${result.name}: ${result.duration || 0}ms`);
         if (result.success) successCount++;
         if (result.error) {
@@ -194,15 +194,15 @@ async function runRealAPITests() {
         }
     });
     
-    console.log(`\n🏆 Real API Results: ${successCount}/${results.length} tests passed`);
-    console.log(`⏱️  Total API time: ${totalDuration}ms`);
+    console.log(`\n Real API Results: ${successCount}/${results.length} tests passed`);
+    console.log(`[DURATION]️  Total API time: ${totalDuration}ms`);
     
     if (successCount === results.length) {
-        console.log('\n🎉 All real API tests passed!');
-        console.log('✅ Lease-centric sync implementation is working with real APIs');
-        console.log('✅ Both Buildium and HubSpot integrations are functional');
+        console.log('\n[COMPLETE] All real API tests passed!');
+        console.log('[OK] Lease-centric sync implementation is working with real APIs');
+        console.log('[OK] Both Buildium and HubSpot integrations are functional');
     } else {
-        console.log('\n⚠️  Some API tests failed - check credentials and network connectivity');
+        console.log('\n[WARN]️  Some API tests failed - check credentials and network connectivity');
     }
     
     return { passCount: successCount, totalCount: results.length, totalDuration };
@@ -213,7 +213,7 @@ async function main() {
     try {
         await runRealAPITests();
     } catch (error) {
-        console.error('💥 Real API test runner error:', error.message);
+        console.error(' Real API test runner error:', error.message);
         process.exit(1);
     }
 }

@@ -9,12 +9,12 @@ async function checkProperty140054Units() {
     const buildiumAuth = Buffer.from(`${process.env.BUILDIUM_CLIENT_ID}:${process.env.BUILDIUM_CLIENT_SECRET}`).toString('base64');
     const baseURL = 'https://api.buildium.com';
     
-    console.log('🔍 Checking units for Property 140054...');
+    console.log('[SEARCH] Checking units for Property 140054...');
     console.log('-'.repeat(50));
     
     try {
         // First, get property details
-        console.log('📋 Getting property details...');
+        console.log('[ITEM] Getting property details...');
         const propertyResponse = await axios.get(
             `${baseURL}/v1/rentals/140054`,
             {
@@ -26,11 +26,11 @@ async function checkProperty140054Units() {
         );
         
         const property = propertyResponse.data;
-        console.log(`✅ Property: ${property.Name} (ID: ${property.Id})`);
+        console.log(`[OK] Property: ${property.Name} (ID: ${property.Id})`);
         console.log(`   Address: ${property.Address.AddressLine1}, ${property.Address.City}`);
         
         // Get units for this property
-        console.log('\n🏠 Getting units for this property...');
+        console.log('\n Getting units for this property...');
         const unitsResponse = await axios.get(
             `${baseURL}/v1/rentals/140054/units`,
             {
@@ -42,7 +42,7 @@ async function checkProperty140054Units() {
         );
         
         const units = unitsResponse.data;
-        console.log(`✅ Found ${units.length} unit(s):`);
+        console.log(`[OK] Found ${units.length} unit(s):`);
         
         units.forEach((unit, index) => {
             console.log(`\n   Unit ${index + 1}:`);
@@ -55,7 +55,7 @@ async function checkProperty140054Units() {
         });
         
         // Also check if there are any leases for these units
-        console.log('\n📄 Checking for active leases...');
+        console.log('\n Checking for active leases...');
         try {
             const leasesResponse = await axios.get(
                 `${baseURL}/v1/leases`,
@@ -72,7 +72,7 @@ async function checkProperty140054Units() {
             );
             
             const leases = leasesResponse.data;
-            console.log(`✅ Found ${leases.length} active lease(s) for property 140054`);
+            console.log(`[OK] Found ${leases.length} active lease(s) for property 140054`);
             
             leases.forEach((lease, index) => {
                 console.log(`   Lease ${index + 1}: ${lease.Id}`);
@@ -81,10 +81,10 @@ async function checkProperty140054Units() {
             });
             
         } catch (leaseError) {
-            console.log('⚠️ Could not fetch lease data:', leaseError.response?.status);
+            console.log('[WARN]️ Could not fetch lease data:', leaseError.response?.status);
         }
         
-        console.log('\n📊 SUMMARY FOR PROPERTY 140054:');
+        console.log('\n[STATS] SUMMARY FOR PROPERTY 140054:');
         console.log(`   Property Name: ${property.Name}`);
         console.log(`   Total Units: ${units.length}`);
         if (units.length > 0) {
@@ -95,14 +95,14 @@ async function checkProperty140054Units() {
         return { property, units };
         
     } catch (error) {
-        console.error('❌ Error fetching data:', error.response?.data || error.message);
+        console.error('[FAIL] Error fetching data:', error.response?.data || error.message);
         throw error;
     }
 }
 
 if (require.main === module) {
     checkProperty140054Units()
-        .then(() => console.log('\n✅ Unit data check complete'))
+        .then(() => console.log('\n[OK] Unit data check complete'))
         .catch(console.error);
 }
 

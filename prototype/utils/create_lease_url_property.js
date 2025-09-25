@@ -18,7 +18,7 @@ async function createLeaseUrlProperty() {
     };
 
     try {
-        console.log('🔧 Creating buildium_lease_url property...');
+        console.log('[TOOL] Creating buildium_lease_url property...');
         
         // Check if property already exists
         try {
@@ -28,7 +28,7 @@ async function createLeaseUrlProperty() {
                 })
             );
             
-            console.log('✅ Property buildium_lease_url already exists');
+            console.log('[OK] Property buildium_lease_url already exists');
         } catch (error) {
             if (error.response?.status === 404) {
                 // Property doesn't exist, create it
@@ -47,15 +47,15 @@ async function createLeaseUrlProperty() {
                     })
                 );
                 
-                console.log('✅ Created: buildium_lease_url');
+                console.log('[OK] Created: buildium_lease_url');
             } else {
                 throw error;
             }
         }
         
-        console.log('🎉 Buildium lease URL property ready!');
+        console.log('[COMPLETE] Buildium lease URL property ready!');
     } catch (error) {
-        console.error('❌ Failed to create property:', error.response?.data || error.message);
+        console.error('[FAIL] Failed to create property:', error.response?.data || error.message);
         process.exit(1);
     }
 }

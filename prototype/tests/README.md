@@ -46,7 +46,7 @@ node tests/run-tests.js help
 
 ## Test Descriptions
 
-### 🎯 Integration Tests
+### [TARGET] Integration Tests
 
 #### `owners-e2e` (focused_e2e_test.js)
 **Purpose**: Validates the complete owners sync pipeline  
@@ -82,7 +82,7 @@ node tests/run-tests.js help
 - Quick validation of basic functionality
 - Good for rapid testing during development
 
-### 🔧 Unit Tests
+### [TOOL] Unit Tests
 
 #### `force-sync` (test_force_sync.js)
 **Purpose**: Validates force sync capability  
@@ -94,10 +94,10 @@ node tests/run-tests.js help
 ## Test Results Interpretation
 
 ### Success Indicators
-- ✅ **PASS**: Test completed successfully
-- 📊 **Metrics**: Shows counts of synced, created, updated items
-- 🔗 **Associations**: Verifies relationship creation
-- ❌ **Zero Errors**: No failures in the pipeline
+- [OK] **PASS**: Test completed successfully
+- [STATS] **Metrics**: Shows counts of synced, created, updated items
+-  **Associations**: Verifies relationship creation
+- [FAIL] **Zero Errors**: No failures in the pipeline
 
 ### Common Issues
 - **401 Unauthorized**: Check API credentials in `.env`

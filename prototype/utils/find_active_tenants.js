@@ -9,7 +9,7 @@ async function findActiveTenantsExample() {
     const buildiumClient = new BuildiumClient();
     
     try {
-        console.log('🔍 Looking for units with active tenants');
+        console.log('[SEARCH] Looking for units with active tenants');
         console.log('=====================================\n');
         
         // Get a few units to test
@@ -52,12 +52,12 @@ async function findActiveTenantsExample() {
                 );
                 
                 if (hasCurrentTenants) {
-                    console.log('\n✅ Found a unit with current tenants!');
+                    console.log('\n[OK] Found a unit with current tenants!');
                     break;
                 }
                 
             } catch (error) {
-                console.log(`❌ Error processing unit ${unit.Id}: ${error.message}`);
+                console.log(`[FAIL] Error processing unit ${unit.Id}: ${error.message}`);
             }
         }
         

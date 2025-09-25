@@ -38,10 +38,10 @@ async function testAssociation() {
                     }
                 }
             );
-            console.log('✅ Standard association created successfully!');
+            console.log('[OK] Standard association created successfully!');
             console.log(JSON.stringify(response.data, null, 2));
         } catch (error) {
-            console.log('❌ Standard association failed:', error.response?.data || error.message);
+            console.log('[FAIL] Standard association failed:', error.response?.data || error.message);
             
             // Try with USER_DEFINED if standard fails
             console.log('\nTrying with USER_DEFINED association...');
@@ -61,10 +61,10 @@ async function testAssociation() {
                         }
                     }
                 );
-                console.log('✅ Custom association created successfully!');
+                console.log('[OK] Custom association created successfully!');
                 console.log(JSON.stringify(response2.data, null, 2));
             } catch (error2) {
-                console.log('❌ Custom association also failed:', error2.response?.data || error2.message);
+                console.log('[FAIL] Custom association also failed:', error2.response?.data || error2.message);
             }
         }
         

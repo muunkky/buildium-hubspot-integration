@@ -7,7 +7,7 @@ async function testPropertyFiltering() {
     const clientId = process.env.BUILDIUM_CLIENT_ID;
     const clientSecret = process.env.BUILDIUM_CLIENT_SECRET;
     
-    console.log('🧪 Testing Buildium API Property Filtering');
+    console.log('[TEST] Testing Buildium API Property Filtering');
     console.log('=' .repeat(50));
     console.log(`Base URL: ${baseURL}`);
     console.log(`Client ID: ${clientId ? 'Set' : 'Missing'}`);
@@ -23,7 +23,7 @@ async function testPropertyFiltering() {
     
     try {
         // Test 1: All owners (baseline)
-        console.log('\n📊 Test 1: All rental owners (baseline)');
+        console.log('\n[STATS] Test 1: All rental owners (baseline)');
         const allOwnersResponse = await axios.get(`${baseURL}/rentals/owners`, {
             headers,
             params: { limit: 100 },
@@ -33,7 +33,7 @@ async function testPropertyFiltering() {
         console.log(`Total owners: ${allOwnersResponse.data.length}`);
         
         // Test 2: Property filtering as array
-        console.log('\n📊 Test 2: Property filter as array [140054]');
+        console.log('\n[STATS] Test 2: Property filter as array [140054]');
         const filteredResponse1 = await axios.get(`${baseURL}/rentals/owners`, {
             headers,
             params: { 
@@ -46,7 +46,7 @@ async function testPropertyFiltering() {
         console.log(`Filtered owners (array): ${filteredResponse1.data.length}`);
         
         // Test 3: Property filtering as string
-        console.log('\n📊 Test 3: Property filter as string "140054"');
+        console.log('\n[STATS] Test 3: Property filter as string "140054"');
         const filteredResponse2 = await axios.get(`${baseURL}/rentals/owners`, {
             headers,
             params: { 
@@ -59,14 +59,14 @@ async function testPropertyFiltering() {
         console.log(`Filtered owners (string): ${filteredResponse2.data.length}`);
         
         // Test 4: URL logging to see actual request
-        console.log('\n📊 Test 4: Debug URL parameters');
+        console.log('\n[STATS] Test 4: Debug URL parameters');
         const testUrl = new URL(`${baseURL}/rentals/owners`);
         testUrl.searchParams.append('propertyids', testPropertyId);
         testUrl.searchParams.append('limit', '100');
         console.log(`Request URL: ${testUrl.toString()}`);
         
         // Test 5: Using our BuildiumClient implementation
-        console.log('\n📊 Test 5: Using our BuildiumClient wrapper');
+        console.log('\n[STATS] Test 5: Using our BuildiumClient wrapper');
         const buildiumClient = new BuildiumClient();
         const ourResult = await buildiumClient.getRentalOwners({ 
             propertyIds: [testPropertyId],
@@ -75,7 +75,7 @@ async function testPropertyFiltering() {
         console.log(`Our implementation result: ${ourResult.length} owners`);
         
         // Validation: Check if returned owners actually own the property
-        console.log('\n🔍 Validating first 10 owners from array test:');
+        console.log('\n[SEARCH] Validating first 10 owners from array test:');
         let validOwners = 0;
         let invalidOwners = 0;
         
@@ -85,15 +85,15 @@ async function testPropertyFiltering() {
             
             if (ownsProperty) {
                 validOwners++;
-                console.log(`✅ ${index + 1}. ${displayName} - Properties: [${owner.PropertyIds.join(', ')}]`);
+                console.log(`[OK] ${index + 1}. ${displayName} - Properties: [${owner.PropertyIds.join(', ')}]`);
             } else {
                 invalidOwners++;
-                console.log(`❌ ${index + 1}. ${displayName} - Properties: [${owner.PropertyIds?.join(', ') || 'None'}] - INVALID!`);
+                console.log(`[FAIL] ${index + 1}. ${displayName} - Properties: [${owner.PropertyIds?.join(', ') || 'None'}] - INVALID!`);
             }
         });
         
         // Full validation of all returned owners
-        console.log('\n🔍 Full validation of all returned owners...');
+        console.log('\n[SEARCH] Full validation of all returned owners...');
         validOwners = 0;
         invalidOwners = 0;
         
@@ -106,34 +106,34 @@ async function testPropertyFiltering() {
             }
         });
         
-        console.log('\n📈 FINAL RESULTS:');
+        console.log('\n FINAL RESULTS:');
         console.log(`Total owners (no filter): ${allOwnersResponse.data.length}`);
         console.log(`Filtered owners (array): ${filteredResponse1.data.length}`);
         console.log(`Filtered owners (string): ${filteredResponse2.data.length}`);
         console.log(`Our implementation: ${ourResult.length}`);
-        console.log(`✅ Valid owners (own property ${testPropertyId}): ${validOwners}`);
-        console.log(`❌ Invalid owners (don't own property ${testPropertyId}): ${invalidOwners}`);
-        console.log(`🎯 Accuracy: ${validOwners}/${filteredResponse1.data.length} (${((validOwners/filteredResponse1.data.length)*100).toFixed(1)}%)`);
+        console.log(`[OK] Valid owners (own property ${testPropertyId}): ${validOwners}`);
+        console.log(`[FAIL] Invalid owners (don't own property ${testPropertyId}): ${invalidOwners}`);
+        console.log(`[TARGET] Accuracy: ${validOwners}/${filteredResponse1.data.length} (${((validOwners/filteredResponse1.data.length)*100).toFixed(1)}%)`);
         
         // Compare our implementation with raw API
         if (ourResult.length === filteredResponse1.data.length) {
-            console.log('✅ Our implementation matches raw API result');
+            console.log('[OK] Our implementation matches raw API result');
         } else {
-            console.log('❌ Our implementation differs from raw API result');
+            console.log('[FAIL] Our implementation differs from raw API result');
         }
         
         if (invalidOwners > 0) {
-            console.log('\n🚨 CRITICAL BUG CONFIRMED: Property filtering is not working correctly!');
+            console.log('\n CRITICAL BUG CONFIRMED: Property filtering is not working correctly!');
             console.log('The Buildium API is returning owners who do not own the specified property.');
             console.log('This is a data integrity issue that must be fixed before production use.');
             return false;
         } else {
-            console.log('\n✅ Property filtering working correctly!');
+            console.log('\n[OK] Property filtering working correctly!');
             return true;
         }
         
     } catch (error) {
-        console.error('❌ API Error:', error.response?.data || error.message);
+        console.error('[FAIL] API Error:', error.response?.data || error.message);
         if (error.response) {
             console.error('Status:', error.response.status);
             console.error('Headers:', error.response.headers);

@@ -2,10 +2,10 @@
  * Test for Lease Update Bug - With Artificial Delay to Prove Execution
  */
 
-console.log('🚀 LEASE UPDATE BUG TEST SUITE (with delay proof)');
+console.log(' LEASE UPDATE BUG TEST SUITE (with delay proof)');
 console.log('='.repeat(60));
 
-console.log('⏱️ Starting test... (adding delays to prove execution)');
+console.log('[DURATION]️ Starting test... (adding delays to prove execution)');
 
 // Add delay to prove execution
 function delay(ms) {
@@ -14,7 +14,7 @@ function delay(ms) {
 
 async function runTest() {
     await delay(1000);
-    console.log('\n🧪 Running: Logic demonstration - lease timestamps vs listing skip');
+    console.log('\n[TEST] Running: Logic demonstration - lease timestamps vs listing skip');
     console.log('='.repeat(60));
     
     await delay(500);
@@ -33,9 +33,9 @@ async function runTest() {
     const leasePassesTimestampFilter = new Date(updatedLease.LastUpdatedDateTime) > new Date(lastSyncTimestamps[updatedLease.Id]);
 
     if (!leasePassesTimestampFilter) {
-        console.log('❌ FAILED: Lease should pass timestamp filter');
+        console.log('[FAIL] FAILED: Lease should pass timestamp filter');
     } else {
-        console.log('✅ Step 1: Lease passes timestamp filter (lease was updated since last sync)');
+        console.log('[OK] Step 1: Lease passes timestamp filter (lease was updated since last sync)');
     }
 
     await delay(500);
@@ -50,7 +50,7 @@ async function runTest() {
         }
     };
 
-    console.log('✅ Step 2: Listing already exists in HubSpot');
+    console.log('[OK] Step 2: Listing already exists in HubSpot');
 
     await delay(500);
 
@@ -63,20 +63,20 @@ async function runTest() {
     // Correct logic should be:
     const correctBehavior = leasePassesTimestampFilter ? 'UPDATE' : 'SKIP';
 
-    console.log(`🐛 Current behavior: ${currentBehavior} (WRONG)`);
-    console.log(`✅ Correct behavior: ${correctBehavior} (RIGHT)`);
+    console.log(` Current behavior: ${currentBehavior} (WRONG)`);
+    console.log(`[OK] Correct behavior: ${correctBehavior} (RIGHT)`);
 
     if (currentBehavior !== correctBehavior) {
-        console.log('🎯 BUG CONFIRMED: Lease updates are skipped when listing exists, even though lease data changed');
+        console.log('[TARGET] BUG CONFIRMED: Lease updates are skipped when listing exists, even though lease data changed');
     }
 
     await delay(1000);
 
-    console.log('\n📊 TEST SUMMARY');
+    console.log('\n[STATS] TEST SUMMARY');
     console.log('='.repeat(60));
-    console.log('✅ Test completed successfully with artificial delays');
-    console.log('⏱️ Total execution time: ~3 seconds (with delays)');
-    console.log('⚡ Without delays: Would execute in <100ms (just logic checks)');
+    console.log('[OK] Test completed successfully with artificial delays');
+    console.log('[DURATION]️ Total execution time: ~3 seconds (with delays)');
+    console.log('[FAST] Without delays: Would execute in <100ms (just logic checks)');
 }
 
 // Run the test

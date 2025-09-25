@@ -10,7 +10,7 @@ async function debugUnitLeaseModel() {
     const buildiumClient = new BuildiumClient();
     
     try {
-        console.log('🔍 Understanding Unit-Lease Relationship');
+        console.log('[SEARCH] Understanding Unit-Lease Relationship');
         console.log('=====================================\n');
         
         // First, let's understand what units look like
@@ -20,7 +20,7 @@ async function debugUnitLeaseModel() {
         
         // Let's examine the first unit in detail
         const testUnit = units[0];
-        console.log(`📍 Examining Unit: ${testUnit.Id} (${testUnit.UnitNumber})`);
+        console.log(` Examining Unit: ${testUnit.Id} (${testUnit.UnitNumber})`);
         console.log(`   Property ID: ${testUnit.PropertyId}`);
         console.log(`   Is Occupied: ${testUnit.IsUnitOccupied}`);
         console.log(`   Is Listed: ${testUnit.IsUnitListed}\n`);
@@ -43,7 +43,7 @@ async function debugUnitLeaseModel() {
             
             // Check if this lease is actually for our unit
             if (lease.UnitId !== testUnit.Id) {
-                console.log(`⚠️  WARNING: This lease is for unit ${lease.UnitId}, not our target unit ${testUnit.Id}!`);
+                console.log(`[WARN]️  WARNING: This lease is for unit ${lease.UnitId}, not our target unit ${testUnit.Id}!`);
             }
             
             // Check tenant information
@@ -75,7 +75,7 @@ async function debugUnitLeaseModel() {
         console.log(`Filter method: ${unitSpecificLeases.length} leases`);
         
         if (leasesCurrentMethod.length !== unitSpecificLeases.length) {
-            console.log('⚠️  Different results! Need to investigate the API call.');
+            console.log('[WARN]️  Different results! Need to investigate the API call.');
         }
         
         // Let's understand lease statuses
@@ -103,7 +103,7 @@ async function debugUnitLeaseModel() {
         console.log(`Leases that should be current by date: ${currentLeases.length}`);
         
         if (currentLeases.length > 1) {
-            console.log('⚠️  Multiple current leases found - this might be the issue!');
+            console.log('[WARN]️  Multiple current leases found - this might be the issue!');
             currentLeases.forEach((lease, idx) => {
                 console.log(`  ${idx + 1}. ${lease.Id} (${lease.LeaseFromDate} to ${lease.LeaseToDate}) - Status: ${lease.LeaseStatus}`);
             });

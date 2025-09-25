@@ -1,7 +1,7 @@
 const { BuildiumClient } = require('../index.js');
 
 async function testUnitNumberApproach() {
-    console.log('🔍 Testing UnitNumber vs PropertyId Approach');
+    console.log('[SEARCH] Testing UnitNumber vs PropertyId Approach');
     console.log('========================================');
     
     try {
@@ -89,7 +89,7 @@ async function testUnitNumberApproach() {
         }
         
     } catch (error) {
-        console.error('❌ Test failed:', error.message);
+        console.error('[FAIL] Test failed:', error.message);
         console.error('Stack:', error.stack);
     }
 }

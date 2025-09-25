@@ -24,7 +24,7 @@ class TenantLifecycleManager {
      * Main method - updates tenant associations based on lease status changes
      */
     async updateTenantAssociations(dryRun = false) {
-        console.log('🔄 Checking tenant association lifecycle transitions...');
+        console.log('[RETRY] Checking tenant association lifecycle transitions...');
         const stats = {
             futureToActive: 0,
             activeToInactive: 0,
@@ -38,20 +38,20 @@ class TenantLifecycleManager {
                 new Date(Date.now() - (30 * 24 * 60 * 60 * 1000)) // Last 30 days
             );
 
-            console.log(`📋 Found ${leases.length} leases to check for lifecycle updates`);
+            console.log(`[ITEM] Found ${leases.length} leases to check for lifecycle updates`);
 
             for (const lease of leases) {
                 try {
                     await this.processLeaseLifecycle(lease, dryRun, stats);
                 } catch (error) {
-                    console.error(`❌ Error processing lease ${lease.Id}:`, error.message);
+                    console.error(`[FAIL] Error processing lease ${lease.Id}:`, error.message);
                     stats.errors++;
                 }
             }
 
             return stats;
         } catch (error) {
-            console.error('❌ Lifecycle update failed:', error.message);
+            console.error('[FAIL] Lifecycle update failed:', error.message);
             stats.errors++;
             return stats;
         }
@@ -81,7 +81,7 @@ class TenantLifecycleManager {
                 transitionType = 'activeToInactive';
                 break;
             default:
-                console.log(`⚠️ Unknown lease status: ${lease.LeaseStatus} for lease ${lease.Id}`);
+                console.log(`[WARN]️ Unknown lease status: ${lease.LeaseStatus} for lease ${lease.Id}`);
                 return;
         }
 
@@ -111,7 +111,7 @@ class TenantLifecycleManager {
             // Step 1: Get full tenant details from Buildium
             const tenant = await this.buildiumClient.getTenant(tenantReference.Id);
             if (!tenant) {
-                console.log(`⚠️ Tenant not found in Buildium: ${tenantReference.Id}`);
+                console.log(`[WARN]️ Tenant not found in Buildium: ${tenantReference.Id}`);
                 return;
             }
 
@@ -122,14 +122,14 @@ class TenantLifecycleManager {
             }
 
             if (!contact) {
-                console.log(`⚠️ Contact not found for tenant ${tenant.FirstName} ${tenant.LastName} (${tenant.Email || 'no email'})`);
+                console.log(`[WARN]️ Contact not found for tenant ${tenant.FirstName} ${tenant.LastName} (${tenant.Email || 'no email'})`);
                 return;
             }
 
             // Step 3: Find the listing for this unit
             const listing = await this.hubspotClient.searchListingByUnitId(lease.UnitId);
             if (!listing) {
-                console.log(`⚠️ Listing not found for unit ${lease.UnitId}`);
+                console.log(`[WARN]️ Listing not found for unit ${lease.UnitId}`);
                 return;
             }
 
@@ -149,7 +149,7 @@ class TenantLifecycleManager {
 
             // Step 6: Perform the lifecycle transition
             if (dryRun) {
-                console.log(`🔄 DRY RUN - Would update ${transitionType}:`);
+                console.log(`[RETRY] DRY RUN - Would update ${transitionType}:`);
                 console.log(`   Contact: ${contact.id} (${tenant.FirstName} ${tenant.LastName})`);
                 console.log(`   Listing: ${listing.id} (Unit ${lease.UnitId})`);
                 console.log(`   New Association: ${this.getAssociationName(targetAssociationType)}`);
@@ -168,7 +168,7 @@ class TenantLifecycleManager {
             stats[transitionType]++;
 
         } catch (error) {
-            console.error(`❌ Error updating tenant association:`, error.message);
+            console.error(`[FAIL] Error updating tenant association:`, error.message);
             throw error;
         }
     }
@@ -181,7 +181,7 @@ class TenantLifecycleManager {
             const associations = await this.hubspotClient.getContactListingAssociations(contactId, listingId);
             return associations || [];
         } catch (error) {
-            console.error(`❌ Error getting current associations:`, error.message);
+            console.error(`[FAIL] Error getting current associations:`, error.message);
             return [];
         }
     }
@@ -234,16 +234,16 @@ class TenantLifecycleManager {
             for (const assoc of currentAssociations) {
                 if (this.shouldRemoveAssociation(assoc.associationTypeId, transitionType)) {
                     await this.removeAssociation(contactId, listingId, assoc.associationTypeId);
-                    console.log(`🔄 Removed ${this.getAssociationName(assoc.associationTypeId)} association`);
+                    console.log(`[RETRY] Removed ${this.getAssociationName(assoc.associationTypeId)} association`);
                 }
             }
 
             // Step 2: Create new association
             await this.hubspotClient.createContactListingAssociation(contactId, listingId, targetAssociationType);
-            console.log(`✅ ${transitionType}: ${tenant.FirstName} ${tenant.LastName} → ${this.getAssociationName(targetAssociationType)} (Unit ${lease.UnitId})`);
+            console.log(`[OK] ${transitionType}: ${tenant.FirstName} ${tenant.LastName} → ${this.getAssociationName(targetAssociationType)} (Unit ${lease.UnitId})`);
 
         } catch (error) {
-            console.error(`❌ Failed to transition association:`, error.message);
+            console.error(`[FAIL] Failed to transition association:`, error.message);
             throw error;
         }
     }
@@ -285,7 +285,7 @@ class TenantLifecycleManager {
 
             return response;
         } catch (error) {
-            console.error(`❌ Failed to remove association:`, error.message);
+            console.error(`[FAIL] Failed to remove association:`, error.message);
             throw error;
         }
     }

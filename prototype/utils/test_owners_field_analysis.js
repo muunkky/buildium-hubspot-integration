@@ -5,14 +5,14 @@ const { BuildiumClient } = require('../index.js');
  * Test duplicate owner handling and field mapping
  */
 async function testOwnerDuplicatesAndFields() {
-    console.log('🧪 Testing Owner Duplicates and Field Mapping');
+    console.log('[TEST] Testing Owner Duplicates and Field Mapping');
     console.log('=' .repeat(60));
     
     const buildium = new BuildiumClient();
     
     try {
         // Get sample owners to analyze
-        console.log('\n📊 Analyzing owner data structure and duplicates...');
+        console.log('\n[STATS] Analyzing owner data structure and duplicates...');
         const sampleOwners = await buildium.getRentalOwners({ limit: 50 });
         
         console.log(`Sample size: ${sampleOwners.length} owners`);
@@ -22,7 +22,7 @@ async function testOwnerDuplicatesAndFields() {
         const uniqueIds = [...new Set(ownerIds)];
         const duplicateIds = ownerIds.filter((id, index) => ownerIds.indexOf(id) !== index);
         
-        console.log(`\n🆔 ID Analysis:`);
+        console.log(`\n ID Analysis:`);
         console.log(`  Unique owner IDs: ${uniqueIds.length}`);
         console.log(`  Duplicate IDs: ${duplicateIds.length}`);
         
@@ -32,18 +32,18 @@ async function testOwnerDuplicatesAndFields() {
         const uniqueEmails = [...new Set(emails)];
         const duplicateEmails = emails.filter((email, index) => emails.indexOf(email) !== index);
         
-        console.log(`\n📧 Email Analysis:`);
+        console.log(`\n Email Analysis:`);
         console.log(`  Owners with emails: ${ownersWithEmail.length}`);
         console.log(`  Unique emails: ${uniqueEmails.length}`);
         console.log(`  Duplicate emails: ${duplicateEmails.length}`);
         
         if (duplicateEmails.length > 0) {
-            console.log('⚠️ Duplicate emails found:');
+            console.log('[WARN]️ Duplicate emails found:');
             [...new Set(duplicateEmails)].forEach(email => {
                 const duplicates = sampleOwners.filter(owner => 
                     owner.Email && owner.Email.toLowerCase() === email
                 );
-                console.log(`  📧 "${email}":`);
+                console.log(`   "${email}":`);
                 duplicates.forEach(owner => {
                     const name = owner.IsCompany ? owner.CompanyName : `${owner.FirstName} ${owner.LastName}`;
                     console.log(`    - ${name} (ID: ${owner.Id}, Type: ${owner.IsCompany ? 'Company' : 'Individual'})`);
@@ -52,7 +52,7 @@ async function testOwnerDuplicatesAndFields() {
         }
         
         // 3. Analyze all available fields
-        console.log(`\n📋 Field Analysis:`);
+        console.log(`\n[ITEM] Field Analysis:`);
         const allFields = new Set();
         const fieldStats = {};
         
@@ -87,13 +87,13 @@ async function testOwnerDuplicatesAndFields() {
         const individuals = sampleOwners.filter(owner => !owner.IsCompany);
         const companies = sampleOwners.filter(owner => owner.IsCompany);
         
-        console.log(`\n👥 Owner Type Breakdown:`);
+        console.log(`\n Owner Type Breakdown:`);
         console.log(`  Individuals: ${individuals.length} (${((individuals.length / sampleOwners.length) * 100).toFixed(1)}%)`);
         console.log(`  Companies: ${companies.length} (${((companies.length / sampleOwners.length) * 100).toFixed(1)}%)`);
         
         // 5. Show sample individual and company records
         if (individuals.length > 0) {
-            console.log(`\n👤 Sample Individual Owner:`);
+            console.log(`\n Sample Individual Owner:`);
             const sampleIndividual = individuals[0];
             Object.entries(sampleIndividual).forEach(([key, value]) => {
                 if (value !== null && value !== undefined && value !== '') {
@@ -103,7 +103,7 @@ async function testOwnerDuplicatesAndFields() {
         }
         
         if (companies.length > 0) {
-            console.log(`\n🏢 Sample Company Owner:`);
+            console.log(`\n Sample Company Owner:`);
             const sampleCompany = companies[0];
             Object.entries(sampleCompany).forEach(([key, value]) => {
                 if (value !== null && value !== undefined && value !== '') {
@@ -122,7 +122,7 @@ async function testOwnerDuplicatesAndFields() {
         };
         
     } catch (error) {
-        console.error('❌ Error analyzing owners:', error.message);
+        console.error('[FAIL] Error analyzing owners:', error.message);
         return null;
     }
 }

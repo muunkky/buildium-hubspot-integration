@@ -13,7 +13,7 @@ async function checkSpecificUnit() {
     const propertyId = 57639;
     const unitId = 177286;
     
-    console.log('🔍 Checking Unit Details');
+    console.log('[SEARCH] Checking Unit Details');
     console.log('=' .repeat(50));
     console.log(`Property ID: ${propertyId}`);
     console.log(`Unit ID: ${unitId}`);
@@ -21,14 +21,14 @@ async function checkSpecificUnit() {
     
     try {
         // 1. Get property details from Buildium
-        console.log('📋 Fetching property details from Buildium...');
+        console.log('[ITEM] Fetching property details from Buildium...');
         const property = await buildiumClient.getProperty(propertyId);
         console.log(`Property Name: ${property.Name}`);
         console.log(`Address: ${property.Address?.AddressLine1}, ${property.Address?.City}, ${property.Address?.State} ${property.Address?.PostalCode}`);
         console.log('');
         
         // 2. Get unit details from Buildium
-        console.log('🏠 Fetching unit details from Buildium...');
+        console.log(' Fetching unit details from Buildium...');
         const unit = await buildiumClient.getUnit(unitId);
         console.log(`Unit Number: ${unit.UnitNumber}`);
         console.log(`Unit Type: ${unit.UnitType}`);
@@ -36,13 +36,13 @@ async function checkSpecificUnit() {
         console.log('');
         
         // 3. Get all leases for this unit
-        console.log('📄 Fetching leases for this unit...');
+        console.log(' Fetching leases for this unit...');
         const leases = await buildiumClient.getAllLeasesForUnit(unitId);
         console.log(`Total leases found: ${leases.length}`);
         console.log('');
         
         // 4. Process each lease and get tenant details
-        console.log('👥 Tenant Details from Buildium:');
+        console.log(' Tenant Details from Buildium:');
         console.log('-'.repeat(40));
         
         const tenantSummary = {
@@ -79,36 +79,36 @@ async function checkSpecificUnit() {
                             });
                         }
                     } catch (error) {
-                        console.log(`  ❌ Error fetching tenant ${tenantReference.Id}: ${error.message}`);
+                        console.log(`  [FAIL] Error fetching tenant ${tenantReference.Id}: ${error.message}`);
                     }
                 }
             }
         }
         
-        console.log('\n📊 Summary from Buildium:');
+        console.log('\n[STATS] Summary from Buildium:');
         console.log('=' .repeat(50));
         console.log(`Active tenants: ${tenantSummary.active.length}`);
         tenantSummary.active.forEach(tenant => {
-            console.log(`  ✅ ${tenant.name} (${tenant.email || 'no email'}) - ID: ${tenant.id}`);
+            console.log(`  [OK] ${tenant.name} (${tenant.email || 'no email'}) - ID: ${tenant.id}`);
         });
         
         console.log(`\nInactive tenants: ${tenantSummary.inactive.length}`);
         tenantSummary.inactive.forEach(tenant => {
-            console.log(`  ❌ ${tenant.name} (${tenant.email || 'no email'}) - ID: ${tenant.id}`);
+            console.log(`  [FAIL] ${tenant.name} (${tenant.email || 'no email'}) - ID: ${tenant.id}`);
         });
         
         // 5. Check HubSpot listing
-        console.log('\n🔍 Checking HubSpot listing...');
+        console.log('\n[SEARCH] Checking HubSpot listing...');
         const hubspotListing = await hubspotClient.searchListingByUnitId(unitId);
         
         if (hubspotListing) {
-            console.log(`✅ Found HubSpot listing: ${hubspotListing.id}`);
+            console.log(`[OK] Found HubSpot listing: ${hubspotListing.id}`);
             console.log(`Name: ${hubspotListing.properties.name}`);
             console.log(`Address: ${hubspotListing.properties.address}`);
             console.log(`Unit Number: ${hubspotListing.properties.buildium_unit_number}`);
             
             // 6. Get associations for this listing
-            console.log('\n👥 Checking HubSpot associations...');
+            console.log('\n Checking HubSpot associations...');
             
             try {
                 // Get all contacts associated with this listing
@@ -127,27 +127,27 @@ async function checkSpecificUnit() {
                     
                     console.log(`\nActive associations (Active Tenant): ${activeContacts.length}`);
                     for (const contact of activeContacts) {
-                        console.log(`  ✅ Contact ID: ${contact.toObjectId}`);
+                        console.log(`  [OK] Contact ID: ${contact.toObjectId}`);
                     }
                     
                     console.log(`\nInactive associations (Inactive Tenant): ${inactiveContacts.length}`);
                     for (const contact of inactiveContacts) {
-                        console.log(`  ❌ Contact ID: ${contact.toObjectId}`);
+                        console.log(`  [FAIL] Contact ID: ${contact.toObjectId}`);
                     }
                 } else {
-                    console.log('❌ No associations found');
+                    console.log('[FAIL] No associations found');
                 }
                 
             } catch (error) {
-                console.log(`❌ Error checking associations: ${error.message}`);
+                console.log(`[FAIL] Error checking associations: ${error.message}`);
             }
             
         } else {
-            console.log('❌ No HubSpot listing found for this unit');
+            console.log('[FAIL] No HubSpot listing found for this unit');
         }
         
     } catch (error) {
-        console.error('❌ Error:', error.message);
+        console.error('[FAIL] Error:', error.message);
     }
 }
 

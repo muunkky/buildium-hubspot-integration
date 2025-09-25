@@ -36,7 +36,7 @@ class EndToEndTest {
      * Step 1: Get source data from Buildium
      */
     async getBuildiumSourceData() {
-        console.log('🔍 STEP 1: Fetching source data from Buildium...');
+        console.log('[SEARCH] STEP 1: Fetching source data from Buildium...');
         console.log('=' .repeat(60));
         
         try {
@@ -52,7 +52,7 @@ class EndToEndTest {
             );
             
             const property = propertyResponse.data;
-            console.log(`📋 Property: ${property.Name} (ID: ${property.Id})`);
+            console.log(`[ITEM] Property: ${property.Name} (ID: ${property.Id})`);
             console.log(`   Address: ${property.Address.AddressLine1}, ${property.Address.City}`);
             
             // Get owners for this property
@@ -70,7 +70,7 @@ class EndToEndTest {
             );
             
             const owners = ownersResponse.data;
-            console.log(`👥 Found ${owners.length} owner(s) for property ${this.testPropertyId}:`);
+            console.log(` Found ${owners.length} owner(s) for property ${this.testPropertyId}:`);
             
             owners.forEach(owner => {
                 console.log(`   - ${owner.FirstName} ${owner.LastName} (ID: ${owner.Id})`);
@@ -90,7 +90,7 @@ class EndToEndTest {
             );
             
             const units = unitsResponse.data;
-            console.log(`🏠 Found ${units.length} unit(s) for property ${this.testPropertyId}:`);
+            console.log(` Found ${units.length} unit(s) for property ${this.testPropertyId}:`);
             units.forEach(unit => {
                 console.log(`   - Unit ${unit.UnitNumber} (ID: ${unit.Id})`);
             });
@@ -101,11 +101,11 @@ class EndToEndTest {
                 units
             };
             
-            console.log('✅ Step 1 Complete: Source data retrieved from Buildium\n');
+            console.log('[OK] Step 1 Complete: Source data retrieved from Buildium\n');
             return this.testResults.buildiumData;
             
         } catch (error) {
-            console.error('❌ Error fetching Buildium data:', error.response?.data || error.message);
+            console.error('[FAIL] Error fetching Buildium data:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -114,7 +114,7 @@ class EndToEndTest {
      * Step 2: Perform sync operation
      */
     async performSync() {
-        console.log('🔄 STEP 2: Performing sync operation...');
+        console.log('[RETRY] STEP 2: Performing sync operation...');
         console.log('=' .repeat(60));
         
         const { exec } = require('child_process');
@@ -122,17 +122,17 @@ class EndToEndTest {
         const execAsync = promisify(exec);
         
         try {
-            console.log(`🚀 Running: node index.js owners --property-ids ${this.testPropertyId} --force`);
+            console.log(` Running: node index.js owners --property-ids ${this.testPropertyId} --force`);
             
             const { stdout, stderr } = await execAsync(
                 `node index.js owners --property-ids ${this.testPropertyId} --force`
             );
             
-            console.log('📊 Sync Output:');
+            console.log('[STATS] Sync Output:');
             console.log(stdout);
             
             if (stderr) {
-                console.log('⚠️ Sync Warnings/Errors:');
+                console.log('[WARN]️ Sync Warnings/Errors:');
                 console.log(stderr);
             }
             
@@ -140,11 +140,11 @@ class EndToEndTest {
             const syncResults = this.parseSyncOutput(stdout);
             this.testResults.syncResults = syncResults;
             
-            console.log('✅ Step 2 Complete: Sync operation performed\n');
+            console.log('[OK] Step 2 Complete: Sync operation performed\n');
             return syncResults;
             
         } catch (error) {
-            console.error('❌ Error during sync:', error.message);
+            console.error('[FAIL] Error during sync:', error.message);
             throw error;
         }
     }
@@ -153,7 +153,7 @@ class EndToEndTest {
      * Step 3: Verify data as pushed to HubSpot
      */
     async verifyHubSpotData() {
-        console.log('🔍 STEP 3: Verifying data in HubSpot...');
+        console.log('[SEARCH] STEP 3: Verifying data in HubSpot...');
         console.log('=' .repeat(60));
         
         try {
@@ -162,11 +162,11 @@ class EndToEndTest {
             
             for (const owner of owners) {
                 if (!owner.Email) {
-                    console.log(`⚠️ Skipping owner ${owner.Id} - no email to search with`);
+                    console.log(`[WARN]️ Skipping owner ${owner.Id} - no email to search with`);
                     continue;
                 }
                 
-                console.log(`🔍 Searching for contact: ${owner.Email}`);
+                console.log(`[SEARCH] Searching for contact: ${owner.Email}`);
                 
                 // Search for contact by email
                 const contactResponse = await axios.post(
@@ -192,19 +192,19 @@ class EndToEndTest {
                 
                 if (contactResponse.data.results.length > 0) {
                     const contact = contactResponse.data.results[0];
-                    console.log(`✅ Found contact: ${contact.properties.firstname} ${contact.properties.lastname} (ID: ${contact.id})`);
+                    console.log(`[OK] Found contact: ${contact.properties.firstname} ${contact.properties.lastname} (ID: ${contact.id})`);
                     
                     hubspotData[owner.Id] = {
                         contact,
                         associations: await this.getContactAssociations(contact.id)
                     };
                 } else {
-                    console.log(`❌ Contact not found for email: ${owner.Email}`);
+                    console.log(`[FAIL] Contact not found for email: ${owner.Email}`);
                 }
             }
             
             // Search for listings related to our property
-            console.log(`\n🏠 Searching for listings with Buildium Property ID: ${this.testPropertyId}`);
+            console.log(`\n Searching for listings with Buildium Property ID: ${this.testPropertyId}`);
             const listingsResponse = await axios.post(
                 `${this.hubspotBaseURL}/crm/v3/objects/2-4002138/search`,
                 {
@@ -225,7 +225,7 @@ class EndToEndTest {
                 }
             );
             
-            console.log(`✅ Found ${listingsResponse.data.results.length} listing(s) for property ${this.testPropertyId}`);
+            console.log(`[OK] Found ${listingsResponse.data.results.length} listing(s) for property ${this.testPropertyId}`);
             listingsResponse.data.results.forEach(listing => {
                 console.log(`   - ${listing.properties.name} (ID: ${listing.id})`);
                 console.log(`     Unit: ${listing.properties.unit_number || 'N/A'}`);
@@ -236,11 +236,11 @@ class EndToEndTest {
                 listings: listingsResponse.data.results
             };
             
-            console.log('✅ Step 3 Complete: HubSpot data verified\n');
+            console.log('[OK] Step 3 Complete: HubSpot data verified\n');
             return this.testResults.hubspotData;
             
         } catch (error) {
-            console.error('❌ Error verifying HubSpot data:', error.response?.data || error.message);
+            console.error('[FAIL] Error verifying HubSpot data:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -250,7 +250,7 @@ class EndToEndTest {
      */
     async getContactAssociations(contactId) {
         try {
-            console.log(`🔗 Getting associations for contact ${contactId}...`);
+            console.log(` Getting associations for contact ${contactId}...`);
             
             const response = await axios.get(
                 `${this.hubspotBaseURL}/crm/v4/objects/contacts/${contactId}/associations/2-4002138`,
@@ -268,7 +268,7 @@ class EndToEndTest {
             return associations;
             
         } catch (error) {
-            console.log(`   ⚠️ No associations found or error: ${error.response?.status}`);
+            console.log(`   [WARN]️ No associations found or error: ${error.response?.status}`);
             return [];
         }
     }
@@ -277,7 +277,7 @@ class EndToEndTest {
      * Step 4: Validate data integrity and associations
      */
     async validateDataIntegrity() {
-        console.log('✅ STEP 4: Validating data integrity and associations...');
+        console.log('[OK] STEP 4: Validating data integrity and associations...');
         console.log('=' .repeat(60));
         
         const validationResults = [];
@@ -290,7 +290,7 @@ class EndToEndTest {
                 checks: []
             };
             
-            console.log(`👤 Validating owner: ${validation.ownerName} (ID: ${buildiumOwner.Id})`);
+            console.log(` Validating owner: ${validation.ownerName} (ID: ${buildiumOwner.Id})`);
             
             // Check if contact exists in HubSpot
             const hubspotOwnerData = this.testResults.hubspotData.contacts[buildiumOwner.Id];
@@ -347,7 +347,7 @@ class EndToEndTest {
             
             // Print validation results for this owner
             validation.checks.forEach(check => {
-                const icon = check.status === 'PASS' ? '✅' : '❌';
+                const icon = check.status === 'PASS' ? '[OK]' : '[FAIL]';
                 console.log(`   ${icon} ${check.check}: ${check.status}`);
                 if (check.details) {
                     console.log(`      ${check.details}`);
@@ -358,7 +358,7 @@ class EndToEndTest {
         }
         
         this.testResults.validation = validationResults;
-        console.log('\n✅ Step 4 Complete: Data integrity validation performed\n');
+        console.log('\n[OK] Step 4 Complete: Data integrity validation performed\n');
         return validationResults;
     }
 
@@ -400,15 +400,15 @@ class EndToEndTest {
      * Generate comprehensive test report
      */
     generateReport() {
-        console.log('📊 END-TO-END TEST REPORT');
+        console.log('[STATS] END-TO-END TEST REPORT');
         console.log('=' .repeat(60));
         
-        console.log('\n🔍 Source Data (Buildium):');
+        console.log('\n[SEARCH] Source Data (Buildium):');
         console.log(`   Property: ${this.testResults.buildiumData.property.Name} (ID: ${this.testResults.buildiumData.property.Id})`);
         console.log(`   Owners: ${this.testResults.buildiumData.owners.length}`);
         console.log(`   Units: ${this.testResults.buildiumData.units.length}`);
         
-        console.log('\n🔄 Sync Results:');
+        console.log('\n[RETRY] Sync Results:');
         const sync = this.testResults.syncResults;
         console.log(`   Mode: ${sync.mode || 'standard'}`);
         console.log(`   Processed: ${sync.processed}`);
@@ -417,11 +417,11 @@ class EndToEndTest {
         console.log(`   Associations: ${sync.associations}`);
         console.log(`   Errors: ${sync.errors}`);
         
-        console.log('\n📞 HubSpot Data:');
+        console.log('\n HubSpot Data:');
         console.log(`   Contacts Found: ${Object.keys(this.testResults.hubspotData.contacts).length}`);
         console.log(`   Listings Found: ${this.testResults.hubspotData.listings.length}`);
         
-        console.log('\n✅ Validation Summary:');
+        console.log('\n[OK] Validation Summary:');
         let totalChecks = 0;
         let passedChecks = 0;
         
@@ -438,7 +438,7 @@ class EndToEndTest {
         console.log(`   Success Rate: ${((passedChecks / totalChecks) * 100).toFixed(1)}%`);
         
         const overallSuccess = (sync.errors === 0 && totalChecks === passedChecks);
-        console.log(`\n🏆 Overall Test Result: ${overallSuccess ? '✅ PASS' : '❌ FAIL'}`);
+        console.log(`\n Overall Test Result: ${overallSuccess ? '[OK] PASS' : '[FAIL] FAIL'}`);
         
         return {
             success: overallSuccess,
@@ -457,10 +457,10 @@ class EndToEndTest {
      */
     async runTest() {
         try {
-            console.log('🚀 STARTING END-TO-END TEST');
+            console.log(' STARTING END-TO-END TEST');
             console.log('=' .repeat(60));
-            console.log(`🎯 Test Target: Property ${this.testPropertyId}`);
-            console.log(`📅 Test Date: ${new Date().toISOString()}\n`);
+            console.log(`[TARGET] Test Target: Property ${this.testPropertyId}`);
+            console.log(`[DATE] Test Date: ${new Date().toISOString()}\n`);
             
             // Step 1: Get source data
             await this.getBuildiumSourceData();
@@ -478,7 +478,7 @@ class EndToEndTest {
             return this.generateReport();
             
         } catch (error) {
-            console.error('❌ End-to-end test failed:', error.message);
+            console.error('[FAIL] End-to-end test failed:', error.message);
             throw error;
         }
     }
@@ -489,11 +489,11 @@ if (require.main === module) {
     const test = new EndToEndTest();
     test.runTest()
         .then(result => {
-            console.log('\n🎉 End-to-end test completed!');
+            console.log('\n[COMPLETE] End-to-end test completed!');
             process.exit(result.success ? 0 : 1);
         })
         .catch(error => {
-            console.error('💥 Test execution failed:', error.message);
+            console.error(' Test execution failed:', error.message);
             process.exit(1);
         });
 }

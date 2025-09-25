@@ -10,7 +10,7 @@ async function debugAssociations() {
     const listingId = 455094933418; // The listing ID we found
     
     try {
-        console.log('🔍 Getting associations for listing', listingId);
+        console.log('[SEARCH] Getting associations for listing', listingId);
         const associations = await hubspotClient.getListingAssociations(listingId);
         
         console.log(`Total associations: ${associations.length}`);

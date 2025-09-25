@@ -4,7 +4,7 @@ dotenv.config();
 
 async function showLeaseData() {
     try {
-        console.log('🔍 Fetching lease data to see structure...');
+        console.log('[SEARCH] Fetching lease data to see structure...');
         
         // Get a few leases to see the structure
         const response = await axios.get('https://api.buildium.com/v1/leases', {
@@ -18,7 +18,7 @@ async function showLeaseData() {
             }
         });
         
-        console.log('\n📋 Sample Lease Data Structure:');
+        console.log('\n[ITEM] Sample Lease Data Structure:');
         console.log('=' .repeat(60));
         
         response.data.forEach((lease, index) => {
@@ -38,7 +38,7 @@ async function showLeaseData() {
         });
         
     } catch (error) {
-        console.error('❌ Error:', error.response?.data || error.message);
+        console.error('[FAIL] Error:', error.response?.data || error.message);
     }
 }
 

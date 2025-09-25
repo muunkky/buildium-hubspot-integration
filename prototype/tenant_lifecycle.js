@@ -15,7 +15,7 @@ async function main() {
 
     if (help) {
         console.log(`
-🔄 TENANT LIFECYCLE MANAGER
+[RETRY] TENANT LIFECYCLE MANAGER
 ========================
 
 Automatically updates tenant associations based on lease status changes:
@@ -38,35 +38,35 @@ Examples:
     }
 
     try {
-        console.log('🔄 TENANT LIFECYCLE MANAGEMENT SYSTEM');
+        console.log('[RETRY] TENANT LIFECYCLE MANAGEMENT SYSTEM');
         console.log('=' .repeat(60));
-        console.log(`📅 ${new Date().toLocaleString()}`);
-        console.log(`🎯 Mode: ${dryRun ? 'DRY RUN - Preview only' : 'LIVE - Will make changes'}`);
+        console.log(`[DATE] ${new Date().toLocaleString()}`);
+        console.log(`[TARGET] Mode: ${dryRun ? 'DRY RUN - Preview only' : 'LIVE - Will make changes'}`);
         console.log('');
 
         const manager = new TenantLifecycleManager();
         const stats = await manager.updateTenantAssociations(dryRun);
 
-        console.log('\n🎉 LIFECYCLE MANAGEMENT COMPLETE');
+        console.log('\n[COMPLETE] LIFECYCLE MANAGEMENT COMPLETE');
         console.log('=' .repeat(40));
         
         const totalUpdates = stats.futureToActive + stats.activeToInactive + stats.futureToInactive;
         if (totalUpdates === 0) {
-            console.log('✨ All tenant associations are up to date!');
+            console.log(' All tenant associations are up to date!');
         } else {
-            console.log(`📊 Total transitions: ${totalUpdates}`);
+            console.log(`[STATS] Total transitions: ${totalUpdates}`);
             if (dryRun) {
-                console.log('💡 Run without --dry-run to apply these changes');
+                console.log(' Run without --dry-run to apply these changes');
             }
         }
 
         if (stats.errors > 0) {
-            console.log(`⚠️  Encountered ${stats.errors} errors - check logs above`);
+            console.log(`[WARN]️  Encountered ${stats.errors} errors - check logs above`);
             process.exit(1);
         }
 
     } catch (error) {
-        console.error('❌ LIFECYCLE MANAGEMENT FAILED');
+        console.error('[FAIL] LIFECYCLE MANAGEMENT FAILED');
         console.error('Error:', error.message);
         process.exit(1);
     }
@@ -74,12 +74,12 @@ Examples:
 
 // Handle uncaught errors
 process.on('unhandledRejection', (error) => {
-    console.error('❌ Unhandled promise rejection:', error.message);
+    console.error('[FAIL] Unhandled promise rejection:', error.message);
     process.exit(1);
 });
 
 process.on('uncaughtException', (error) => {
-    console.error('❌ Uncaught exception:', error.message);
+    console.error('[FAIL] Uncaught exception:', error.message);
     process.exit(1);
 });
 

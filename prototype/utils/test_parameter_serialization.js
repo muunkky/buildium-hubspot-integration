@@ -6,7 +6,7 @@ async function testParameterSerialization() {
     const clientId = process.env.BUILDIUM_CLIENT_ID;
     const clientSecret = process.env.BUILDIUM_CLIENT_SECRET;
     
-    console.log('🧪 Testing Buildium API Parameter Serialization');
+    console.log('[TEST] Testing Buildium API Parameter Serialization');
     console.log('=' .repeat(60));
     
     const headers = {
@@ -18,14 +18,14 @@ async function testParameterSerialization() {
     const testPropertyId = 140054;
     
     try {
-        console.log('\n📊 According to OpenAPI spec:');
+        console.log('\n[STATS] According to OpenAPI spec:');
         console.log('  - propertyids: array of integers');
         console.log('  - explode: true');
         console.log('  - collectionFormat: "multi"');
         console.log('  - Should serialize as: ?propertyids=140054&propertyids=140055');
         
         // Test 1: Default axios array serialization (BROKEN)
-        console.log('\n📊 Test 1: Default axios array serialization');
+        console.log('\n[STATS] Test 1: Default axios array serialization');
         const response1 = await axios.get(`${baseURL}/rentals/owners`, {
             headers,
             params: { 
@@ -37,7 +37,7 @@ async function testParameterSerialization() {
         console.log(`Result: ${response1.data.length} owners`);
         
         // Test 2: Manual string serialization (WORKS)
-        console.log('\n📊 Test 2: Manual string serialization');
+        console.log('\n[STATS] Test 2: Manual string serialization');
         const response2 = await axios.get(`${baseURL}/rentals/owners`, {
             headers,
             params: { 
@@ -49,7 +49,7 @@ async function testParameterSerialization() {
         console.log(`Result: ${response2.data.length} owners`);
         
         // Test 3: Axios with explode-style serialization
-        console.log('\n📊 Test 3: Axios with custom array serialization');
+        console.log('\n[STATS] Test 3: Axios with custom array serialization');
         const response3 = await axios.get(`${baseURL}/rentals/owners`, {
             headers,
             params: { 
@@ -75,7 +75,7 @@ async function testParameterSerialization() {
         console.log(`Result: ${response3.data.length} owners`);
         
         // Test 4: Multiple property IDs with proper serialization
-        console.log('\n📊 Test 4: Multiple property IDs with custom serialization');
+        console.log('\n[STATS] Test 4: Multiple property IDs with custom serialization');
         const response4 = await axios.get(`${baseURL}/rentals/owners`, {
             headers,
             params: { 
@@ -102,13 +102,13 @@ async function testParameterSerialization() {
         console.log(`Result: ${response4.data.length} owners`);
         
         // Validation
-        console.log('\n🔍 Validating results...');
+        console.log('\n[SEARCH] Validating results...');
         
         if (response2.data.length > 0) {
             const owner = response2.data[0];
             const ownsProperty = owner.PropertyIds && owner.PropertyIds.includes(testPropertyId);
             const displayName = owner.IsCompany ? owner.CompanyName : `${owner.FirstName} ${owner.LastName}`;
-            console.log(`✅ String method owner: ${displayName}`);
+            console.log(`[OK] String method owner: ${displayName}`);
             console.log(`   Properties: [${owner.PropertyIds?.join(', ')}]`);
             console.log(`   Owns target property: ${ownsProperty ? 'YES' : 'NO'}`);
         }
@@ -117,12 +117,12 @@ async function testParameterSerialization() {
             const owner = response3.data[0];
             const ownsProperty = owner.PropertyIds && owner.PropertyIds.includes(testPropertyId);
             const displayName = owner.IsCompany ? owner.CompanyName : `${owner.FirstName} ${owner.LastName}`;
-            console.log(`✅ Custom serialization owner: ${displayName}`);
+            console.log(`[OK] Custom serialization owner: ${displayName}`);
             console.log(`   Properties: [${owner.PropertyIds?.join(', ')}]`);
             console.log(`   Owns target property: ${ownsProperty ? 'YES' : 'NO'}`);
         }
         
-        console.log('\n📈 SUMMARY:');
+        console.log('\n SUMMARY:');
         console.log(`Default array (BROKEN): ${response1.data.length} owners`);
         console.log(`String method (WORKS): ${response2.data.length} owners`);
         console.log(`Custom serialization: ${response3.data.length} owners`);
@@ -130,13 +130,13 @@ async function testParameterSerialization() {
         
         // Recommend solution
         if (response3.data.length === response2.data.length && response3.data.length > 0) {
-            console.log('\n✅ SOLUTION: Use custom paramsSerializer for proper array handling');
+            console.log('\n[OK] SOLUTION: Use custom paramsSerializer for proper array handling');
         } else if (response2.data.length > 0 && response1.data.length !== response2.data.length) {
-            console.log('\n✅ SOLUTION: Convert arrays to strings for single property filtering');
+            console.log('\n[OK] SOLUTION: Convert arrays to strings for single property filtering');
         }
         
     } catch (error) {
-        console.error('❌ API Error:', error.response?.data || error.message);
+        console.error('[FAIL] API Error:', error.response?.data || error.message);
     }
 }
 

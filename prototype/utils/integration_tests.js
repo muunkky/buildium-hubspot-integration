@@ -40,7 +40,7 @@ class IntegrationTestSuite {
      * Run all integration tests
      */
     async runAllTests() {
-        console.log('🧪 Starting Comprehensive Integration Tests');
+        console.log('[TEST] Starting Comprehensive Integration Tests');
         console.log('=' .repeat(60));
         console.log(`Started at: ${new Date().toISOString()}`);
         console.log('');
@@ -74,7 +74,7 @@ class IntegrationTestSuite {
             this.printSummary();
             
         } catch (error) {
-            console.error('💥 Test suite failed:', error.message);
+            console.error(' Test suite failed:', error.message);
             await this.cleanup();
         }
     }
@@ -83,7 +83,7 @@ class IntegrationTestSuite {
      * Test basic API connectivity
      */
     async testConnectivity() {
-        console.log('\n📡 Phase 1: API Connectivity Tests');
+        console.log('\n Phase 1: API Connectivity Tests');
         console.log('-'.repeat(40));
 
         // Test 1: Buildium API connectivity
@@ -115,7 +115,7 @@ class IntegrationTestSuite {
      * Test data retrieval from Buildium
      */
     async testDataRetrieval() {
-        console.log('\n📋 Phase 2: Data Retrieval Tests');
+        console.log('\n[ITEM] Phase 2: Data Retrieval Tests');
         console.log('-'.repeat(40));
 
         // Test 1: Tenant data completeness
@@ -172,7 +172,7 @@ class IntegrationTestSuite {
      * Test data transformation logic
      */
     async testDataTransformation() {
-        console.log('\n🔄 Phase 3: Data Transformation Tests');
+        console.log('\n[RETRY] Phase 3: Data Transformation Tests');
         console.log('-'.repeat(40));
 
         // Test 1: Tenant to Contact transformation
@@ -228,7 +228,7 @@ class IntegrationTestSuite {
      * Test HubSpot object creation
      */
     async testHubSpotCreation() {
-        console.log('\n🏗️ Phase 4: HubSpot Creation Tests');
+        console.log('\n️ Phase 4: HubSpot Creation Tests');
         console.log('-'.repeat(40));
 
         // Test 1: Contact creation
@@ -300,7 +300,7 @@ class IntegrationTestSuite {
      * Test end-to-end workflows
      */
     async testEndToEndWorkflows() {
-        console.log('\n🔄 Phase 5: End-to-End Workflow Tests');
+        console.log('\n[RETRY] Phase 5: End-to-End Workflow Tests');
         console.log('-'.repeat(40));
 
         // Test 1: Complete tenant sync workflow
@@ -355,12 +355,12 @@ class IntegrationTestSuite {
             const unit = units[0];
             
             // Use the real unit instead of creating a fake one
-            console.log(`🏠 Processing Unit ${unit.UnitNumber || unit.Id} (Property: ${unit.PropertyId})`);
+            console.log(` Processing Unit ${unit.UnitNumber || unit.Id} (Property: ${unit.PropertyId})`);
             
             // Check if listing already exists first
             const existingListingId = await this.hubspotClient.findListingByUnitId(unit.Id);
             if (existingListingId) {
-                console.log(`⚠️ Listing already exists for unit ${unit.Id}, skipping creation`);
+                console.log(`[WARN]️ Listing already exists for unit ${unit.Id}, skipping creation`);
                 return `Unit sync skipped - listing already exists with ID: ${existingListingId}`;
             }
             
@@ -383,7 +383,7 @@ class IntegrationTestSuite {
      * Test association functionality
      */
     async testAssociations() {
-        console.log('\n🔗 Phase 6: Association Tests');
+        console.log('\n Phase 6: Association Tests');
         console.log('-'.repeat(40));
 
         // Test 1: Association type discovery
@@ -398,14 +398,14 @@ class IntegrationTestSuite {
             const activeType = types.find(t => t.label === 'Active Tenant');
             const inactiveType = types.find(t => t.label === 'Inactive Tenant');
             
-            return `Found ${types.length} association types. Active: ${activeType ? '✓' : '✗'}, Inactive: ${inactiveType ? '✓' : '✗'}`;
+            return `Found ${types.length} association types. Active: ${activeType ? '' : ''}, Inactive: ${inactiveType ? '' : ''}`;
         });
 
         // Test 2: Association creation
         await this.runTest('Association Creation', async () => {
             // Only run if we have created objects to associate
             if (this.createdContacts.length === 0 || this.createdListings.length === 0) {
-                console.log('⚠️ Skipping association test - need both contacts and listings to test associations');
+                console.log('[WARN]️ Skipping association test - need both contacts and listings to test associations');
                 return 'Skipped - no test contacts or listings available. Run with fresh data to test associations.';
             }
             
@@ -439,7 +439,7 @@ class IntegrationTestSuite {
      * Test field validation and data integrity
      */
     async testFieldValidation() {
-        console.log('\n🔍 Phase 7: Field Validation Tests');
+        console.log('\n[SEARCH] Phase 7: Field Validation Tests');
         console.log('-'.repeat(40));
 
         // Test 1: Required field mapping
@@ -501,7 +501,7 @@ class IntegrationTestSuite {
      * Cleanup test data
      */
     async cleanup() {
-        console.log('\n🧹 Cleanup Phase');
+        console.log('\n Cleanup Phase');
         console.log('-'.repeat(40));
 
         let cleanupResults = { contacts: 0, listings: 0, errors: 0 };
@@ -511,10 +511,10 @@ class IntegrationTestSuite {
             try {
                 await this.hubspotClient.deleteContact(contactId);
                 cleanupResults.contacts++;
-                console.log(`✅ Deleted test contact ${contactId}`);
+                console.log(`[OK] Deleted test contact ${contactId}`);
             } catch (error) {
                 cleanupResults.errors++;
-                console.log(`❌ Failed to delete contact ${contactId}: ${error.message}`);
+                console.log(`[FAIL] Failed to delete contact ${contactId}: ${error.message}`);
             }
         }
 
@@ -523,16 +523,16 @@ class IntegrationTestSuite {
             try {
                 await this.hubspotClient.deleteListing(listingId);
                 cleanupResults.listings++;
-                console.log(`✅ Deleted test listing ${listingId}`);
+                console.log(`[OK] Deleted test listing ${listingId}`);
             } catch (error) {
                 cleanupResults.errors++;
-                console.log(`❌ Failed to delete listing ${listingId}: ${error.message}`);
+                console.log(`[FAIL] Failed to delete listing ${listingId}: ${error.message}`);
             }
         }
 
-        console.log(`\n🧹 Cleanup complete: ${cleanupResults.contacts} contacts, ${cleanupResults.listings} listings deleted`);
+        console.log(`\n Cleanup complete: ${cleanupResults.contacts} contacts, ${cleanupResults.listings} listings deleted`);
         if (cleanupResults.errors > 0) {
-            console.log(`⚠️ ${cleanupResults.errors} cleanup errors occurred`);
+            console.log(`[WARN]️ ${cleanupResults.errors} cleanup errors occurred`);
         }
     }
 
@@ -543,14 +543,14 @@ class IntegrationTestSuite {
         const startTime = Date.now();
         
         try {
-            console.log(`\n🧪 Running: ${testName}`);
+            console.log(`\n[TEST] Running: ${testName}`);
             
             const result = await testFunction();
             const duration = Date.now() - startTime;
             
             // Check if test was skipped
             if (result && result.toLowerCase().includes('skipped')) {
-                console.log(`⏸️ SKIPPED (${duration}ms): ${result}`);
+                console.log(`️ SKIPPED (${duration}ms): ${result}`);
                 
                 this.testResults.skipped++;
                 this.testResults.details.push({
@@ -560,7 +560,7 @@ class IntegrationTestSuite {
                     result
                 });
             } else {
-                console.log(`✅ PASSED (${duration}ms): ${result}`);
+                console.log(`[OK] PASSED (${duration}ms): ${result}`);
                 
                 this.testResults.passed++;
                 this.testResults.details.push({
@@ -574,7 +574,7 @@ class IntegrationTestSuite {
         } catch (error) {
             const duration = Date.now() - startTime;
             
-            console.log(`❌ FAILED (${duration}ms): ${error.message}`);
+            console.log(`[FAIL] FAILED (${duration}ms): ${error.message}`);
             
             this.testResults.failed++;
             this.testResults.details.push({
@@ -590,24 +590,24 @@ class IntegrationTestSuite {
      * Print comprehensive test summary
      */
     printSummary() {
-        console.log('\n🎯 Integration Test Summary');
+        console.log('\n[TARGET] Integration Test Summary');
         console.log('=' .repeat(60));
         console.log(`Completed at: ${new Date().toISOString()}`);
         console.log('');
         
-        console.log(`✅ PASSED: ${this.testResults.passed}`);
-        console.log(`❌ FAILED: ${this.testResults.failed}`);
-        console.log(`⏸️ SKIPPED: ${this.testResults.skipped}`);
-        console.log(`📊 TOTAL: ${this.testResults.passed + this.testResults.failed + this.testResults.skipped}`);
+        console.log(`[OK] PASSED: ${this.testResults.passed}`);
+        console.log(`[FAIL] FAILED: ${this.testResults.failed}`);
+        console.log(`️ SKIPPED: ${this.testResults.skipped}`);
+        console.log(`[STATS] TOTAL: ${this.testResults.passed + this.testResults.failed + this.testResults.skipped}`);
         
         const totalDuration = this.testResults.details.reduce((sum, test) => sum + test.duration, 0);
-        console.log(`⏱️ TOTAL TIME: ${totalDuration}ms`);
+        console.log(`[DURATION]️ TOTAL TIME: ${totalDuration}ms`);
         
-        console.log('\n📋 Detailed Results:');
+        console.log('\n[ITEM] Detailed Results:');
         console.log('-'.repeat(60));
         
         this.testResults.details.forEach((test, index) => {
-            const status = test.status === 'PASSED' ? '✅' : test.status === 'FAILED' ? '❌' : '⏸️';
+            const status = test.status === 'PASSED' ? '[OK]' : test.status === 'FAILED' ? '[FAIL]' : '️';
             console.log(`${index + 1}. ${status} ${test.name} (${test.duration}ms)`);
             
             if (test.status === 'PASSED' && test.result) {
@@ -618,11 +618,11 @@ class IntegrationTestSuite {
         });
         
         // Overall status
-        console.log('\n🏆 Overall Status:');
+        console.log('\n Overall Status:');
         if (this.testResults.failed === 0) {
-            console.log('🎉 ALL TESTS PASSED! The integration is working correctly.');
+            console.log('[COMPLETE] ALL TESTS PASSED! The integration is working correctly.');
         } else {
-            console.log(`⚠️ ${this.testResults.failed} test(s) failed. Review the failures above.`);
+            console.log(`[WARN]️ ${this.testResults.failed} test(s) failed. Review the failures above.`);
         }
         
         console.log('');

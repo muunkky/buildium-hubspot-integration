@@ -18,7 +18,7 @@ class MarketableContactAnalyzer {
      * Find all contacts that are currently MARKETABLE and were recently modified
      */
     async findRecentlyModifiedMarketableContacts(hoursAgo = 2) {
-        console.log(`🔍 Finding MARKETABLE contacts modified in last ${hoursAgo} hours...\n`);
+        console.log(`[SEARCH] Finding MARKETABLE contacts modified in last ${hoursAgo} hours...\n`);
 
         try {
             const cutoffTime = new Date(Date.now() - (hoursAgo * 60 * 60 * 1000)).getTime();
@@ -63,10 +63,10 @@ class MarketableContactAnalyzer {
             );
 
             const contacts = response.data.results;
-            console.log(`📊 Found ${contacts.length} MARKETABLE contacts modified in last ${hoursAgo} hours\n`);
+            console.log(`[STATS] Found ${contacts.length} MARKETABLE contacts modified in last ${hoursAgo} hours\n`);
 
             if (contacts.length === 0) {
-                console.log('✅ No recently modified MARKETABLE contacts found');
+                console.log('[OK] No recently modified MARKETABLE contacts found');
                 return [];
             }
 
@@ -83,7 +83,7 @@ class MarketableContactAnalyzer {
             return analysisResults;
 
         } catch (error) {
-            console.error('❌ Error finding marketable contacts:', error.response?.data?.message || error.message);
+            console.error('[FAIL] Error finding marketable contacts:', error.response?.data?.message || error.message);
             return [];
         }
     }
@@ -123,7 +123,7 @@ class MarketableContactAnalyzer {
         };
 
         // Print individual analysis
-        console.log(`📋 Contact ${contact.id}: ${analysis.name}`);
+        console.log(`[ITEM] Contact ${contact.id}: ${analysis.name}`);
         console.log(`   Email: ${analysis.email || 'No email'}`);
         console.log(`   Buildium ID: ${buildiumId || 'Not found'}`);
         console.log(`   Created: ${analysis.createdDate}`);
@@ -131,14 +131,14 @@ class MarketableContactAnalyzer {
         console.log(`   Existed for: ${daysExisted} days, ${hoursExisted} hours`);
         
         if (isNewContact) {
-            console.log(`   Status: 🆕 NEW CONTACT - set to marketable at creation`);
-            console.log(`   Billing Impact: ⚠️ NEW billing charge started`);
+            console.log(`   Status:  NEW CONTACT - set to marketable at creation`);
+            console.log(`   Billing Impact: [WARN]️ NEW billing charge started`);
         } else if (daysExisted > 0) {
-            console.log(`   Status: 📅 EXISTING CONTACT - likely already marketable`);
-            console.log(`   Billing Impact: ✅ Probably no new billing (was already marketable)`);
+            console.log(`   Status: [DATE] EXISTING CONTACT - likely already marketable`);
+            console.log(`   Billing Impact: [OK] Probably no new billing (was already marketable)`);
         } else {
-            console.log(`   Status: 🤔 UNCERTAIN - existed ${hoursExisted} hours`);
-            console.log(`   Billing Impact: ❓ Unknown - need to check HubSpot timeline`);
+            console.log(`   Status:  UNCERTAIN - existed ${hoursExisted} hours`);
+            console.log(`   Billing Impact:  Unknown - need to check HubSpot timeline`);
         }
         
         console.log(`   Current Marketing Status: ${analysis.currentMarketingStatus}`);
@@ -151,63 +151,63 @@ class MarketableContactAnalyzer {
      * Print summary of marketable contact analysis
      */
     printMarketableAnalysisSummary(results) {
-        console.log('🎯 MARKETABLE CONTACT ANALYSIS SUMMARY');
+        console.log('[TARGET] MARKETABLE CONTACT ANALYSIS SUMMARY');
         console.log('======================================\n');
 
         const newContacts = results.filter(r => r.isNewContact);
         const existingContacts = results.filter(r => r.likelyAlreadyMarketable);
         const uncertainContacts = results.filter(r => !r.isNewContact && !r.likelyAlreadyMarketable);
 
-        console.log(`📊 Total marketable contacts analyzed: ${results.length}`);
-        console.log(`🆕 New contacts (new billing): ${newContacts.length}`);
-        console.log(`📅 Existing contacts (likely already marketable): ${existingContacts.length}`);
-        console.log(`❓ Uncertain contacts (need manual check): ${uncertainContacts.length}\n`);
+        console.log(`[STATS] Total marketable contacts analyzed: ${results.length}`);
+        console.log(` New contacts (new billing): ${newContacts.length}`);
+        console.log(`[DATE] Existing contacts (likely already marketable): ${existingContacts.length}`);
+        console.log(` Uncertain contacts (need manual check): ${uncertainContacts.length}\n`);
 
         if (existingContacts.length > 0) {
-            console.log('📅 LIKELY ALREADY MARKETABLE (No new billing):');
+            console.log('[DATE] LIKELY ALREADY MARKETABLE (No new billing):');
             console.log('============================================');
             existingContacts.forEach((contact, index) => {
                 console.log(`${index + 1}. ${contact.name} (${contact.email})`);
                 console.log(`   HubSpot ID: ${contact.hubspotId}`);
                 console.log(`   Existed for: ${contact.daysExisted} days`);
-                console.log(`   ✅ Likely no new billing charge`);
+                console.log(`   [OK] Likely no new billing charge`);
                 console.log('');
             });
         }
 
         if (newContacts.length > 0) {
-            console.log('🆕 NEW MARKETABLE CONTACTS (New billing started):');
+            console.log(' NEW MARKETABLE CONTACTS (New billing started):');
             console.log('===============================================');
             newContacts.forEach((contact, index) => {
                 console.log(`${index + 1}. ${contact.name} (${contact.email})`);
                 console.log(`   HubSpot ID: ${contact.hubspotId}`);
                 console.log(`   Buildium ID: ${contact.buildiumId}`);
-                console.log(`   ⚠️ NEW billing charge started`);
+                console.log(`   [WARN]️ NEW billing charge started`);
                 console.log('');
             });
         }
 
         if (uncertainContacts.length > 0) {
-            console.log('❓ UNCERTAIN CONTACTS (Manual check needed):');
+            console.log(' UNCERTAIN CONTACTS (Manual check needed):');
             console.log('==========================================');
             uncertainContacts.forEach((contact, index) => {
                 console.log(`${index + 1}. ${contact.name} (${contact.email})`);
                 console.log(`   HubSpot ID: ${contact.hubspotId}`);
                 console.log(`   Existed for: ${contact.hoursExisted} hours`);
-                console.log(`   🔍 Check HubSpot timeline for marketing status changes`);
+                console.log(`   [SEARCH] Check HubSpot timeline for marketing status changes`);
                 console.log('');
             });
 
-            console.log('📋 TO CHECK UNCERTAIN CONTACTS:');
+            console.log('[ITEM] TO CHECK UNCERTAIN CONTACTS:');
             console.log('1. Go to each contact in HubSpot');
             console.log('2. Check Activity timeline');
             console.log('3. Look for "Marketing contact status" changes');
             console.log('4. See if they were non-marketable before today');
         }
 
-        console.log('\n💰 BILLING IMPACT SUMMARY:');
-        console.log(`💸 Potential new billing charges: ${newContacts.length + uncertainContacts.length} contacts`);
-        console.log(`✅ No new billing charges: ${existingContacts.length} contacts`);
+        console.log('\n BILLING IMPACT SUMMARY:');
+        console.log(` Potential new billing charges: ${newContacts.length + uncertainContacts.length} contacts`);
+        console.log(`[OK] No new billing charges: ${existingContacts.length} contacts`);
     }
 
     /**
@@ -223,7 +223,7 @@ class MarketableContactAnalyzer {
 async function main() {
     const apiKey = process.env.HUBSPOT_ACCESS_TOKEN;
     if (!apiKey) {
-        console.error('❌ HUBSPOT_ACCESS_TOKEN environment variable required');
+        console.error('[FAIL] HUBSPOT_ACCESS_TOKEN environment variable required');
         process.exit(1);
     }
 

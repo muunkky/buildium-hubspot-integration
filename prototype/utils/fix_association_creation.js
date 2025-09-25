@@ -34,7 +34,7 @@ async function fixAssociationCreation() {
                 }
             );
             
-            console.log('✅ POST method successful!');
+            console.log('[OK] POST method successful!');
             console.log('Status:', createResponse.data.status);
             if (createResponse.data.results) {
                 console.log('Results:', createResponse.data.results.length, 'associations created');
@@ -43,7 +43,7 @@ async function fixAssociationCreation() {
                 });
             }
         } catch (error) {
-            console.log('❌ POST method failed:', error.response?.data?.message || error.message);
+            console.log('[FAIL] POST method failed:', error.response?.data?.message || error.message);
             if (error.response?.data?.details) {
                 console.log('Details:', JSON.stringify(error.response.data.details, null, 2));
             }
@@ -66,10 +66,10 @@ async function fixAssociationCreation() {
                 }
             );
             
-            console.log('✅ PUT to specific endpoint successful!');
+            console.log('[OK] PUT to specific endpoint successful!');
             console.log('Response:', createResponse.data);
         } catch (error) {
-            console.log('❌ PUT to specific endpoint failed:', error.response?.data?.message || error.message);
+            console.log('[FAIL] PUT to specific endpoint failed:', error.response?.data?.message || error.message);
         }
         
         // Method 3: Check what we actually have in our main index.js
@@ -104,11 +104,11 @@ async function fixAssociationCreation() {
                 }
             );
             
-            console.log('✅ Exact structure worked!');
+            console.log('[OK] Exact structure worked!');
             console.log('Response status:', response.status);
             console.log('Response data:', JSON.stringify(response.data, null, 2));
         } catch (error) {
-            console.log('❌ Exact structure failed:', error.response?.status, error.response?.data?.message || error.message);
+            console.log('[FAIL] Exact structure failed:', error.response?.status, error.response?.data?.message || error.message);
             if (error.response?.data) {
                 console.log('Full error response:', JSON.stringify(error.response.data, null, 2));
             }

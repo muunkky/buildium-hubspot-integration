@@ -1,0 +1,68 @@
+{"ts":"2025-09-23T22:14:35.895Z","stream":"stdout","message":"🏠➡️📞 Buildium to HubSpot Integration Prototype"}
+{"ts":"2025-09-23T22:14:35.897Z","stream":"stdout","message":"============================================================"}
+{"ts":"2025-09-23T22:14:35.897Z","stream":"stdout","message":"✨ Enhanced with exponential backoff for rate limiting"}
+{"ts":"2025-09-23T22:14:35.897Z","stream":"stdout","message":"⚡ Buildium API: 10 req/sec | Retry: 200ms→400ms→800ms"}
+{"ts":"2025-09-23T22:14:35.897Z","stream":"stdout","message":"============================================================"}
+{"ts":"2025-09-23T22:14:35.897Z","stream":"stdout","message":"✅ Configuration validated"}
+{"ts":"2025-09-23T22:14:35.897Z","stream":"stdout","message":"🔢 LIMIT MODE - Process until 1 successful operations"}
+{"ts":"2025-09-23T22:14:35.897Z","stream":"stdout","message":"🚀 STARTING LEASE-CENTRIC SYNC"}
+{"ts":"2025-09-23T22:14:35.897Z","stream":"stdout","message":"=================================================="}
+{"ts":"2025-09-23T22:14:35.897Z","stream":"stdout","message":"📅 Sync mode: LIVE"}
+{"ts":"2025-09-23T22:14:35.897Z","stream":"stdout","message":"[lease-sync] start {\"mode\":\"live\",\"force\":false,\"sinceDays\":null,\"batchSize\":500,\"limit\":1,\"unitId\":null}"}
+{"ts":"2025-09-23T22:14:36.071Z","stream":"stderr","message":"(node:10008) Warning: Accessing non-existent property 'BuildiumClient' of module exports inside circular dependency"}
+{"ts":"2025-09-23T22:14:36.071Z","stream":"stderr","message":"(Use `node --trace-warnings ...` to show where the warning was created)"}
+{"ts":"2025-09-23T22:14:36.072Z","stream":"stdout","message":"[lease-sync] fetch.all"}
+{"ts":"2025-09-23T22:14:36.072Z","stream":"stdout","message":"🔍 Fetching ALL leases from Buildium..."}
+{"ts":"2025-09-23T22:14:36.072Z","stream":"stdout","message":"📋 Fetching lease batch: offset 0, size 500..."}
+{"ts":"2025-09-23T22:14:36.072Z","stream":"stderr","message":"(node:10008) Warning: Accessing non-existent property 'HubSpotClient' of module exports inside circular dependency"}
+{"ts":"2025-09-23T22:14:36.072Z","stream":"stderr","message":"(node:10008) Warning: Accessing non-existent property 'IntegrationPrototype' of module exports inside circular dependency"}
+{"ts":"2025-09-23T22:14:36.072Z","stream":"stderr","message":"(node:10008) Warning: Accessing non-existent property 'BuildiumClient' of module exports inside circular dependency"}
+{"ts":"2025-09-23T22:14:36.073Z","stream":"stderr","message":"(node:10008) Warning: Accessing non-existent property 'HubSpotClient' of module exports inside circular dependency"}
+{"ts":"2025-09-23T22:14:38.030Z","stream":"stdout","message":"   Retrieved 500 leases (total so far: 500)"}
+{"ts":"2025-09-23T22:14:38.030Z","stream":"stdout","message":"📋 Fetching lease batch: offset 500, size 500..."}
+{"ts":"2025-09-23T22:14:38.896Z","stream":"stdout","message":"   Retrieved 500 leases (total so far: 1000)"}
+{"ts":"2025-09-23T22:14:38.896Z","stream":"stdout","message":"📋 Fetching lease batch: offset 1000, size 500..."}
+{"ts":"2025-09-23T22:14:39.267Z","stream":"stdout","message":"   Retrieved 49 leases (total so far: 1049)"}
+{"ts":"2025-09-23T22:14:39.269Z","stream":"stdout","message":"✅ Retrieved 1049 total leases"}
+{"ts":"2025-09-23T22:14:39.269Z","stream":"stdout","message":"[lease-sync] fetch.complete {\"leases\":1049}"}
+{"ts":"2025-09-23T22:14:39.269Z","stream":"stdout","message":"[lease-sync] prefetch.listings.skip {\"reason\":\"limit-active\"}"}
+{"ts":"2025-09-23T22:14:39.269Z","stream":"stdout","message":"🔍 Searching for existing listing with Buildium Unit ID: 177170"}
+{"ts":"2025-09-23T22:14:39.606Z","stream":"stdout","message":"✅ Found existing listing with matching Buildium Unit ID"}
+{"ts":"2025-09-23T22:14:39.607Z","stream":"stdout","message":"[lease-sync] filter.schedule {\"leaseId\":148862,\"unitId\":177170,\"reason\":\"missing-hubspot-timestamp\"}"}
+{"ts":"2025-09-23T22:14:39.607Z","stream":"stdout","message":"[lease-sync] limit.reached {\"limit\":1}"}
+{"ts":"2025-09-23T22:14:39.607Z","stream":"stdout","message":"[lease-sync] filter.summary {\"selected\":1,\"skipped\":0}"}
+{"ts":"2025-09-23T22:14:39.607Z","stream":"stdout","message":"[lease-sync] transform.prepare {\"leases\":1}"}
+{"ts":"2025-09-23T22:14:39.607Z","stream":"stdout","message":"[lease-sync] buildium.expand {\"units\":1}"}
+{"ts":"2025-09-23T22:14:39.607Z","stream":"stdout","message":"Fetching leases for property chunk (57529)..."}
+{"ts":"2025-09-23T22:14:39.868Z","stream":"stdout","message":"   Retrieved 3 lease(s) at offset 0."}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"Batch lease fetch retrieved 3 lease(s) across 1 unit(s)."}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"[lease-sync] buildium.expand.complete {\"leases\":3}"}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"[lease-sync] transform.complete {\"listings\":1}"}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"[lease-sync] hubspot.batch.start {\"listingLimit\":1}"}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"🏠 Creating 1 listing(s) in HubSpot batch..."}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"🔢 Limit: Will stop after 1 successful operations (created + updated)"}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"🔍 Checking for existing listings..."}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"⏭️  Skipping: Unit ID 177170 exists with current lease data (Listing ID: 455099161785)"}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"📊 Processing results: 0 new, 0 updated, 1 skipped"}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"ℹ️  No new listings to create"}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"[lease-sync] hubspot.batch.result {\"created\":0,\"updated\":0,\"skipped\":1}"}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"[lease-sync] timestamps.updated {\"leases\":1}"}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"[lease-sync] future-tenants.synced {\"count\":0}"}
+{"ts":"2025-09-23T22:14:39.871Z","stream":"stdout","message":"🔍 Fetching tenant 318408 from Buildium..."}
+{"ts":"2025-09-23T22:14:40.107Z","stream":"stdout","message":"✅ Successfully fetched tenant from Buildium"}
+{"ts":"2025-09-23T22:14:40.107Z","stream":"stdout","message":"🔍 Searching for existing contact with email: shay.hilderman@gmail.com"}
+{"ts":"2025-09-23T22:14:40.437Z","stream":"stdout","message":"✅ Found existing contact"}
+{"ts":"2025-09-23T22:14:40.437Z","stream":"stdout","message":"🔗 Getting associations for contact 149460428202..."}
+{"ts":"2025-09-23T22:14:40.733Z","stream":"stdout","message":"✅ Found 1 associations"}
+{"ts":"2025-09-23T22:14:40.734Z","stream":"stdout","message":"🔗 Creating Inactive Tenant association between Contact 149460428202 and Listing 455099161785..."}
+{"ts":"2025-09-23T22:14:40.975Z","stream":"stdout","message":"✅ Successfully created contact-listing association"}
+{"ts":"2025-09-23T22:14:40.975Z","stream":"stdout","message":"[lease-sync] tenant-lifecycle.association.created {\"contactId\":\"149460428202\",\"listingId\":\"455099161785\",\"type\":\"Inactive Tenant\",\"tenant\":\"Shay Hilderman\",\"unitId\":177170}"}
+{"ts":"2025-09-23T22:14:40.975Z","stream":"stdout","message":"[lease-sync] tenant-lifecycle.association.updated {\"contactId\":\"149460428202\",\"listingId\":\"455099161785\",\"transition\":\"activeToInactive\"}"}
+{"ts":"2025-09-23T22:14:40.975Z","stream":"stdout","message":"[lease-sync] tenant-lifecycle.lease.processed {\"leaseId\":148862,\"unitId\":177170,\"durationMs\":1114}"}
+{"ts":"2025-09-23T22:14:40.975Z","stream":"stdout","message":"[lease-sync] tenant-lifecycle.result {\"futureToActive\":0,\"activeToInactive\":1,\"futureToInactive\":0,\"errors\":0}"}
+{"ts":"2025-09-23T22:14:40.975Z","stream":"stdout","message":"[lease-sync] sync-state.saved"}
+{"ts":"2025-09-23T22:14:40.975Z","stream":"stdout","message":"[lease-sync] complete {\"durationMs\":5067,\"leasesChecked\":1049,\"leasesSelected\":1,\"listingsCreated\":0,\"listingsUpdated\":0,\"listingsSkipped\":1,\"futureTenantsSynced\":0,\"lifecycle\":{\"futureToActive\":0,\"activeToInactive\":1,\"futureToInactive\":0,\"errors\":0},\"errors\":0}"}
+{"ts":"2025-09-23T22:14:40.975Z","stream":"stdout","message":"🎉 LEASE-CENTRIC SYNC COMPLETE"}
+{"ts":"2025-09-23T22:14:40.975Z","stream":"stdout","message":"⏱️  Duration: undefinedms"}
+{"ts":"2025-09-23T22:14:40.975Z","stream":"stdout","message":"📊 Stats: 1049 leases → 0 created, 0 updated, 1 skipped"}
+{"ts":"2025-09-23T22:14:41.178Z","event":"exit","code":0,"signal":null}

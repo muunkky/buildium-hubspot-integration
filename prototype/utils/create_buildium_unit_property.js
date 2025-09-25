@@ -36,15 +36,15 @@ async function createBuildiumUnitIdProperty() {
             }
         );
         
-        console.log('✅ Successfully created Buildium Unit ID property!');
+        console.log('[OK] Successfully created Buildium Unit ID property!');
         console.log('Response:', JSON.stringify(response.data, null, 2));
         
     } catch (error) {
         if (error.response?.status === 409) {
-            console.log('ℹ️ Property already exists, which is fine!');
+            console.log('️ Property already exists, which is fine!');
             console.log('Error details:', error.response.data);
         } else {
-            console.error('❌ Error creating property:', error.response?.data || error.message);
+            console.error('[FAIL] Error creating property:', error.response?.data || error.message);
         }
     }
 }

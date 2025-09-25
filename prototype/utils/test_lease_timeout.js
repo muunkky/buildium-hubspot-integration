@@ -2,7 +2,7 @@ const { BuildiumClient } = require('../index.js');
 require('dotenv').config();
 
 async function testLeaseRetrieval() {
-    console.log('🔍 Testing Lease Retrieval Logic');
+    console.log('[SEARCH] Testing Lease Retrieval Logic');
     console.log('=' .repeat(40));
     
     const buildiumClient = new BuildiumClient();
@@ -35,10 +35,10 @@ async function testLeaseRetrieval() {
             console.log(`   Lease ${index + 1}: ID ${lease.Id}, Status: ${lease.LeaseStatus}, Tenants: ${lease.Tenants?.length || 0}`);
         });
         
-        console.log('\n✅ Lease retrieval test completed successfully');
+        console.log('\n[OK] Lease retrieval test completed successfully');
         
     } catch (error) {
-        console.error('❌ Test failed:', error.message);
+        console.error('[FAIL] Test failed:', error.message);
         console.error('Stack:', error.stack);
     }
 }

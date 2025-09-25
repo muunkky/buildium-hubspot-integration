@@ -13,7 +13,7 @@ scripts/
 
 ## Script Categories
 
-### 🗂️ `/temp/` - Temporary Scripts
+### ️ `/temp/` - Temporary Scripts
 These are one-off or testing scripts created for specific purposes. They may be:
 - Property-specific utilities
 - Quick debugging tools
@@ -35,7 +35,7 @@ These are one-off or testing scripts created for specific purposes. They may be:
 
 ### `verify_specific_associations.js`
 **Purpose**: Verify associations between specific contacts and listings  
-**Target**: Contact 131939806356 ↔ Listing 455100848030  
+**Target**: Contact 131939806356  Listing 455100848030  
 **Usage**: `node scripts/temp/verify_specific_associations.js`  
 **Output**:
 - Association verification

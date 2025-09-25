@@ -4,7 +4,7 @@ dotenv.config();
 
 async function checkListingProperties() {
     try {
-        console.log('🔍 Checking available Listing (0-420) properties...');
+        console.log('[SEARCH] Checking available Listing (0-420) properties...');
         
         const response = await axios.get('https://api.hubapi.com/crm/v3/properties/0-420', {
             headers: {
@@ -13,7 +13,7 @@ async function checkListingProperties() {
             }
         });
         
-        console.log('\n📋 Available Listing Properties:');
+        console.log('\n[ITEM] Available Listing Properties:');
         console.log('=' .repeat(60));
         
         response.data.results
@@ -22,10 +22,10 @@ async function checkListingProperties() {
                 console.log(`${prop.name.padEnd(25)} | ${prop.type.padEnd(10)} | ${prop.label}`);
             });
             
-        console.log(`\n📊 Total: ${response.data.results.length} properties`);
+        console.log(`\n[STATS] Total: ${response.data.results.length} properties`);
         
     } catch (error) {
-        console.error('❌ Error:', error.response?.data || error.message);
+        console.error('[FAIL] Error:', error.response?.data || error.message);
     }
 }
 

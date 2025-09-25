@@ -5,7 +5,7 @@ const { DateTime } = require('luxon');
 const { LeaseCentricSync, MockBuildiumClient, MockHubSpotClient } = require('./lease_centric_sync_test.js');
 
 async function runFirstTest() {
-    console.log('🧪 Running First Test: "should only fetch leases updated since specified time"');
+    console.log('[TEST] Running First Test: "should only fetch leases updated since specified time"');
     console.log('='.repeat(70));
     
     try {
@@ -34,23 +34,23 @@ async function runFirstTest() {
             rent: { amount: 1200 }
         });
 
-        console.log('📋 Test data setup:');
+        console.log('[ITEM] Test data setup:');
         console.log(`  sinceTime: ${sinceTime}`);
         console.log(`  lease 1 updated: 2024-01-02 (should be included)`);
         console.log(`  lease 2 updated: 2023-12-30 (should be excluded)`);
         console.log('');
 
         // Execute the test
-        console.log('🚀 Executing: syncLeasesIncremental(sinceTime, { dryRun: true })');
+        console.log(' Executing: syncLeasesIncremental(sinceTime, { dryRun: true })');
         
         const result = await leaseCentricSync.syncLeasesIncremental(sinceTime, { dryRun: true });
         
-        console.log('✅ Test completed without errors');
-        console.log('📊 Results:', result);
+        console.log('[OK] Test completed without errors');
+        console.log('[STATS] Results:', result);
         console.log('');
         
         // Verify only called with correct parameters
-        console.log('🔍 Verifying API calls:');
+        console.log('[SEARCH] Verifying API calls:');
         console.log(`  API calls made: ${buildiumClient.apiCalls.length}`);
         
         if (buildiumClient.apiCalls.length > 0) {
@@ -60,34 +60,34 @@ async function runFirstTest() {
             
             // Check assertions
             if (buildiumClient.apiCalls.length === 1) {
-                console.log('  ✅ Made exactly 1 API call');
+                console.log('  [OK] Made exactly 1 API call');
             } else {
-                console.log(`  ❌ Expected 1 API call, got ${buildiumClient.apiCalls.length}`);
+                console.log(`  [FAIL] Expected 1 API call, got ${buildiumClient.apiCalls.length}`);
             }
             
             if (firstCall.method === 'getLeasesUpdatedSince') {
-                console.log('  ✅ Called correct method');
+                console.log('  [OK] Called correct method');
             } else {
-                console.log(`  ❌ Expected 'getLeasesUpdatedSince', got '${firstCall.method}'`);
+                console.log(`  [FAIL] Expected 'getLeasesUpdatedSince', got '${firstCall.method}'`);
             }
             
             if (firstCall.params.lastUpdateTime === sinceTime) {
-                console.log('  ✅ Used correct timestamp');
+                console.log('  [OK] Used correct timestamp');
             } else {
-                console.log(`  ❌ Expected timestamp '${sinceTime}', got '${firstCall.params.lastUpdateTime}'`);
+                console.log(`  [FAIL] Expected timestamp '${sinceTime}', got '${firstCall.params.lastUpdateTime}'`);
             }
         } else {
-            console.log('  ❌ No API calls were made');
+            console.log('  [FAIL] No API calls were made');
         }
         
-        console.log('\n🎯 Test Status: PASSED');
+        console.log('\n[TARGET] Test Status: PASSED');
         
     } catch (error) {
-        console.error('❌ Test Status: FAILED');
+        console.error('[FAIL] Test Status: FAILED');
         console.error('Error:', error.message);
         console.error('\nStack trace:', error.stack);
         
-        console.log('\n🔧 Next Implementation Steps:');
+        console.log('\n[TOOL] Next Implementation Steps:');
         console.log('1. Fix the syncLeasesIncremental method');
         console.log('2. Ensure it calls buildiumClient.getLeasesUpdatedSince with correct params');
         console.log('3. Handle the filtering logic properly');

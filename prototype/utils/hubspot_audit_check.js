@@ -19,23 +19,23 @@ class HubSpotAuditChecker {
      * Check what audit/timeline information is available for a contact
      */
     async checkContactAuditTrail(contactId) {
-        console.log(`🔍 Checking audit trail for contact ${contactId}...\n`);
+        console.log(`[SEARCH] Checking audit trail for contact ${contactId}...\n`);
 
         try {
             // 1. Get contact timeline/activity
-            console.log('📋 1. Checking Contact Timeline/Activity...');
+            console.log('[ITEM] 1. Checking Contact Timeline/Activity...');
             await this.getContactTimeline(contactId);
 
             // 2. Get contact property history (if available)
-            console.log('\n📋 2. Checking Contact Property History...');
+            console.log('\n[ITEM] 2. Checking Contact Property History...');
             await this.getContactPropertyHistory(contactId);
 
             // 3. Get contact details with audit fields
-            console.log('\n📋 3. Checking Contact Audit Fields...');
+            console.log('\n[ITEM] 3. Checking Contact Audit Fields...');
             await this.getContactAuditFields(contactId);
 
         } catch (error) {
-            console.error('❌ Error checking audit trail:', error.message);
+            console.error('[FAIL] Error checking audit trail:', error.message);
         }
     }
 
@@ -55,13 +55,13 @@ class HubSpotAuditChecker {
                 }
             );
 
-            console.log('✅ Timeline data available:', response.data);
+            console.log('[OK] Timeline data available:', response.data);
 
         } catch (error) {
             if (error.response?.status === 404) {
-                console.log('ℹ️ Timeline endpoint not available or contact not found');
+                console.log('️ Timeline endpoint not available or contact not found');
             } else {
-                console.log('❌ Timeline access error:', error.response?.status, error.response?.data?.message || error.message);
+                console.log('[FAIL] Timeline access error:', error.response?.status, error.response?.data?.message || error.message);
             }
         }
     }
@@ -82,13 +82,13 @@ class HubSpotAuditChecker {
                 }
             );
 
-            console.log('✅ Property history available:', response.data);
+            console.log('[OK] Property history available:', response.data);
 
         } catch (error) {
             if (error.response?.status === 404) {
-                console.log('ℹ️ Property history endpoint not available (may require higher tier subscription)');
+                console.log('️ Property history endpoint not available (may require higher tier subscription)');
             } else {
-                console.log('❌ Property history access error:', error.response?.status, error.response?.data?.message || error.message);
+                console.log('[FAIL] Property history access error:', error.response?.status, error.response?.data?.message || error.message);
             }
         }
     }
@@ -121,7 +121,7 @@ class HubSpotAuditChecker {
             );
 
             const props = response.data.properties;
-            console.log('✅ Contact audit fields:');
+            console.log('[OK] Contact audit fields:');
             console.log('   Marketing Status:', props.hs_marketable_status);
             console.log('   Created Date:', props.createdate);
             console.log('   Last Modified:', props.lastmodifieddate);
@@ -131,7 +131,7 @@ class HubSpotAuditChecker {
             console.log('   Owner ID:', props.hubspot_owner_id);
 
         } catch (error) {
-            console.error('❌ Error getting contact audit fields:', error.response?.data?.message || error.message);
+            console.error('[FAIL] Error getting contact audit fields:', error.response?.data?.message || error.message);
         }
     }
 
@@ -139,7 +139,7 @@ class HubSpotAuditChecker {
      * Search for contacts that were recently modified (potential audit trail)
      */
     async findRecentlyModifiedContacts(hoursAgo = 24) {
-        console.log(`🔍 Searching for contacts modified in last ${hoursAgo} hours...\n`);
+        console.log(`[SEARCH] Searching for contacts modified in last ${hoursAgo} hours...\n`);
 
         try {
             const cutoffTime = new Date(Date.now() - (hoursAgo * 60 * 60 * 1000)).getTime();
@@ -176,7 +176,7 @@ class HubSpotAuditChecker {
             );
 
             const contacts = response.data.results;
-            console.log(`📊 Found ${contacts.length} recently modified contacts:`);
+            console.log(`[STATS] Found ${contacts.length} recently modified contacts:`);
 
             contacts.forEach((contact, index) => {
                 const props = contact.properties;
@@ -189,7 +189,7 @@ class HubSpotAuditChecker {
             });
 
         } catch (error) {
-            console.error('❌ Error searching for recent contacts:', error.response?.data?.message || error.message);
+            console.error('[FAIL] Error searching for recent contacts:', error.response?.data?.message || error.message);
         }
     }
 
@@ -197,7 +197,7 @@ class HubSpotAuditChecker {
      * Check what HubSpot audit capabilities are available for your account
      */
     async checkAuditCapabilities() {
-        console.log('🔍 Checking HubSpot audit capabilities for your account...\n');
+        console.log('[SEARCH] Checking HubSpot audit capabilities for your account...\n');
 
         const capabilities = {
             timeline: await this.testEndpoint('/timeline'),
@@ -206,12 +206,12 @@ class HubSpotAuditChecker {
             activities: await this.testEndpoint('/activities')
         };
 
-        console.log('📊 Available audit capabilities:');
+        console.log('[STATS] Available audit capabilities:');
         Object.entries(capabilities).forEach(([feature, available]) => {
-            console.log(`   ${feature}: ${available ? '✅ Available' : '❌ Not available'}`);
+            console.log(`   ${feature}: ${available ? '[OK] Available' : '[FAIL] Not available'}`);
         });
 
-        console.log('\\n💡 What this means:');
+        console.log('\\n What this means:');
         console.log('   • Timeline: Shows contact activity and changes in HubSpot UI');
         console.log('   • Property History: Detailed change log for each property');
         console.log('   • Audit Logs: System-level audit trail (Enterprise feature)');
@@ -238,7 +238,7 @@ class HubSpotAuditChecker {
 async function main() {
     const apiKey = process.env.HUBSPOT_API_KEY;
     if (!apiKey) {
-        console.error('❌ HUBSPOT_API_KEY environment variable required');
+        console.error('[FAIL] HUBSPOT_API_KEY environment variable required');
         process.exit(1);
     }
 

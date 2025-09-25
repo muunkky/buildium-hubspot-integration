@@ -40,7 +40,7 @@ async function testFixedAssociation() {
             }
         );
         
-        console.log('✅ Association creation response:');
+        console.log('[OK] Association creation response:');
         console.log(`Status: ${response.status}`);
         console.log(`Data:`, JSON.stringify(response.data, null, 2));
         
@@ -63,12 +63,12 @@ async function testFixedAssociation() {
         
         console.log('Listing with associations:');
         if (listingResponse.data.associations && listingResponse.data.associations.contacts) {
-            console.log(`✅ Found ${listingResponse.data.associations.contacts.results.length} associated contacts:`);
+            console.log(`[OK] Found ${listingResponse.data.associations.contacts.results.length} associated contacts:`);
             listingResponse.data.associations.contacts.results.forEach((contact, index) => {
                 console.log(`  ${index + 1}. Contact ID: ${contact.id}, Type: ${contact.type}`);
             });
         } else {
-            console.log('❌ No associated contacts found');
+            console.log('[FAIL] No associated contacts found');
         }
         
         // Also check via V4 API
@@ -93,7 +93,7 @@ async function testFixedAssociation() {
                 });
             });
         } else {
-            console.log('❌ No associations found via V4 API');
+            console.log('[FAIL] No associations found via V4 API');
         }
         
     } catch (error) {

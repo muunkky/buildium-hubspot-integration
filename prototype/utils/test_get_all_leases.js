@@ -2,7 +2,7 @@ const { BuildiumClient } = require('../index.js');
 require('dotenv').config();
 
 async function testGetAllLeases() {
-    console.log('🔍 Testing getAllLeases with different limits');
+    console.log('[SEARCH] Testing getAllLeases with different limits');
     console.log('=' .repeat(40));
     
     const buildiumClient = new BuildiumClient();
@@ -27,10 +27,10 @@ async function testGetAllLeases() {
         const duration2 = Date.now() - startTime2;
         console.log(`   Retrieved ${mediumBatch.length} leases in ${duration2}ms`);
         
-        console.log('\n✅ getAllLeases tests completed successfully');
+        console.log('\n[OK] getAllLeases tests completed successfully');
         
     } catch (error) {
-        console.error('❌ Test failed:', error.message);
+        console.error('[FAIL] Test failed:', error.message);
     }
 }
 

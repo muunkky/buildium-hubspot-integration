@@ -22,33 +22,33 @@ class SimpleEndToEndTest {
         console.log('='.repeat(60));
         
         try {
-            console.log(`🚀 Running: ${command}`);
+            console.log(` Running: ${command}`);
             const { stdout, stderr } = await execAsync(command);
             
             if (stderr && !stderr.includes('Warning')) {
-                console.log('⚠️ Warnings/Errors:', stderr);
+                console.log('[WARN]️ Warnings/Errors:', stderr);
             }
             
-            console.log('📊 Output:');
+            console.log('[STATS] Output:');
             console.log(stdout);
             
             return { stdout, stderr, success: true };
             
         } catch (error) {
-            console.error(`❌ Error in ${stepName}:`, error.message);
+            console.error(`[FAIL] Error in ${stepName}:`, error.message);
             return { error: error.message, success: false };
         }
     }
 
     async runTest() {
-        console.log('🚀 SIMPLIFIED END-TO-END TEST');
+        console.log(' SIMPLIFIED END-TO-END TEST');
         console.log('='.repeat(60));
-        console.log(`🎯 Test Target: Property ${this.testPropertyId}`);
-        console.log(`📅 Test Date: ${new Date().toLocaleString()}\n`);
+        console.log(`[TARGET] Test Target: Property ${this.testPropertyId}`);
+        console.log(`[DATE] Test Date: ${new Date().toLocaleString()}\n`);
 
         // Step 1: Get source data from Buildium
         const step1 = await this.runStep(
-            '🔍 STEP 1', 
+            '[SEARCH] STEP 1', 
             `node utils/debug_buildium_owners.js`,
             'Fetching source data from Buildium'
         );
@@ -56,7 +56,7 @@ class SimpleEndToEndTest {
 
         // Step 2: Check existing HubSpot data (before sync)
         const step2 = await this.runStep(
-            '📞 STEP 2',
+            ' STEP 2',
             `node test_force_sync.js`,
             'Checking existing HubSpot data'
         );
@@ -64,7 +64,7 @@ class SimpleEndToEndTest {
 
         // Step 3: Perform sync operation
         const step3 = await this.runStep(
-            '🔄 STEP 3',
+            '[RETRY] STEP 3',
             `node index.js owners --property-ids ${this.testPropertyId} --force`,
             'Performing force sync operation'
         );
@@ -72,7 +72,7 @@ class SimpleEndToEndTest {
 
         // Step 4: Verify associations were created
         const step4 = await this.runStep(
-            '🔗 STEP 4',
+            ' STEP 4',
             `node utils/check_associations.js`,
             'Verifying associations in HubSpot'
         );
@@ -83,7 +83,7 @@ class SimpleEndToEndTest {
     }
 
     generateSummary() {
-        console.log('\n📊 END-TO-END TEST SUMMARY');
+        console.log('\n[STATS] END-TO-END TEST SUMMARY');
         console.log('='.repeat(60));
 
         // Check each step
@@ -96,7 +96,7 @@ class SimpleEndToEndTest {
 
         let successCount = 0;
         steps.forEach((step, index) => {
-            const icon = step.result.success ? '✅' : '❌';
+            const icon = step.result.success ? '[OK]' : '[FAIL]';
             const status = step.result.success ? 'PASS' : 'FAIL';
             console.log(`${index + 1}. ${icon} ${step.name}: ${status}`);
             if (step.result.success) successCount++;
@@ -105,18 +105,18 @@ class SimpleEndToEndTest {
         // Extract key information from sync output
         if (this.testResults.syncOperation.success) {
             const syncOutput = this.testResults.syncOperation.stdout;
-            console.log('\n🔄 Sync Results Analysis:');
+            console.log('\n[RETRY] Sync Results Analysis:');
             
             // Check for force mode
             if (syncOutput.includes('FORCE MODE')) {
-                console.log('   ✅ Force mode activated');
+                console.log('   [OK] Force mode activated');
             }
             
             // Check for successful operations
             if (syncOutput.includes('Enriched existing:')) {
                 const enrichedMatch = syncOutput.match(/Enriched existing: (\d+)/);
                 if (enrichedMatch) {
-                    console.log(`   ✅ Enriched ${enrichedMatch[1]} existing contact(s)`);
+                    console.log(`   [OK] Enriched ${enrichedMatch[1]} existing contact(s)`);
                 }
             }
             
@@ -124,17 +124,17 @@ class SimpleEndToEndTest {
             if (syncOutput.includes('Associations Created:')) {
                 const assocMatch = syncOutput.match(/Associations Created: (\d+)/);
                 if (assocMatch) {
-                    console.log(`   ✅ Created ${assocMatch[1]} association(s)`);
+                    console.log(`   [OK] Created ${assocMatch[1]} association(s)`);
                 }
             }
             
             // Check for errors
             if (syncOutput.includes('Errors: 0')) {
-                console.log('   ✅ No sync errors');
+                console.log('   [OK] No sync errors');
             } else {
                 const errorMatch = syncOutput.match(/Errors: (\d+)/);
                 if (errorMatch && errorMatch[1] !== '0') {
-                    console.log(`   ❌ ${errorMatch[1]} sync error(s)`);
+                    console.log(`   [FAIL] ${errorMatch[1]} sync error(s)`);
                 }
             }
         }
@@ -143,17 +143,17 @@ class SimpleEndToEndTest {
         const overallSuccess = successCount === steps.length;
         const successRate = (successCount / steps.length * 100).toFixed(1);
         
-        console.log(`\n🏆 Overall Test Result: ${overallSuccess ? '✅ PASS' : '❌ FAIL'}`);
-        console.log(`📈 Success Rate: ${successRate}% (${successCount}/${steps.length} steps passed)`);
+        console.log(`\n Overall Test Result: ${overallSuccess ? '[OK] PASS' : '[FAIL] FAIL'}`);
+        console.log(` Success Rate: ${successRate}% (${successCount}/${steps.length} steps passed)`);
 
         if (overallSuccess) {
-            console.log('\n🎉 END-TO-END DATA FLOW VALIDATED SUCCESSFULLY!');
-            console.log('   ✅ Source data retrieved from Buildium');
-            console.log('   ✅ Sync operation completed without errors');
-            console.log('   ✅ Data properly pushed to HubSpot');
-            console.log('   ✅ Associations created and verified');
+            console.log('\n[COMPLETE] END-TO-END DATA FLOW VALIDATED SUCCESSFULLY!');
+            console.log('   [OK] Source data retrieved from Buildium');
+            console.log('   [OK] Sync operation completed without errors');
+            console.log('   [OK] Data properly pushed to HubSpot');
+            console.log('   [OK] Associations created and verified');
         } else {
-            console.log('\n⚠️ Some steps failed. Check the output above for details.');
+            console.log('\n[WARN]️ Some steps failed. Check the output above for details.');
         }
 
         return overallSuccess;
@@ -165,10 +165,10 @@ if (require.main === module) {
     const test = new SimpleEndToEndTest();
     test.runTest()
         .then(() => {
-            console.log('\n🎯 End-to-end test completed!');
+            console.log('\n[TARGET] End-to-end test completed!');
         })
         .catch(error => {
-            console.error('💥 Test execution failed:', error.message);
+            console.error(' Test execution failed:', error.message);
         });
 }
 

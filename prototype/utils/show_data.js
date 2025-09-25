@@ -12,10 +12,10 @@ async function showTenantData() {
       }
     });
     
-    console.log('📋 Complete Tenant Data Structure:');
+    console.log('[ITEM] Complete Tenant Data Structure:');
     console.log(JSON.stringify(response.data, null, 2));
     
-    console.log('\n🏠 Lease Information:');
+    console.log('\n Lease Information:');
     if (response.data.Leases && response.data.Leases.length > 0) {
       response.data.Leases.forEach((lease, index) => {
         console.log(`\nLease ${index + 1}:`);

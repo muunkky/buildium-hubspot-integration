@@ -5,7 +5,7 @@
 const { BuildiumClient } = require('../index.js');
 
 async function diagnosePropertyFiltering() {
-    console.log('🔍 Diagnosing Property Filtering Issue\n');
+    console.log('[SEARCH] Diagnosing Property Filtering Issue\n');
     
     const buildium = new BuildiumClient();
     
@@ -31,24 +31,24 @@ async function diagnosePropertyFiltering() {
                 validOwners++;
             } else {
                 invalidOwners++;
-                console.log(`❌ Owner ${owner.Id} (${owner.FirstName} ${owner.LastName}) - Properties: [${owner.PropertyIds?.join(', ')}]`);
+                console.log(`[FAIL] Owner ${owner.Id} (${owner.FirstName} ${owner.LastName}) - Properties: [${owner.PropertyIds?.join(', ')}]`);
             }
         });
         
-        console.log(`\n📊 Results:`);
-        console.log(`✅ Valid owners (own property 140054): ${validOwners}`);
-        console.log(`❌ Invalid owners (don't own property 140054): ${invalidOwners}`);
+        console.log(`\n[STATS] Results:`);
+        console.log(`[OK] Valid owners (own property 140054): ${validOwners}`);
+        console.log(`[FAIL] Invalid owners (don't own property 140054): ${invalidOwners}`);
         
         if (invalidOwners > 0) {
-            console.log(`\n🚨 BUG CONFIRMED: Property filtering is not working!`);
+            console.log(`\n BUG CONFIRMED: Property filtering is not working!`);
             console.log(`Expected: Only owners of property 140054`);
             console.log(`Actual: ${filteredOwners.length} owners returned, ${invalidOwners} don't own the property`);
         } else {
-            console.log(`\n✅ Property filtering working correctly`);
+            console.log(`\n[OK] Property filtering working correctly`);
         }
         
     } catch (error) {
-        console.error('❌ Error:', error.message);
+        console.error('[FAIL] Error:', error.message);
     }
 }
 

@@ -38,7 +38,7 @@ async function createActiveTenantsAssociation() {
             }
         );
         
-        console.log('✅ Association creation response:');
+        console.log('[OK] Association creation response:');
         console.log(JSON.stringify(response.data, null, 2));
         
         // Wait a moment for it to propagate

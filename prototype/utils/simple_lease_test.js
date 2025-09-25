@@ -9,7 +9,7 @@ async function simpleLeaseTest() {
     const buildiumClient = new BuildiumClient();
     
     try {
-        console.log('🔧 Simple Lease Test');
+        console.log('[TOOL] Simple Lease Test');
         console.log('===================\n');
         
         // Test the core issue: get leases for ONE specific unit
@@ -18,7 +18,7 @@ async function simpleLeaseTest() {
         console.log(`Testing unit: ${testUnitId}`);
         
         // OLD METHOD (broken)
-        console.log('\n❌ OLD METHOD (showing why it was broken):');
+        console.log('\n[FAIL] OLD METHOD (showing why it was broken):');
         const allLeases = await buildiumClient.getAllLeases(50);
         console.log(`- getAllLeases() returned ${allLeases.length} total leases`);
         
@@ -29,7 +29,7 @@ async function simpleLeaseTest() {
         console.log(`- OLD METHOD was returning ALL ${allLeases.length} leases (WRONG!)`);
         
         // NEW METHOD (correct)
-        console.log('\n✅ NEW METHOD (correct approach):');
+        console.log('\n[OK] NEW METHOD (correct approach):');
         
         // Step 1: Get lease IDs for specific unit
         const unitLeaseIds = allLeases
@@ -49,10 +49,10 @@ async function simpleLeaseTest() {
             console.log(`- Tenants in this lease: ${detailedLease.Tenants?.length || 0}`);
             console.log(`- Current tenants: ${detailedLease.CurrentTenants?.length || 0}`);
             
-            console.log('\n🎯 RESULT: Instead of hundreds of tenants, we get the ACTUAL tenants for this unit!');
+            console.log('\n[TARGET] RESULT: Instead of hundreds of tenants, we get the ACTUAL tenants for this unit!');
         }
         
-        console.log('\n📋 SUMMARY:');
+        console.log('\n[ITEM] SUMMARY:');
         console.log('- OLD METHOD: Returned all leases from multiple units → hundreds of wrong tenants');
         console.log('- NEW METHOD: Returns only leases for specific unit → correct tenant count (2-3 per unit max)');
         

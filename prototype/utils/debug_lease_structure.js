@@ -10,7 +10,7 @@ async function debugLease() {
     const unitId = 177286;
     
     try {
-        console.log('🔍 Getting first few leases for unit', unitId);
+        console.log('[SEARCH] Getting first few leases for unit', unitId);
         const leases = await buildiumClient.getAllLeasesForUnit(unitId);
         
         console.log(`Total leases: ${leases.length}`);

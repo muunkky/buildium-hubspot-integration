@@ -29,7 +29,7 @@ class BuildiumClient {
     }
 
     async getAllOwners(type = 'rental') {
-        console.log(`🔍 Fetching all ${type} owners...`);
+        console.log(`[SEARCH] Fetching all ${type} owners...`);
         let allOwners = [];
         let offset = 0;
         const limit = 100;
@@ -45,7 +45,7 @@ class BuildiumClient {
             if (!data || data.length === 0) break;
             
             allOwners = allOwners.concat(data);
-            console.log(`✅ Retrieved ${data.length} ${type} owners (total: ${allOwners.length})`);
+            console.log(`[OK] Retrieved ${data.length} ${type} owners (total: ${allOwners.length})`);
             
             if (data.length < limit) break;
             offset += limit;
@@ -55,7 +55,7 @@ class BuildiumClient {
     }
 
     async getAllTenants() {
-        console.log('🔍 Fetching all tenants...');
+        console.log('[SEARCH] Fetching all tenants...');
         let allTenants = [];
         let offset = 0;
         const limit = 100;
@@ -69,7 +69,7 @@ class BuildiumClient {
             if (!data || data.length === 0) break;
             
             allTenants = allTenants.concat(data);
-            console.log(`✅ Retrieved ${data.length} tenants (total: ${allTenants.length})`);
+            console.log(`[OK] Retrieved ${data.length} tenants (total: ${allTenants.length})`);
             
             if (data.length < limit) break;
             offset += limit;
@@ -80,60 +80,60 @@ class BuildiumClient {
 }
 
 async function main() {
-    console.log('🏢 Getting total contact count from Buildium...\n');
+    console.log(' Getting total contact count from Buildium...\n');
 
     try {
         const buildium = new BuildiumClient();
 
         // Get owners
-        console.log('📊 1. Counting Owners...');
+        console.log('[STATS] 1. Counting Owners...');
         const owners = await buildium.getAllOwners('rental');
         const ownersCount = owners.length;
         
         // Get tenants
-        console.log('\n📊 2. Counting Tenants...');
+        console.log('\n[STATS] 2. Counting Tenants...');
         const tenants = await buildium.getAllTenants();
         const tenantsCount = tenants.length;
 
         const totalBuildium = ownersCount + tenantsCount;
 
-        console.log('\n📈 BUILDIUM CONTACT SUMMARY:');
+        console.log('\n BUILDIUM CONTACT SUMMARY:');
         console.log('============================');
-        console.log(`📋 Owners: ${ownersCount}`);
-        console.log(`🏠 Tenants: ${tenantsCount}`);
-        console.log(`🎯 TOTAL BUILDIUM CONTACTS: ${totalBuildium}`);
+        console.log(`[ITEM] Owners: ${ownersCount}`);
+        console.log(` Tenants: ${tenantsCount}`);
+        console.log(`[TARGET] TOTAL BUILDIUM CONTACTS: ${totalBuildium}`);
 
-        console.log('\n🔍 COMPARISON WITH HUBSPOT IMPORT:');
+        console.log('\n[SEARCH] COMPARISON WITH HUBSPOT IMPORT:');
         console.log('==================================');
-        console.log(`📊 Buildium Total: ${totalBuildium}`);
-        console.log(`📈 HubSpot Import (last week): ~1,555`);
+        console.log(`[STATS] Buildium Total: ${totalBuildium}`);
+        console.log(` HubSpot Import (last week): ~1,555`);
         
         const difference = Math.abs(totalBuildium - 1555);
         if (difference < 200) {
-            console.log('✅ CLOSE MATCH: Buildium count roughly matches HubSpot import');
+            console.log('[OK] CLOSE MATCH: Buildium count roughly matches HubSpot import');
             console.log('   The bulk import was likely mostly Buildium data');
         } else if (totalBuildium > 1555) {
-            console.log(`📊 Buildium has ${difference} MORE contacts than imported`);
+            console.log(`[STATS] Buildium has ${difference} MORE contacts than imported`);
             console.log('   Possible reasons: filtering, duplicates removed, or partial import');
         } else {
-            console.log(`📊 HubSpot import has ${difference} MORE than Buildium`);
+            console.log(`[STATS] HubSpot import has ${difference} MORE than Buildium`);
             console.log('   Possible reasons: duplicates created, or other data sources');
         }
 
         // Tenant to owner ratio analysis
         if (ownersCount > 0) {
             const ratio = (tenantsCount / ownersCount).toFixed(1);
-            console.log(`\n📊 Tenant-to-Owner Ratio: ${ratio}:1`);
+            console.log(`\n[STATS] Tenant-to-Owner Ratio: ${ratio}:1`);
             
             if (ratio > 3) {
-                console.log('📈 High tenant ratio suggests multi-unit properties');
+                console.log(' High tenant ratio suggests multi-unit properties');
             } else if (ratio < 1) {
-                console.log('📉 Low tenant ratio suggests many vacant units or owner-occupied properties');
+                console.log(' Low tenant ratio suggests many vacant units or owner-occupied properties');
             }
         }
 
     } catch (error) {
-        console.error('❌ Error:', error.message);
+        console.error('[FAIL] Error:', error.message);
         if (error.response?.data) {
             console.error('API Error:', error.response.data);
         }

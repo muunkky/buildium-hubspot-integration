@@ -23,26 +23,26 @@ class ComprehensiveOwnerAssociationTest {
     }
 
     async runCommand(description, command) {
-        console.log(`📋 ${description}`);
-        console.log(`🚀 Command: ${command}`);
+        console.log(`[ITEM] ${description}`);
+        console.log(` Command: ${command}`);
         console.log('-'.repeat(50));
         
         try {
             const { stdout, stderr } = await execAsync(command, { cwd: process.cwd() });
             console.log(stdout);
             if (stderr && !stderr.includes('Warning')) {
-                console.log('⚠️ Stderr:', stderr);
+                console.log('[WARN]️ Stderr:', stderr);
             }
             return { success: true, output: stdout };
         } catch (error) {
-            console.error(`❌ Error: ${error.message}`);
+            console.error(`[FAIL] Error: ${error.message}`);
             return { success: false, error: error.message };
         }
     }
 
     async validateAssociationType(contactId, listingId, expectedType, ownerDescription) {
         try {
-            console.log(`🔍 Validating association for ${ownerDescription}...`);
+            console.log(`[SEARCH] Validating association for ${ownerDescription}...`);
             console.log(`   Contact: ${contactId}, Listing: ${listingId}, Expected Type: ${expectedType}`);
             
             const response = await axios.get(
@@ -60,17 +60,17 @@ class ComprehensiveOwnerAssociationTest {
             );
 
             if (!association) {
-                console.log(`❌ No association found for ${ownerDescription}`);
+                console.log(`[FAIL] No association found for ${ownerDescription}`);
                 return { success: false, error: 'Association not found' };
             }
 
             const actualType = association.associationTypes[0]?.typeId;
             const typeLabel = association.associationTypes[0]?.label || 'Unknown';
             
-            console.log(`   📊 Found association: Type ${actualType} (${typeLabel})`);
+            console.log(`   [STATS] Found association: Type ${actualType} (${typeLabel})`);
             
             if (actualType === expectedType) {
-                console.log(`✅ Correct association type for ${ownerDescription}`);
+                console.log(`[OK] Correct association type for ${ownerDescription}`);
                 return { 
                     success: true, 
                     actualType, 
@@ -80,7 +80,7 @@ class ComprehensiveOwnerAssociationTest {
                     listingId
                 };
             } else {
-                console.log(`❌ Wrong association type for ${ownerDescription}: got ${actualType}, expected ${expectedType}`);
+                console.log(`[FAIL] Wrong association type for ${ownerDescription}: got ${actualType}, expected ${expectedType}`);
                 return { 
                     success: false, 
                     error: `Wrong association type: got ${actualType}, expected ${expectedType}`,
@@ -89,7 +89,7 @@ class ComprehensiveOwnerAssociationTest {
                 };
             }
         } catch (error) {
-            console.log(`❌ Error validating association for ${ownerDescription}: ${error.message}`);
+            console.log(`[FAIL] Error validating association for ${ownerDescription}: ${error.message}`);
             return { success: false, error: error.message };
         }
     }
@@ -108,7 +108,7 @@ class ComprehensiveOwnerAssociationTest {
     }
 
     async testRentalOwnerSync() {
-        console.log('\n🏠 TESTING RENTAL OWNER SYNC');
+        console.log('\n TESTING RENTAL OWNER SYNC');
         console.log('='.repeat(70));
         
         // Test with property 140054 (known rental property)
@@ -118,14 +118,14 @@ class ComprehensiveOwnerAssociationTest {
         );
 
         if (!syncResult.success) {
-            console.log('❌ Rental owner sync failed');
+            console.log('[FAIL] Rental owner sync failed');
             this.results.failed++;
             return { success: false, error: 'Sync command failed' };
         }
 
         const ids = this.extractContactAndListing(syncResult.output);
         if (!ids) {
-            console.log('❌ Could not extract contact/listing IDs from sync output');
+            console.log('[FAIL] Could not extract contact/listing IDs from sync output');
             this.results.failed++;
             return { success: false, error: 'Could not extract IDs' };
         }
@@ -153,11 +153,11 @@ class ComprehensiveOwnerAssociationTest {
     }
 
     async testAssociationOwnerSync() {
-        console.log('\n🏘️ TESTING ASSOCIATION OWNER SYNC');
+        console.log('\n️ TESTING ASSOCIATION OWNER SYNC');
         console.log('='.repeat(70));
         
         // First, let's try to find a property with association owners
-        console.log('🔍 Looking for properties with association owners...');
+        console.log('[SEARCH] Looking for properties with association owners...');
         
         try {
             const { BuildiumClient } = require('../index.js');
@@ -167,24 +167,24 @@ class ComprehensiveOwnerAssociationTest {
             const associationOwners = await buildium.getAssociationOwners({ limit: 5 });
             
             if (associationOwners.length === 0) {
-                console.log('⚠️ No association owners found in Buildium');
-                console.log('✅ This is expected if no HOA/Condo properties are managed');
+                console.log('[WARN]️ No association owners found in Buildium');
+                console.log('[OK] This is expected if no HOA/Condo properties are managed');
                 return { success: true, skipped: true, reason: 'No association owners available' };
             }
 
-            console.log(`📊 Found ${associationOwners.length} association owner(s)`);
+            console.log(`[STATS] Found ${associationOwners.length} association owner(s)`);
             
             // Try to sync one association owner
             const firstAssocOwner = associationOwners[0];
             const associationPropertyIds = firstAssocOwner.PropertyIds || [];
             
             if (associationPropertyIds.length === 0) {
-                console.log('⚠️ Association owner has no properties');
+                console.log('[WARN]️ Association owner has no properties');
                 return { success: true, skipped: true, reason: 'Association owner has no properties' };
             }
 
             const testPropertyId = associationPropertyIds[0];
-            console.log(`🎯 Testing with association property: ${testPropertyId}`);
+            console.log(`[TARGET] Testing with association property: ${testPropertyId}`);
 
             const syncResult = await this.runCommand(
                 `Sync association owner (Property ${testPropertyId})`,
@@ -192,14 +192,14 @@ class ComprehensiveOwnerAssociationTest {
             );
 
             if (!syncResult.success) {
-                console.log('❌ Association owner sync failed');
+                console.log('[FAIL] Association owner sync failed');
                 this.results.failed++;
                 return { success: false, error: 'Sync command failed' };
             }
 
             const ids = this.extractContactAndListing(syncResult.output);
             if (!ids) {
-                console.log('❌ Could not extract contact/listing IDs from sync output');
+                console.log('[FAIL] Could not extract contact/listing IDs from sync output');
                 this.results.failed++;
                 return { success: false, error: 'Could not extract IDs' };
             }
@@ -226,14 +226,14 @@ class ComprehensiveOwnerAssociationTest {
             return validation;
 
         } catch (error) {
-            console.log(`❌ Error testing association owners: ${error.message}`);
+            console.log(`[FAIL] Error testing association owners: ${error.message}`);
             this.results.failed++;
             return { success: false, error: error.message };
         }
     }
 
     async testMixedPropertyPortfolio() {
-        console.log('\n🏘️🏠 TESTING MIXED PROPERTY PORTFOLIO');
+        console.log('\n️ TESTING MIXED PROPERTY PORTFOLIO');
         console.log('='.repeat(70));
         
         try {
@@ -246,10 +246,10 @@ class ComprehensiveOwnerAssociationTest {
             const rentalOwners = allOwners.filter(o => o._ownerType === 'rental');
             const associationOwners = allOwners.filter(o => o._ownerType === 'association');
             
-            console.log(`📊 Found ${rentalOwners.length} rental owners and ${associationOwners.length} association owners`);
+            console.log(`[STATS] Found ${rentalOwners.length} rental owners and ${associationOwners.length} association owners`);
             
             if (rentalOwners.length > 0 && associationOwners.length > 0) {
-                console.log('✅ Mixed portfolio detected - both rental and association owners present');
+                console.log('[OK] Mixed portfolio detected - both rental and association owners present');
                 
                 // Test that metadata is correctly assigned
                 let metadataCorrect = true;
@@ -259,36 +259,36 @@ class ComprehensiveOwnerAssociationTest {
                     if (!hasCorrectMetadata) {
                         metadataCorrect = false;
                         const name = owner.IsCompany ? owner.CompanyName : `${owner.FirstName} ${owner.LastName}`;
-                        console.log(`❌ ${name}: Missing metadata (_ownerType: ${owner._ownerType}, _isCompany: ${owner._isCompany})`);
+                        console.log(`[FAIL] ${name}: Missing metadata (_ownerType: ${owner._ownerType}, _isCompany: ${owner._isCompany})`);
                     }
                 }
                 
                 if (metadataCorrect) {
-                    console.log('✅ All owners have correct metadata assigned');
+                    console.log('[OK] All owners have correct metadata assigned');
                     this.results.passed++;
                 } else {
-                    console.log('❌ Some owners missing required metadata');
+                    console.log('[FAIL] Some owners missing required metadata');
                     this.results.failed++;
                 }
                 
                 return { success: metadataCorrect };
             } else {
-                console.log('ℹ️ Single owner type portfolio - this is normal');
+                console.log('️ Single owner type portfolio - this is normal');
                 return { success: true, skipped: true, reason: 'Single owner type portfolio' };
             }
             
         } catch (error) {
-            console.log(`❌ Error testing mixed portfolio: ${error.message}`);
+            console.log(`[FAIL] Error testing mixed portfolio: ${error.message}`);
             this.results.failed++;
             return { success: false, error: error.message };
         }
     }
 
     async runAllTests() {
-        console.log('🚀 COMPREHENSIVE OWNER ASSOCIATION VALIDATION');
+        console.log(' COMPREHENSIVE OWNER ASSOCIATION VALIDATION');
         console.log('='.repeat(70));
-        console.log(`📅 ${new Date().toLocaleString()}`);
-        console.log('🎯 Testing association type differentiation in real sync operations\n');
+        console.log(`[DATE] ${new Date().toLocaleString()}`);
+        console.log('[TARGET] Testing association type differentiation in real sync operations\n');
 
         // Run all tests
         const rentalTest = await this.testRentalOwnerSync();
@@ -296,35 +296,35 @@ class ComprehensiveOwnerAssociationTest {
         const mixedTest = await this.testMixedPropertyPortfolio();
 
         // Summary
-        console.log('\n📊 COMPREHENSIVE TEST SUMMARY');
+        console.log('\n[STATS] COMPREHENSIVE TEST SUMMARY');
         console.log('='.repeat(70));
         
-        console.log(`✅ Tests Passed: ${this.results.passed}`);
-        console.log(`❌ Tests Failed: ${this.results.failed}`);
+        console.log(`[OK] Tests Passed: ${this.results.passed}`);
+        console.log(`[FAIL] Tests Failed: ${this.results.failed}`);
         
         if (this.results.rentalOwners.length > 0) {
-            console.log('\n🏠 Rental Owner Associations:');
+            console.log('\n Rental Owner Associations:');
             this.results.rentalOwners.forEach(owner => {
-                console.log(`  ✅ Property ${owner.propertyId}: Type ${owner.actualType} (${owner.typeLabel})`);
+                console.log(`  [OK] Property ${owner.propertyId}: Type ${owner.actualType} (${owner.typeLabel})`);
             });
         }
         
         if (this.results.associationOwners.length > 0) {
-            console.log('\n🏘️ Association Owner Associations:');
+            console.log('\n️ Association Owner Associations:');
             this.results.associationOwners.forEach(owner => {
-                console.log(`  ✅ Property ${owner.propertyId}: Type ${owner.actualType} (${owner.typeLabel})`);
+                console.log(`  [OK] Property ${owner.propertyId}: Type ${owner.actualType} (${owner.typeLabel})`);
             });
         }
 
         const overallSuccess = this.results.failed === 0;
-        console.log(`\n🎯 OVERALL RESULT: ${overallSuccess ? '✅ ALL TESTS PASSED' : '❌ SOME TESTS FAILED'}`);
+        console.log(`\n[TARGET] OVERALL RESULT: ${overallSuccess ? '[OK] ALL TESTS PASSED' : '[FAIL] SOME TESTS FAILED'}`);
 
         if (overallSuccess) {
-            console.log('\n🎉 ASSOCIATION OWNER CONTACT LABELS FIX VALIDATED!');
-            console.log('✅ Rental owners correctly use association type ID 4');
-            console.log('✅ Association owners correctly use association type ID 8');
-            console.log('✅ Mixed portfolios handle both types correctly');
-            console.log('✅ Owner metadata is properly assigned');
+            console.log('\n[COMPLETE] ASSOCIATION OWNER CONTACT LABELS FIX VALIDATED!');
+            console.log('[OK] Rental owners correctly use association type ID 4');
+            console.log('[OK] Association owners correctly use association type ID 8');
+            console.log('[OK] Mixed portfolios handle both types correctly');
+            console.log('[OK] Owner metadata is properly assigned');
         }
 
         return overallSuccess;

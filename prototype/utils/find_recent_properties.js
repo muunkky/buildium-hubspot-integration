@@ -8,15 +8,15 @@ const { BuildiumClient } = require('../index.js');
 async function findRecentProperties() {
     const buildiumClient = new BuildiumClient();
     
-    console.log('🔍 Finding Recent Properties in Buildium');
+    console.log('[SEARCH] Finding Recent Properties in Buildium');
     console.log('=' .repeat(50));
     
     try {
         // Get recent units first
-        console.log('📋 Fetching recent units from Buildium...');
+        console.log('[ITEM] Fetching recent units from Buildium...');
         const units = await buildiumClient.getAllUnits(100, 0); // Get 100 units
         
-        console.log(`📊 Found ${units.length} units`);
+        console.log(`[STATS] Found ${units.length} units`);
         console.log('');
         
         // Group units by property and analyze activity
@@ -24,7 +24,7 @@ async function findRecentProperties() {
         
         for (const unit of units.slice(0, 30)) { // Check first 30 units
             try {
-                console.log(`\n🏠 Unit: ${unit.UnitNumber || unit.Id} (Property ID: ${unit.PropertyId})`);
+                console.log(`\n Unit: ${unit.UnitNumber || unit.Id} (Property ID: ${unit.PropertyId})`);
                 
                 // Get property details if we haven't seen this property yet
                 let propertyInfo = propertyMap.get(unit.PropertyId);
@@ -42,10 +42,10 @@ async function findRecentProperties() {
                             lastActivity: null
                         };
                         propertyMap.set(unit.PropertyId, propertyInfo);
-                        console.log(`   📍 Property: ${propertyInfo.name}`);
-                        console.log(`   📍 Address: ${propertyInfo.address}`);
+                        console.log(`    Property: ${propertyInfo.name}`);
+                        console.log(`    Address: ${propertyInfo.address}`);
                     } catch (error) {
-                        console.log(`   ❌ Error fetching property: ${error.message}`);
+                        console.log(`   [FAIL] Error fetching property: ${error.message}`);
                         continue;
                     }
                 }
@@ -55,7 +55,7 @@ async function findRecentProperties() {
                 // Get leases for this unit
                 try {
                     const leases = await buildiumClient.getAllLeasesForUnit(unit.Id);
-                    console.log(`   📄 Leases: ${leases.length}`);
+                    console.log(`    Leases: ${leases.length}`);
                     
                     for (const lease of leases) {
                         if (lease.Tenants && lease.Tenants.length > 0) {
@@ -63,10 +63,10 @@ async function findRecentProperties() {
                             
                             if (lease.LeaseStatus === 'Active') {
                                 propertyInfo.activeTenants += lease.Tenants.length;
-                                console.log(`   ✅ Active lease with ${lease.Tenants.length} tenants`);
+                                console.log(`   [OK] Active lease with ${lease.Tenants.length} tenants`);
                             } else {
                                 propertyInfo.inactiveTenants += lease.Tenants.length;
-                                console.log(`   ❌ ${lease.LeaseStatus} lease with ${lease.Tenants.length} tenants`);
+                                console.log(`   [FAIL] ${lease.LeaseStatus} lease with ${lease.Tenants.length} tenants`);
                             }
                             
                             // Track most recent activity
@@ -77,11 +77,11 @@ async function findRecentProperties() {
                         }
                     }
                 } catch (error) {
-                    console.log(`   ❌ Error fetching leases: ${error.message}`);
+                    console.log(`   [FAIL] Error fetching leases: ${error.message}`);
                 }
                 
             } catch (error) {
-                console.log(`   ❌ Error analyzing unit: ${error.message}`);
+                console.log(`   [FAIL] Error analyzing unit: ${error.message}`);
             }
         }
         
@@ -94,7 +94,7 @@ async function findRecentProperties() {
             }))
             .sort((a, b) => b.score - a.score);
         
-        console.log('\n🏆 Top Recent Properties for Testing:');
+        console.log('\n Top Recent Properties for Testing:');
         console.log('=' .repeat(60));
         
         recentProperties.slice(0, 5).forEach((prop, index) => {
@@ -110,21 +110,21 @@ async function findRecentProperties() {
         
         if (recentProperties.length > 0) {
             const topProperty = recentProperties[0];
-            console.log('\n💡 Recommended for testing:');
+            console.log('\n Recommended for testing:');
             console.log(`   Property ID: ${topProperty.id}`);
             console.log(`   Name: ${topProperty.name}`);
             console.log(`   Units to sync: ${Math.min(5, topProperty.units.length)}`);
             console.log(`   Command: node index.js units --limit ${Math.min(5, topProperty.units.length)}`);
             
             // Show specific unit IDs for targeted testing
-            console.log('\n🎯 Specific units in this property:');
+            console.log('\n[TARGET] Specific units in this property:');
             topProperty.units.slice(0, 5).forEach((unit, index) => {
                 console.log(`   ${index + 1}. Unit ${unit.UnitNumber || unit.Id} (ID: ${unit.Id})`);
             });
         }
         
     } catch (error) {
-        console.error('❌ Error finding recent properties:', error.message);
+        console.error('[FAIL] Error finding recent properties:', error.message);
     }
 }
 

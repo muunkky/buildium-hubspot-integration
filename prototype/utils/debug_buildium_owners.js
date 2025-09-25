@@ -18,8 +18,8 @@ class BuildiumDebugger {
      */
     async testRawAPI(endpoint, params = {}) {
         try {
-            console.log(`🔍 Testing: ${endpoint}`);
-            console.log(`📝 Parameters:`, JSON.stringify(params, null, 2));
+            console.log(`[SEARCH] Testing: ${endpoint}`);
+            console.log(` Parameters:`, JSON.stringify(params, null, 2));
             
             const response = await axios.get(`${this.baseURL}${endpoint}`, {
                 headers: {
@@ -31,10 +31,10 @@ class BuildiumDebugger {
                 timeout: 30000
             });
 
-            console.log(`✅ Response: ${response.data.length} items returned`);
+            console.log(`[OK] Response: ${response.data.length} items returned`);
             return response.data;
         } catch (error) {
-            console.error(`❌ API Error:`, error.response?.data || error.message);
+            console.error(`[FAIL] API Error:`, error.response?.data || error.message);
             throw error;
         }
     }
@@ -43,15 +43,15 @@ class BuildiumDebugger {
      * Test different parameter formats for property filtering
      */
     async testPropertyFiltering(propertyId = 140054) {
-        console.log(`🧪 Testing Property ID Filtering for Property ${propertyId}\n`);
+        console.log(`[TEST] Testing Property ID Filtering for Property ${propertyId}\n`);
         
         // Test 1: No filtering (baseline)
-        console.log('📊 Test 1: All owners (no filtering)');
+        console.log('[STATS] Test 1: All owners (no filtering)');
         const allOwners = await this.testRawAPI('/rentals/owners', { limit: 100 });
         console.log(`   Total owners: ${allOwners.length}\n`);
         
         // Test 2: Single property ID as array
-        console.log('📊 Test 2: Property filter as array');
+        console.log('[STATS] Test 2: Property filter as array');
         const owners1 = await this.testRawAPI('/rentals/owners', { 
             propertyids: [propertyId],
             limit: 100 
@@ -61,7 +61,7 @@ class BuildiumDebugger {
         console.log('');
         
         // Test 3: Single property ID as string
-        console.log('📊 Test 3: Property filter as string');
+        console.log('[STATS] Test 3: Property filter as string');
         const owners2 = await this.testRawAPI('/rentals/owners', { 
             propertyids: propertyId.toString(),
             limit: 100 
@@ -71,7 +71,7 @@ class BuildiumDebugger {
         console.log('');
         
         // Test 4: Multiple property IDs
-        console.log('📊 Test 4: Multiple property IDs');
+        console.log('[STATS] Test 4: Multiple property IDs');
         const owners3 = await this.testRawAPI('/rentals/owners', { 
             propertyids: [propertyId, propertyId + 1],
             limit: 100 
@@ -81,7 +81,7 @@ class BuildiumDebugger {
         console.log('');
         
         // Test 5: Invalid property ID
-        console.log('📊 Test 5: Invalid property ID (999999)');
+        console.log('[STATS] Test 5: Invalid property ID (999999)');
         const owners4 = await this.testRawAPI('/rentals/owners', { 
             propertyids: [999999],
             limit: 100 
@@ -102,14 +102,14 @@ class BuildiumDebugger {
      */
     validateOwners(owners, expectedPropertyIds) {
         if (owners.length === 0) {
-            console.log('   ⚠️  No owners returned');
+            console.log('   [WARN]️  No owners returned');
             return;
         }
 
         let validOwners = 0;
         let invalidOwners = 0;
         
-        console.log('   👥 Owner validation:');
+        console.log('    Owner validation:');
         owners.slice(0, 5).forEach(owner => { // Show first 5 for brevity
             const ownerProperties = owner.PropertyIds || [];
             const hasExpectedProperty = expectedPropertyIds.some(propId => 
@@ -118,10 +118,10 @@ class BuildiumDebugger {
             
             if (hasExpectedProperty) {
                 validOwners++;
-                console.log(`   ✅ Owner ${owner.Id} (${owner.FirstName} ${owner.LastName}): Properties [${ownerProperties.join(', ')}]`);
+                console.log(`   [OK] Owner ${owner.Id} (${owner.FirstName} ${owner.LastName}): Properties [${ownerProperties.join(', ')}]`);
             } else {
                 invalidOwners++;
-                console.log(`   ❌ Owner ${owner.Id} (${owner.FirstName} ${owner.LastName}): Properties [${ownerProperties.join(', ')}] - DOES NOT OWN TARGET PROPERTY`);
+                console.log(`   [FAIL] Owner ${owner.Id} (${owner.FirstName} ${owner.LastName}): Properties [${ownerProperties.join(', ')}] - DOES NOT OWN TARGET PROPERTY`);
             }
         });
         
@@ -138,10 +138,10 @@ class BuildiumDebugger {
             });
         }
         
-        console.log(`   📊 Summary: ${validOwners} valid, ${invalidOwners} invalid owners`);
+        console.log(`   [STATS] Summary: ${validOwners} valid, ${invalidOwners} invalid owners`);
         
         if (invalidOwners > 0) {
-            console.log(`   🚨 BUG DETECTED: ${invalidOwners} owners returned that don't own the target properties!`);
+            console.log(`    BUG DETECTED: ${invalidOwners} owners returned that don't own the target properties!`);
         }
     }
 
@@ -149,10 +149,10 @@ class BuildiumDebugger {
      * Test status filtering
      */
     async testStatusFiltering() {
-        console.log(`🧪 Testing Status Filtering\n`);
+        console.log(`[TEST] Testing Status Filtering\n`);
         
         // Test active owners
-        console.log('📊 Test 1: Active owners only');
+        console.log('[STATS] Test 1: Active owners only');
         const activeOwners = await this.testRawAPI('/rentals/owners', { 
             status: 'Active',
             limit: 50 
@@ -160,7 +160,7 @@ class BuildiumDebugger {
         console.log(`   Active owners: ${activeOwners.length}`);
         
         // Test inactive owners
-        console.log('📊 Test 2: Inactive owners only');
+        console.log('[STATS] Test 2: Inactive owners only');
         const inactiveOwners = await this.testRawAPI('/rentals/owners', { 
             status: 'Inactive',
             limit: 50 
@@ -168,13 +168,13 @@ class BuildiumDebugger {
         console.log(`   Inactive owners: ${inactiveOwners.length}`);
         
         // Validate status values
-        console.log('   🔍 Status validation:');
+        console.log('   [SEARCH] Status validation:');
         activeOwners.slice(0, 3).forEach(owner => {
-            console.log(`   ✅ Active owner ${owner.Id}: IsActive = ${owner.IsActive}`);
+            console.log(`   [OK] Active owner ${owner.Id}: IsActive = ${owner.IsActive}`);
         });
         
         inactiveOwners.slice(0, 3).forEach(owner => {
-            console.log(`   ❌ Inactive owner ${owner.Id}: IsActive = ${owner.IsActive}`);
+            console.log(`   [FAIL] Inactive owner ${owner.Id}: IsActive = ${owner.IsActive}`);
         });
     }
 
@@ -182,19 +182,19 @@ class BuildiumDebugger {
      * Compare with our current implementation
      */
     async testCurrentImplementation(propertyId = 140054) {
-        console.log(`🧪 Testing Current Implementation vs Raw API\n`);
+        console.log(`[TEST] Testing Current Implementation vs Raw API\n`);
         
         // Import our current implementation
         const { BuildiumClient } = require('./index.js');
         const buildium = new BuildiumClient();
         
         // Test our wrapper
-        console.log('📊 Our implementation:');
+        console.log('[STATS] Our implementation:');
         const ourResult = await buildium.getRentalOwners({ propertyIds: [propertyId] });
         console.log(`   Our result: ${ourResult.length} owners`);
         
         // Test raw API
-        console.log('📊 Raw API:');
+        console.log('[STATS] Raw API:');
         const rawResult = await this.testRawAPI('/rentals/owners', { 
             propertyids: [propertyId],
             limit: 100 
@@ -203,13 +203,13 @@ class BuildiumDebugger {
         
         // Compare
         if (ourResult.length === rawResult.length) {
-            console.log('✅ Our implementation matches raw API');
+            console.log('[OK] Our implementation matches raw API');
         } else {
-            console.log('❌ Mismatch between our implementation and raw API');
+            console.log('[FAIL] Mismatch between our implementation and raw API');
         }
         
         // Validate both results
-        console.log('\n🔍 Validating our implementation:');
+        console.log('\n[SEARCH] Validating our implementation:');
         this.validateOwners(ourResult, [propertyId]);
     }
 }
@@ -219,7 +219,7 @@ async function main() {
     const apiDebugger = new BuildiumDebugger();
     
     try {
-        console.log('🚀 Buildium Owners API Debug Session\n');
+        console.log(' Buildium Owners API Debug Session\n');
         console.log('=' .repeat(60));
         
         // Test property filtering
@@ -235,10 +235,10 @@ async function main() {
         // Test our current implementation
         await apiDebugger.testCurrentImplementation(140054);
         
-        console.log('\n🎉 Debug session complete!');
+        console.log('\n[COMPLETE] Debug session complete!');
         
     } catch (error) {
-        console.error('💥 Debug session failed:', error.message);
+        console.error(' Debug session failed:', error.message);
         process.exit(1);
     }
 }

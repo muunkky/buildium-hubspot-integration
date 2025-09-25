@@ -17,7 +17,7 @@
 
 const assert = require('assert');
 
-console.log('🚀 LEASE UPDATE BUG TEST SUITE');
+console.log(' LEASE UPDATE BUG TEST SUITE');
 console.log('='.repeat(60));
 
 // Test data setup
@@ -71,13 +71,13 @@ let testsTotal = 0;
 function runTest(testName, testFunction) {
     testsTotal++;
     try {
-        console.log(`\n🧪 ${testName}`);
+        console.log(`\n[TEST] ${testName}`);
         console.log('-'.repeat(60));
         testFunction();
-        console.log(`✅ PASSED: ${testName}`);
+        console.log(`[OK] PASSED: ${testName}`);
         testsPassed++;
     } catch (error) {
-        console.log(`❌ FAILED: ${testName}`);
+        console.log(`[FAIL] FAILED: ${testName}`);
         console.log(`   Error: ${error.message}`);
     }
 }
@@ -110,9 +110,9 @@ runTest('Bug Reproduction - Lease Update Skip', function() {
     assert.strictEqual(expectedBehavior, 'UPDATE', 'Expected behavior should be UPDATE');
     assert.notStrictEqual(currentBehavior, expectedBehavior, 'Bug confirmed: current behavior differs from expected');
 
-    console.log(`   🐛 Current behavior: ${currentBehavior} (WRONG)`);
-    console.log(`   ✅ Expected behavior: ${expectedBehavior} (CORRECT)`);
-    console.log(`   🎯 Bug confirmed: Lease updates are skipped when listing exists`);
+    console.log(`    Current behavior: ${currentBehavior} (WRONG)`);
+    console.log(`   [OK] Expected behavior: ${expectedBehavior} (CORRECT)`);
+    console.log(`   [TARGET] Bug confirmed: Lease updates are skipped when listing exists`);
 });
 
 // Test 2: Data inconsistency caused by the bug
@@ -129,9 +129,9 @@ runTest('Data Inconsistency Validation', function() {
     assert.strictEqual(buildiumRent, 1800, 'Buildium has updated rent');
     assert.strictEqual(hubspotRent, 1500, 'HubSpot still has old rent');
 
-    console.log(`   📊 Buildium rent: $${buildiumRent} (current)`);
-    console.log(`   📊 HubSpot rent: $${hubspotRent} (outdated)`);
-    console.log(`   🚨 Data inconsistency confirmed`);
+    console.log(`   [STATS] Buildium rent: $${buildiumRent} (current)`);
+    console.log(`   [STATS] HubSpot rent: $${hubspotRent} (outdated)`);
+    console.log(`    Data inconsistency confirmed`);
 });
 
 // Test 3: Force flag workaround
@@ -147,10 +147,10 @@ runTest('Force Flag Workaround', function() {
     assert.strictEqual(behaviorWithForce, 'UPDATE', 
         'Force flag should cause update even when listing exists');
 
-    console.log(`   🔧 Force flag behavior: ${behaviorWithForce}`);
-    console.log(`   ⚠️  Force flag updates ALL data (inefficient)`);
-    console.log(`   ⚠️  Requires manual intervention (--force)`);
-    console.log(`   ⚠️  Not ideal for automated incremental sync`);
+    console.log(`   [TOOL] Force flag behavior: ${behaviorWithForce}`);
+    console.log(`   [WARN]️  Force flag updates ALL data (inefficient)`);
+    console.log(`   [WARN]️  Requires manual intervention (--force)`);
+    console.log(`   [WARN]️  Not ideal for automated incremental sync`);
 });
 
 // Test 4: Expected fix validation
@@ -194,10 +194,10 @@ runTest('Expected Fix Logic', function() {
     assert.strictEqual(fixedBehavior, 'UPDATE_LEASE_FIELDS', 
         'Fixed logic should update lease fields when lease was updated');
 
-    console.log(`   🔧 Fixed behavior: ${fixedBehavior}`);
-    console.log(`   ✅ Only updates lease-related fields (efficient)`);
-    console.log(`   ✅ Works automatically without force flag`);
-    console.log(`   ✅ Perfect for incremental sync`);
+    console.log(`   [TOOL] Fixed behavior: ${fixedBehavior}`);
+    console.log(`   [OK] Only updates lease-related fields (efficient)`);
+    console.log(`   [OK] Works automatically without force flag`);
+    console.log(`   [OK] Perfect for incremental sync`);
 });
 
 // Test 5: Comprehensive scenario testing
@@ -248,7 +248,7 @@ runTest('All Scenarios with Fix', function() {
     scenarios.forEach(scenario => {
         const result = scenario.test();
         assert.strictEqual(result, scenario.expected, `${scenario.name} should return ${scenario.expected}`);
-        console.log(`   ✅ ${scenario.name}: ${result}`);
+        console.log(`   [OK] ${scenario.name}: ${result}`);
     });
 });
 
@@ -275,43 +275,43 @@ runTest('Implementation Guidance', function() {
     assert.strictEqual(implementationSteps.length, 6, 'Should have 6 implementation steps');
     assert.ok(leaseRelatedFields.length > 0, 'Should identify lease-related fields to update');
 
-    console.log(`   📋 Implementation has ${implementationSteps.length} steps`);
-    console.log(`   📊 ${leaseRelatedFields.length} lease-related fields need updating`);
-    console.log(`   🎯 Implementation roadmap validated`);
+    console.log(`   [ITEM] Implementation has ${implementationSteps.length} steps`);
+    console.log(`   [STATS] ${leaseRelatedFields.length} lease-related fields need updating`);
+    console.log(`   [TARGET] Implementation roadmap validated`);
 });
 
 // Summary
 console.log('\n' + '='.repeat(60));
-console.log('📊 TEST SUMMARY');
+console.log('[STATS] TEST SUMMARY');
 console.log('='.repeat(60));
-console.log(`✅ Passed: ${testsPassed}`);
-console.log(`❌ Failed: ${testsTotal - testsPassed}`);
-console.log(`📈 Success Rate: ${Math.round(testsPassed / testsTotal * 100)}%`);
+console.log(`[OK] Passed: ${testsPassed}`);
+console.log(`[FAIL] Failed: ${testsTotal - testsPassed}`);
+console.log(` Success Rate: ${Math.round(testsPassed / testsTotal * 100)}%`);
 
 if (testsPassed === testsTotal) {
-    console.log('\n🎉 ALL TESTS PASSED!');
-    console.log('\n🎯 KEY FINDINGS:');
-    console.log('1. ✅ Lease timestamp filtering works correctly');
-    console.log('2. 🐛 createListingsBatch skips update when listing exists');
-    console.log('3. 🚨 Result: Changed leases don\'t update existing listings');
-    console.log('4. 🔧 Workaround: Use --force flag (but updates ALL data)');
-    console.log('5. ✅ Solution: Update lease fields when lease timestamp filter passes');
+    console.log('\n[COMPLETE] ALL TESTS PASSED!');
+    console.log('\n[TARGET] KEY FINDINGS:');
+    console.log('1. [OK] Lease timestamp filtering works correctly');
+    console.log('2.  createListingsBatch skips update when listing exists');
+    console.log('3.  Result: Changed leases don\'t update existing listings');
+    console.log('4. [TOOL] Workaround: Use --force flag (but updates ALL data)');
+    console.log('5. [OK] Solution: Update lease fields when lease timestamp filter passes');
 
-    console.log('\n🔧 RECOMMENDED FIX:');
+    console.log('\n[TOOL] RECOMMENDED FIX:');
     console.log('Modify createListingsBatch() to check if lease passed timestamp filter');
     console.log('If yes, update lease-related fields even if listing exists');
     console.log('If no, use current skip logic');
 
-    console.log('\n💡 IMPLEMENTATION APPROACH:');
+    console.log('\n IMPLEMENTATION APPROACH:');
     console.log('1. Pass lease timestamp info to createListingsBatch()');
     console.log('2. When existing listing found, check if lease was updated');
     console.log('3. If lease updated, update lease fields (rent, tenant, dates)');
     console.log('4. If not updated, use current skip logic');
 } else {
-    console.log('\n❌ Some tests failed. Please review the errors above.');
+    console.log('\n[FAIL] Some tests failed. Please review the errors above.');
 }
 
-console.log('\n🚀 Ready for bug fix implementation!');
+console.log('\n Ready for bug fix implementation!');
 
 // Export test data for use in other test files
 module.exports = {

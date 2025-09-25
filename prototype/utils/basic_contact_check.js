@@ -8,7 +8,7 @@ const axios = require('axios');
 
 async function checkContactsBasic() {
     const apiKey = process.env.HUBSPOT_ACCESS_TOKEN;
-    console.log('🔍 Checking if ANY contacts exist in HubSpot...\n');
+    console.log('[SEARCH] Checking if ANY contacts exist in HubSpot...\n');
 
     try {
         // Simple search for any contacts
@@ -29,10 +29,10 @@ async function checkContactsBasic() {
         );
 
         const contacts = response.data.results;
-        console.log(`📊 Found ${contacts.length} contacts total\n`);
+        console.log(`[STATS] Found ${contacts.length} contacts total\n`);
 
         if (contacts.length === 0) {
-            console.log('❌ NO CONTACTS FOUND AT ALL!');
+            console.log('[FAIL] NO CONTACTS FOUND AT ALL!');
             console.log('This means either:');
             console.log('1. Your HubSpot account has no contacts');
             console.log('2. API permissions issue');
@@ -40,7 +40,7 @@ async function checkContactsBasic() {
             return;
         }
 
-        console.log('📋 Sample contacts:');
+        console.log('[ITEM] Sample contacts:');
         contacts.forEach((contact, index) => {
             const props = contact.properties;
             console.log(`${index + 1}. ${props.firstname || ''} ${props.lastname || ''} (${props.email || 'No email'})`);
@@ -54,13 +54,13 @@ async function checkContactsBasic() {
         const nonMarketableCount = contacts.filter(c => c.properties.hs_marketable_status === 'NON_MARKETABLE').length;
         const unknownCount = contacts.filter(c => !c.properties.hs_marketable_status).length;
 
-        console.log(`\n📊 Marketing Status Breakdown (in sample of ${contacts.length}):`);
+        console.log(`\n[STATS] Marketing Status Breakdown (in sample of ${contacts.length}):`);
         console.log(`   MARKETABLE: ${marketableCount}`);
         console.log(`   NON_MARKETABLE: ${nonMarketableCount}`);
         console.log(`   NOT SET/UNKNOWN: ${unknownCount}`);
 
     } catch (error) {
-        console.error('❌ Error checking contacts:', error.response?.data?.message || error.message);
+        console.error('[FAIL] Error checking contacts:', error.response?.data?.message || error.message);
         if (error.response?.data) {
             console.error('Full error:', JSON.stringify(error.response.data, null, 2));
         }

@@ -9,11 +9,11 @@ const axios = require('axios');
 async function findAllMarketableContacts() {
     const apiKey = process.env.HUBSPOT_ACCESS_TOKEN;
     if (!apiKey) {
-        console.error('❌ HUBSPOT_ACCESS_TOKEN environment variable required');
+        console.error('[FAIL] HUBSPOT_ACCESS_TOKEN environment variable required');
         return;
     }
 
-    console.log('🔍 Finding ALL marketable contacts in HubSpot...\n');
+    console.log('[SEARCH] Finding ALL marketable contacts in HubSpot...\n');
 
     try {
         const searchRequest = {
@@ -47,10 +47,10 @@ async function findAllMarketableContacts() {
         );
 
         const contacts = response.data.results;
-        console.log(`📊 Found ${contacts.length} MARKETABLE contacts total\n`);
+        console.log(`[STATS] Found ${contacts.length} MARKETABLE contacts total\n`);
 
         if (contacts.length === 0) {
-            console.log('❌ No marketable contacts found at all!');
+            console.log('[FAIL] No marketable contacts found at all!');
             console.log('This suggests either:');
             console.log('1. All contacts are already NON_MARKETABLE');
             console.log('2. There are no contacts in HubSpot');
@@ -58,7 +58,7 @@ async function findAllMarketableContacts() {
             return;
         }
 
-        console.log('📋 Recent marketable contacts:');
+        console.log('[ITEM] Recent marketable contacts:');
         contacts.slice(0, 10).forEach((contact, index) => {
             const props = contact.properties;
             console.log(`${index + 1}. ${props.firstname || ''} ${props.lastname || ''} (${props.email || 'No email'})`);
@@ -73,10 +73,10 @@ async function findAllMarketableContacts() {
             console.log(`... and ${contacts.length - 10} more marketable contacts`);
         }
 
-        console.log(`\n💰 BILLING IMPACT: ${contacts.length} contacts are currently MARKETABLE (incurring charges)`);
+        console.log(`\n BILLING IMPACT: ${contacts.length} contacts are currently MARKETABLE (incurring charges)`);
 
     } catch (error) {
-        console.error('❌ Error searching for contacts:', error.response?.data?.message || error.message);
+        console.error('[FAIL] Error searching for contacts:', error.response?.data?.message || error.message);
         if (error.response?.data) {
             console.error('Error details:', JSON.stringify(error.response.data, null, 2));
         }
@@ -85,7 +85,7 @@ async function findAllMarketableContacts() {
 
 async function findAllNonMarketableContacts() {
     const apiKey = process.env.HUBSPOT_ACCESS_TOKEN;
-    console.log('🔍 Finding ALL non-marketable contacts in HubSpot...\n');
+    console.log('[SEARCH] Finding ALL non-marketable contacts in HubSpot...\n');
 
     try {
         const searchRequest = {
@@ -112,25 +112,25 @@ async function findAllNonMarketableContacts() {
         );
 
         const contacts = response.data.results;
-        console.log(`📊 Found ${contacts.length} NON_MARKETABLE contacts\n`);
+        console.log(`[STATS] Found ${contacts.length} NON_MARKETABLE contacts\n`);
 
         return contacts.length;
 
     } catch (error) {
-        console.error('❌ Error searching for non-marketable contacts:', error.message);
+        console.error('[FAIL] Error searching for non-marketable contacts:', error.message);
         return 0;
     }
 }
 
 async function main() {
-    console.log('📊 HUBSPOT CONTACT STATUS OVERVIEW');
+    console.log('[STATS] HUBSPOT CONTACT STATUS OVERVIEW');
     console.log('==================================\n');
     
     await findAllMarketableContacts();
     console.log('\n' + '='.repeat(50) + '\n');
     const nonMarketableCount = await findAllNonMarketableContacts();
     
-    console.log('\n🎯 SUMMARY:');
+    console.log('\n[TARGET] SUMMARY:');
     console.log('If you want to switch ALL contacts to NON_MARKETABLE,');
     console.log('this will show you what you\'re working with.');
 }

@@ -6,13 +6,13 @@ const { BuildiumClient, HubSpotClient, DataTransformer } = require('../index.js'
  */
 async function testContactCreation() {
     try {
-        console.log('🧪 Testing contact creation with fixes...');
+        console.log('[TEST] Testing contact creation with fixes...');
         
         // Debug environment variables
         console.log('Environment check:');
-        console.log('- BUILDIUM_BASE_URL:', process.env.BUILDIUM_BASE_URL ? '✅ Set' : '❌ Missing');
-        console.log('- BUILDIUM_CLIENT_ID:', process.env.BUILDIUM_CLIENT_ID ? '✅ Set' : '❌ Missing');
-        console.log('- HUBSPOT_ACCESS_TOKEN:', process.env.HUBSPOT_ACCESS_TOKEN ? '✅ Set' : '❌ Missing');
+        console.log('- BUILDIUM_BASE_URL:', process.env.BUILDIUM_BASE_URL ? '[OK] Set' : '[FAIL] Missing');
+        console.log('- BUILDIUM_CLIENT_ID:', process.env.BUILDIUM_CLIENT_ID ? '[OK] Set' : '[FAIL] Missing');
+        console.log('- HUBSPOT_ACCESS_TOKEN:', process.env.HUBSPOT_ACCESS_TOKEN ? '[OK] Set' : '[FAIL] Missing');
         
         const buildiumClient = new BuildiumClient();
         const hubspotClient = new HubSpotClient();
@@ -21,25 +21,25 @@ async function testContactCreation() {
         // Test with the tenant that was failing: 318556
         const tenantId = 318556;
         
-        console.log(`\n🔍 Testing tenant ID: ${tenantId}`);
+        console.log(`\n[SEARCH] Testing tenant ID: ${tenantId}`);
         
         // Get the tenant data
         const tenant = await buildiumClient.getTenant(tenantId);
-        console.log(`📋 Full tenant data: ${tenant.FirstName} ${tenant.LastName} (${tenant.Email})`);
+        console.log(`[ITEM] Full tenant data: ${tenant.FirstName} ${tenant.LastName} (${tenant.Email})`);
         
         // Transform the data
         const contactData = transformer.transformTenantToContact(tenant);
-        console.log(`🔄 Transformed contact data:`, JSON.stringify(contactData, null, 2));
+        console.log(`[RETRY] Transformed contact data:`, JSON.stringify(contactData, null, 2));
         
         // Create custom properties first (skip for now - using standard fields)
         // await hubspotClient.createContactCustomProperties();
         
         // Try to create the contact
         const result = await hubspotClient.createContact(contactData);
-        console.log(`✅ Successfully created contact:`, result);
+        console.log(`[OK] Successfully created contact:`, result);
         
     } catch (error) {
-        console.error('❌ Test failed:', error.message);
+        console.error('[FAIL] Test failed:', error.message);
         if (error.response?.data) {
             console.error('Response data:', JSON.stringify(error.response.data, null, 2));
         }

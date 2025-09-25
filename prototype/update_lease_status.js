@@ -5,7 +5,7 @@ async function updateLeaseStatusProperty() {
     try {
         const hubspotClient = new HubSpotClient();
         
-        console.log('🔧 Updating lease_status property to add "No Current Lease" option...');
+        console.log('[TOOL] Updating lease_status property to add "No Current Lease" option...');
         
         // Update the property to include the new option
         const response = await hubspotClient.makeRequestWithRetry(() =>
@@ -23,11 +23,11 @@ async function updateLeaseStatusProperty() {
             3, 200, false
         );
         
-        console.log('✅ Successfully updated lease_status property!');
+        console.log('[OK] Successfully updated lease_status property!');
         console.log('New options:', response.data.options.map(o => o.value).join(', '));
         
     } catch (error) {
-        console.error('❌ Error updating property:', error.response?.data || error.message);
+        console.error('[FAIL] Error updating property:', error.response?.data || error.message);
     }
 }
 

@@ -45,7 +45,7 @@ class NextLeasePropertyCreator {
      * Create the next lease properties
      */
     async createNextLeaseProperties() {
-        console.log('🔮 CREATING NEXT LEASE PROPERTIES');
+        console.log(' CREATING NEXT LEASE PROPERTIES');
         console.log('='.repeat(35));
         
         const properties = this.getNextLeaseProperties();
@@ -53,7 +53,7 @@ class NextLeasePropertyCreator {
 
         for (const property of properties) {
             try {
-                console.log(`🔧 Creating property: ${property.name}`);
+                console.log(`[TOOL] Creating property: ${property.name}`);
                 
                 // Use the same pattern as existing property creation
                 try {
@@ -64,7 +64,7 @@ class NextLeasePropertyCreator {
                         })
                     );
                     
-                    console.log(`✅ Property '${property.name}' already exists`);
+                    console.log(`[OK] Property '${property.name}' already exists`);
                     results.existing++;
                 } catch (error) {
                     if (error.response?.status === 404) {
@@ -84,7 +84,7 @@ class NextLeasePropertyCreator {
                             })
                         );
                         
-                        console.log(`✅ Created: ${property.name}`);
+                        console.log(`[OK] Created: ${property.name}`);
                         results.created++;
                     } else {
                         throw error;
@@ -94,18 +94,18 @@ class NextLeasePropertyCreator {
                 await new Promise(resolve => setTimeout(resolve, 200));
             } catch (error) {
                 results.failed++;
-                console.error(`❌ Failed to create ${property.name}:`, error.response?.data || error.message);
+                console.error(`[FAIL] Failed to create ${property.name}:`, error.response?.data || error.message);
             }
         }
 
-        console.log('\n📊 NEXT LEASE PROPERTIES SUMMARY');
+        console.log('\n[STATS] NEXT LEASE PROPERTIES SUMMARY');
         console.log('='.repeat(30));
-        console.log(`✅ Created: ${results.created}`);
-        console.log(`⚠️  Already existed: ${results.existing}`);
-        console.log(`❌ Failed: ${results.failed}`);
+        console.log(`[OK] Created: ${results.created}`);
+        console.log(`[WARN]️  Already existed: ${results.existing}`);
+        console.log(`[FAIL] Failed: ${results.failed}`);
         
         if (results.failed === 0) {
-            console.log('\n🎉 Next lease properties ready!');
+            console.log('\n[COMPLETE] Next lease properties ready!');
         }
 
         return results;
@@ -118,7 +118,7 @@ async function main() {
         const creator = new NextLeasePropertyCreator();
         await creator.createNextLeaseProperties();
     } catch (error) {
-        console.error('❌ Failed to create next lease properties:', error.message);
+        console.error('[FAIL] Failed to create next lease properties:', error.message);
         process.exit(1);
     }
 }

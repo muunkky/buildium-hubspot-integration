@@ -21,17 +21,17 @@ async function discoverAssociationTypes() {
                 }
             );
             
-            console.log(`✅ Found ${schemaResponse.data.results.length} association types:`);
+            console.log(`[OK] Found ${schemaResponse.data.results.length} association types:`);
             schemaResponse.data.results.forEach((assocType, index) => {
                 console.log(`\n  ${index + 1}. Label: "${assocType.label}"`);
                 console.log(`     Type ID: ${assocType.typeId}`);
                 console.log(`     Category: ${assocType.category}`);
                 if (assocType.label && assocType.label.toLowerCase().includes('tenant')) {
-                    console.log(`     ⭐ THIS LOOKS LIKE OUR ACTIVE TENANT TYPE!`);
+                    console.log(`      THIS LOOKS LIKE OUR ACTIVE TENANT TYPE!`);
                 }
             });
         } catch (error) {
-            console.log('❌ Error getting association schema:', error.response?.data?.message || error.message);
+            console.log('[FAIL] Error getting association schema:', error.response?.data?.message || error.message);
         }
         
         // Method 2: Try to get association types in reverse direction too
@@ -47,17 +47,17 @@ async function discoverAssociationTypes() {
                 }
             );
             
-            console.log(`✅ Found ${reverseSchemaResponse.data.results.length} reverse association types:`);
+            console.log(`[OK] Found ${reverseSchemaResponse.data.results.length} reverse association types:`);
             reverseSchemaResponse.data.results.forEach((assocType, index) => {
                 console.log(`\n  ${index + 1}. Label: "${assocType.label}"`);
                 console.log(`     Type ID: ${assocType.typeId}`);
                 console.log(`     Category: ${assocType.category}`);
                 if (assocType.label && assocType.label.toLowerCase().includes('tenant')) {
-                    console.log(`     ⭐ THIS LOOKS LIKE OUR ACTIVE TENANT TYPE!`);
+                    console.log(`      THIS LOOKS LIKE OUR ACTIVE TENANT TYPE!`);
                 }
             });
         } catch (error) {
-            console.log('❌ Error getting reverse association schema:', error.response?.data?.message || error.message);
+            console.log('[FAIL] Error getting reverse association schema:', error.response?.data?.message || error.message);
         }
         
         // Method 3: Check what association types already exist in the system
@@ -88,7 +88,7 @@ async function discoverAssociationTypes() {
                     );
                     
                     if (assocResponse.data.results && assocResponse.data.results.length > 0) {
-                        console.log(`  ✅ Found ${assocResponse.data.results.length} associations`);
+                        console.log(`  [OK] Found ${assocResponse.data.results.length} associations`);
                         assocResponse.data.results.forEach((assoc, idx) => {
                             console.log(`    ${idx + 1}. Contact: ${assoc.toObjectId}`);
                             assoc.associationTypes.forEach(type => {
@@ -104,7 +104,7 @@ async function discoverAssociationTypes() {
                 }
             }
         } catch (error) {
-            console.log('❌ Error checking existing associations:', error.response?.data?.message || error.message);
+            console.log('[FAIL] Error checking existing associations:', error.response?.data?.message || error.message);
         }
         
     } catch (error) {

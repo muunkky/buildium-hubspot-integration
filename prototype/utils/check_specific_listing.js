@@ -39,7 +39,7 @@ async function checkSpecificListingAssociations() {
         );
         
         if (assocResponse.data.results && assocResponse.data.results.length > 0) {
-            console.log(`✅ Found ${assocResponse.data.results.length} associated contacts:`);
+            console.log(`[OK] Found ${assocResponse.data.results.length} associated contacts:`);
             
             for (const assoc of assocResponse.data.results) {
                 console.log(`\n  Contact ID: ${assoc.toObjectId}`);
@@ -65,12 +65,12 @@ async function checkSpecificListingAssociations() {
                 
                 console.log(`  Association Types:`);
                 assoc.associationTypes.forEach((type, index) => {
-                    const status = (type.typeId === 1 && type.category === 'USER_DEFINED') ? '✅ ACTIVE TENANT' : '';
+                    const status = (type.typeId === 1 && type.category === 'USER_DEFINED') ? '[OK] ACTIVE TENANT' : '';
                     console.log(`    ${index + 1}. Category: ${type.category}, ID: ${type.typeId}, Label: ${type.label || 'N/A'} ${status}`);
                 });
             }
         } else {
-            console.log('❌ No associated contacts found');
+            console.log('[FAIL] No associated contacts found');
         }
         
     } catch (error) {

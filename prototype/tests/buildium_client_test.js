@@ -5,7 +5,7 @@
 
 const assert = require('assert');
 
-console.log('🚀 BUILDIUM CLIENT TEST SUITE');
+console.log(' BUILDIUM CLIENT TEST SUITE');
 console.log('='.repeat(60));
 
 // Mock HTTP client for testing
@@ -149,7 +149,7 @@ let mockHttp, client;
 function runTest(testName, testFunction) {
     testsTotal++;
     try {
-        console.log(`\n🧪 ${testName}`);
+        console.log(`\n[TEST] ${testName}`);
         console.log('-'.repeat(60));
         
         // Reset mock client before each test
@@ -157,10 +157,10 @@ function runTest(testName, testFunction) {
         client = new TestableBuildiumClient(mockHttp);
         
         testFunction();
-        console.log(`✅ PASSED: ${testName}`);
+        console.log(`[OK] PASSED: ${testName}`);
         testsPassed++;
     } catch (error) {
-        console.log(`❌ FAILED: ${testName}`);
+        console.log(`[FAIL] FAILED: ${testName}`);
         console.log(`   Error: ${error.message}`);
     }
 }
@@ -182,8 +182,8 @@ runTest('Parameter Serialization', function() {
     assert.ok(result.includes('status=Active'), 'Should include status parameter');
     assert.ok(result.includes('limit=100'), 'Should include limit parameter');
     
-    console.log(`   📋 Serialized: ${result}`);
-    console.log(`   ✅ Array parameters properly exploded`);
+    console.log(`   [ITEM] Serialized: ${result}`);
+    console.log(`   [OK] Array parameters properly exploded`);
 });
 
 // Test 2: Basic API call
@@ -210,8 +210,8 @@ runTest('Basic API Call', async function() {
     assert.ok(request.config.headers['x-buildium-client-id'], 'Should include client ID header');
     assert.ok(request.config.headers['x-buildium-client-secret'], 'Should include client secret header');
     
-    console.log(`   🎯 Retrieved tenant: ${result.data.FirstName} ${result.data.LastName}`);
-    console.log(`   📋 Request headers properly set`);
+    console.log(`   [TARGET] Retrieved tenant: ${result.data.FirstName} ${result.data.LastName}`);
+    console.log(`   [ITEM] Request headers properly set`);
 });
 
 // Test 3: Rate limiting (429 error)
@@ -242,9 +242,9 @@ runTest('Rate Limiting Retry Logic', async function() {
     assert.ok(endTime - startTime >= 100, 'Should include retry delays'); // At least 100ms for first retry
     assert.strictEqual(result.data.success, true, 'Should eventually succeed');
     
-    console.log(`   🔄 Retried ${callCount - 1} times`);
-    console.log(`   ⏱️ Total time: ${endTime - startTime}ms`);
-    console.log(`   ✅ Rate limiting handled correctly`);
+    console.log(`   [RETRY] Retried ${callCount - 1} times`);
+    console.log(`   [DURATION]️ Total time: ${endTime - startTime}ms`);
+    console.log(`   [OK] Rate limiting handled correctly`);
 });
 
 // Test 4: Server error retry
@@ -271,8 +271,8 @@ runTest('Server Error Retry Logic', async function() {
     assert.strictEqual(callCount, 2, 'Should retry server error once');
     assert.strictEqual(result.data.recovered, true, 'Should recover from server error');
     
-    console.log(`   🔄 Recovered from server error`);
-    console.log(`   ✅ Server error retry working`);
+    console.log(`   [RETRY] Recovered from server error`);
+    console.log(`   [OK] Server error retry working`);
 });
 
 // Test 5: Authentication headers
@@ -290,9 +290,9 @@ runTest('Authentication Headers', async function() {
     assert.strictEqual(headers['x-buildium-client-secret'], 'test_client_secret', 'Should include client secret');
     assert.strictEqual(headers['Content-Type'], 'application/json', 'Should set content type');
     
-    console.log(`   🔐 Client ID: ${headers['x-buildium-client-id']}`);
-    console.log(`   🔐 Content-Type: ${headers['Content-Type']}`);
-    console.log(`   ✅ Authentication headers correct`);
+    console.log(`    Client ID: ${headers['x-buildium-client-id']}`);
+    console.log(`    Content-Type: ${headers['Content-Type']}`);
+    console.log(`   [OK] Authentication headers correct`);
 });
 
 // Test 6: Lease-centric endpoint
@@ -318,9 +318,9 @@ runTest('Lease-Centric Endpoint', async function() {
     assert.ok(request.url.includes('lastupdatedfrom=2024-09-01T00%3A00%3A00Z'), 'Should include timestamp filter');
     assert.ok(request.url.includes('propertyids=140054'), 'Should include property filter');
     
-    console.log(`   📊 Retrieved ${result.data.length} updated leases`);
-    console.log(`   🎯 URL filters properly applied`);
-    console.log(`   ✅ Lease-centric sync endpoint working`);
+    console.log(`   [STATS] Retrieved ${result.data.length} updated leases`);
+    console.log(`   [TARGET] URL filters properly applied`);
+    console.log(`   [OK] Lease-centric sync endpoint working`);
 });
 
 // Test 7: Max retries exceeded
@@ -337,9 +337,9 @@ runTest('Max Retries Exceeded', async function() {
         assert.strictEqual(error.response.status, 429, 'Should throw original error');
         assert.ok(mockHttp.getRequestCount() > 1, 'Should attempt multiple requests');
         
-        console.log(`   🔄 Attempted ${mockHttp.getRequestCount()} requests`);
-        console.log(`   ❌ Correctly failed after max retries`);
-        console.log(`   ✅ Max retry logic working`);
+        console.log(`   [RETRY] Attempted ${mockHttp.getRequestCount()} requests`);
+        console.log(`   [FAIL] Correctly failed after max retries`);
+        console.log(`   [OK] Max retry logic working`);
     }
 });
 
@@ -357,33 +357,33 @@ runTest('Non-Retryable Errors', async function() {
         assert.strictEqual(error.response.status, 401, 'Should throw 401 error');
         assert.strictEqual(mockHttp.getRequestCount(), 1, 'Should not retry 401 errors');
         
-        console.log(`   ❌ 401 error not retried (correct behavior)`);
-        console.log(`   ✅ Non-retryable error handling working`);
+        console.log(`   [FAIL] 401 error not retried (correct behavior)`);
+        console.log(`   [OK] Non-retryable error handling working`);
     }
 });
 
 // Summary
 console.log('\n' + '='.repeat(60));
-console.log('📊 TEST SUMMARY');
+console.log('[STATS] TEST SUMMARY');
 console.log('='.repeat(60));
-console.log(`✅ Passed: ${testsPassed}`);
-console.log(`❌ Failed: ${testsTotal - testsPassed}`);
-console.log(`📈 Success Rate: ${Math.round(testsPassed / testsTotal * 100)}%`);
+console.log(`[OK] Passed: ${testsPassed}`);
+console.log(`[FAIL] Failed: ${testsTotal - testsPassed}`);
+console.log(` Success Rate: ${Math.round(testsPassed / testsTotal * 100)}%`);
 
 if (testsPassed === testsTotal) {
-    console.log('\n🎉 ALL BUILDIUM CLIENT TESTS PASSED!');
-    console.log('\n🎯 KEY VALIDATIONS:');
-    console.log('1. ✅ Parameter serialization (array explosion)');
-    console.log('2. ✅ Authentication headers properly set');
-    console.log('3. ✅ Rate limiting retry logic (429 errors)');
-    console.log('4. ✅ Server error recovery (5xx errors)');
-    console.log('5. ✅ Lease-centric endpoint functionality');
-    console.log('6. ✅ Max retry limit enforcement');
-    console.log('7. ✅ Non-retryable error handling');
+    console.log('\n[COMPLETE] ALL BUILDIUM CLIENT TESTS PASSED!');
+    console.log('\n[TARGET] KEY VALIDATIONS:');
+    console.log('1. [OK] Parameter serialization (array explosion)');
+    console.log('2. [OK] Authentication headers properly set');
+    console.log('3. [OK] Rate limiting retry logic (429 errors)');
+    console.log('4. [OK] Server error recovery (5xx errors)');
+    console.log('5. [OK] Lease-centric endpoint functionality');
+    console.log('6. [OK] Max retry limit enforcement');
+    console.log('7. [OK] Non-retryable error handling');
     
-    console.log('\n🚀 BuildiumClient is production ready!');
+    console.log('\n BuildiumClient is production ready!');
 } else {
-    console.log('\n❌ Some tests failed. Please review the errors above.');
+    console.log('\n[FAIL] Some tests failed. Please review the errors above.');
 }
 
 // Export for use in other test files

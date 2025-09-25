@@ -1,7 +1,7 @@
 const { BuildiumClient } = require('../index.js');
 
 async function testFallbackLogic() {
-    console.log('🧪 Testing Lease Retrieval Fallback Logic');
+    console.log('[TEST] Testing Lease Retrieval Fallback Logic');
     console.log('========================================');
     
     try {
@@ -11,7 +11,7 @@ async function testFallbackLogic() {
         console.log('1. Getting a real unit...');
         const units = await buildiumClient.getAllUnits(1);
         if (units.length === 0) {
-            console.log('❌ No units found');
+            console.log('[FAIL] No units found');
             return;
         }
         
@@ -54,13 +54,13 @@ async function testFallbackLogic() {
         console.log(`   Fallback method: ${fallbackLeases.length} leases`);
         
         if (normalLeases.length === fallbackLeases.length) {
-            console.log('✅ Both methods returned the same number of leases - fallback working correctly!');
+            console.log('[OK] Both methods returned the same number of leases - fallback working correctly!');
         } else {
-            console.log('⚠️  Different number of leases returned - investigate further');
+            console.log('[WARN]️  Different number of leases returned - investigate further');
         }
         
     } catch (error) {
-        console.error('❌ Test failed:', error.message);
+        console.error('[FAIL] Test failed:', error.message);
         console.error('Stack:', error.stack);
     }
 }

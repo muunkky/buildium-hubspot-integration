@@ -3,7 +3,7 @@ require('dotenv').config();
 
 async function createAssociationOwnerType() {
     try {
-        console.log('🔧 Creating "Association Owner" association type...');
+        console.log('[TOOL] Creating "Association Owner" association type...');
         
         const baseURL = process.env.HUBSPOT_BASE_URL || 'https://api.hubapi.com';
         const accessToken = process.env.HUBSPOT_ACCESS_TOKEN;
@@ -16,7 +16,7 @@ async function createAssociationOwnerType() {
             toObjectTypeId: '0-420'  // Listings
         };
         
-        console.log('📋 Creating association type with data:', JSON.stringify(associationData, null, 2));
+        console.log('[ITEM] Creating association type with data:', JSON.stringify(associationData, null, 2));
         
         const response = await axios.post(
             `${baseURL}/crm/v4/associations/0-1/0-420/labels`,
@@ -29,18 +29,18 @@ async function createAssociationOwnerType() {
             }
         );
         
-        console.log('✅ Association type created successfully!');
+        console.log('[OK] Association type created successfully!');
         console.log('� Full response:', JSON.stringify(response.data, null, 2));
         
         const typeId = response.data.typeId || response.data.id;
         const label = response.data.label || response.data.name;
         
-        console.log(`🔗 New Association Type ID: ${typeId}`);
-        console.log(`📋 Label: ${label}`);
-        console.log(`🔄 Category: ${response.data.category}`);
+        console.log(` New Association Type ID: ${typeId}`);
+        console.log(`[ITEM] Label: ${label}`);
+        console.log(`[RETRY] Category: ${response.data.category}`);
         
         // The reverse association type should be created automatically
-        console.log('\n🔍 Checking for reverse association type...');
+        console.log('\n[SEARCH] Checking for reverse association type...');
         
         // Wait a moment for the reverse type to be created
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -60,10 +60,10 @@ async function createAssociationOwnerType() {
         );
         
         if (reverseType) {
-            console.log(`✅ Reverse association type found: ID ${reverseType.typeId}`);
-            console.log(`📋 Bidirectional mapping: Contact→Listing ID ${response.data.typeId} ↔ Listing→Contact ID ${reverseType.typeId}`);
+            console.log(`[OK] Reverse association type found: ID ${reverseType.typeId}`);
+            console.log(`[ITEM] Bidirectional mapping: Contact→Listing ID ${response.data.typeId}  Listing→Contact ID ${reverseType.typeId}`);
         } else {
-            console.log('⚠️ Reverse association type not found yet (may take time to propagate)');
+            console.log('[WARN]️ Reverse association type not found yet (may take time to propagate)');
         }
         
         return {
@@ -75,7 +75,7 @@ async function createAssociationOwnerType() {
         
     } catch (error) {
         if (error.response?.status === 409) {
-            console.log('ℹ️ Association type "Association Owner" already exists');
+            console.log('️ Association type "Association Owner" already exists');
             
             // Get existing type
             const existingResponse = await axios.get(
@@ -93,7 +93,7 @@ async function createAssociationOwnerType() {
             );
             
             if (existingType) {
-                console.log(`✅ Found existing association type: ID ${existingType.typeId}`);
+                console.log(`[OK] Found existing association type: ID ${existingType.typeId}`);
                 return {
                     success: true,
                     forwardTypeId: existingType.typeId,
@@ -103,7 +103,7 @@ async function createAssociationOwnerType() {
             }
         }
         
-        console.error('❌ Error creating association type:', error.response?.data || error.message);
+        console.error('[FAIL] Error creating association type:', error.response?.data || error.message);
         return {
             success: false,
             error: error.response?.data || error.message

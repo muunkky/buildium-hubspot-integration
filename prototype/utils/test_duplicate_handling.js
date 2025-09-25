@@ -30,7 +30,7 @@ async function testDuplicateHandling() {
         
         try {
             const newListing = await integration.hubspotClient.createListing(listingData);
-            console.log('❌ Unexpected success - listing was created:', newListing.id);
+            console.log('[FAIL] Unexpected success - listing was created:', newListing.id);
         } catch (createError) {
             console.log('Caught error:', createError.message);
             console.log('Error details:', createError.response?.data || 'No response data');
@@ -38,22 +38,22 @@ async function testDuplicateHandling() {
             if (createError.message.includes('already has that value') || 
                 createError.message.includes('buildium_unit_id') ||
                 createError.response?.data?.message?.includes('already has that value')) {
-                console.log('✅ Expected error - Unit ID already exists');
+                console.log('[OK] Expected error - Unit ID already exists');
                 
                 // Step 2: Search for the existing listing
                 console.log('\n2. Searching for existing listing with this Unit ID...');
                 const existingListing = await integration.hubspotClient.searchListingByUnitId(existingUnitId);
                 
                 if (existingListing) {
-                    console.log('✅ Successfully found existing listing:');
+                    console.log('[OK] Successfully found existing listing:');
                     console.log(`   Listing ID: ${existingListing.id}`);
                     console.log(`   Name: ${existingListing.properties.hs_name}`);
                     console.log(`   Unit ID: ${existingListing.properties.buildium_unit_id}`);
                 } else {
-                    console.log('❌ Could not find existing listing');
+                    console.log('[FAIL] Could not find existing listing');
                 }
             } else {
-                console.log('❌ Unexpected error type');
+                console.log('[FAIL] Unexpected error type');
             }
         }
         

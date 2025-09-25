@@ -8,7 +8,7 @@ const axios = require('axios');
 
 async function getTotalContactCount() {
     const apiKey = process.env.HUBSPOT_ACCESS_TOKEN;
-    console.log('📊 Getting total contact count in HubSpot...\n');
+    console.log('[STATS] Getting total contact count in HubSpot...\n');
 
     try {
         // Get total count by searching for all contacts
@@ -31,11 +31,11 @@ async function getTotalContactCount() {
         const totalCount = response.data.total;
         const results = response.data.results;
         
-        console.log(`📈 TOTAL CONTACTS IN HUBSPOT: ${totalCount}`);
-        console.log(`📋 Sample returned: ${results.length} contacts\n`);
+        console.log(` TOTAL CONTACTS IN HUBSPOT: ${totalCount}`);
+        console.log(`[ITEM] Sample returned: ${results.length} contacts\n`);
 
         // Break down by marketing status
-        console.log('🔍 Getting marketing status breakdown...\n');
+        console.log('[SEARCH] Getting marketing status breakdown...\n');
         
         // Count marketable contacts
         const marketableResponse = await axios.post(
@@ -66,38 +66,38 @@ async function getTotalContactCount() {
         const marketableCount = marketableResponse.data.total;
         const nonMarketableCount = nonMarketableResponse.data.total;
         
-        console.log('📊 MARKETING STATUS BREAKDOWN:');
-        console.log(`   💸 Marketable (billing): ${marketableCount}`);
-        console.log(`   ✅ Non-marketable (free): ${nonMarketableCount}`);
-        console.log(`   📊 Total: ${marketableCount + nonMarketableCount}`);
+        console.log('[STATS] MARKETING STATUS BREAKDOWN:');
+        console.log(`    Marketable (billing): ${marketableCount}`);
+        console.log(`   [OK] Non-marketable (free): ${nonMarketableCount}`);
+        console.log(`   [STATS] Total: ${marketableCount + nonMarketableCount}`);
         
         if (totalCount !== marketableCount + nonMarketableCount) {
             const unknown = totalCount - marketableCount - nonMarketableCount;
-            console.log(`   ❓ Unknown/unset status: ${unknown}`);
+            console.log(`    Unknown/unset status: ${unknown}`);
         }
 
-        console.log('\n🏢 COMPARISON WITH BUILDIUM DATA:');
+        console.log('\n COMPARISON WITH BUILDIUM DATA:');
         console.log('================================');
         console.log('Based on previous analysis:');
         console.log('   • Buildium Owners: 657');
         console.log('   • Buildium Units: ~several hundred (exact count varies)');
         console.log('   • Buildium Tenants: Unknown count');
         console.log('');
-        console.log(`   🎯 HubSpot Total: ${totalCount} contacts`);
+        console.log(`   [TARGET] HubSpot Total: ${totalCount} contacts`);
         
         if (totalCount > 1000) {
-            console.log('   📈 HubSpot has SIGNIFICANTLY MORE contacts than Buildium data');
-            console.log('   💡 This suggests most contacts are NOT from Buildium');
-            console.log('   🎯 These are likely your real marketing leads/customers');
+            console.log('    HubSpot has SIGNIFICANTLY MORE contacts than Buildium data');
+            console.log('    This suggests most contacts are NOT from Buildium');
+            console.log('   [TARGET] These are likely your real marketing leads/customers');
         } else if (totalCount > 700) {
-            console.log('   📊 HubSpot has more contacts than just Buildium owners');
-            console.log('   💡 Mix of Buildium data + real marketing contacts');
+            console.log('   [STATS] HubSpot has more contacts than just Buildium owners');
+            console.log('    Mix of Buildium data + real marketing contacts');
         } else {
-            console.log('   📊 Contact count is similar to Buildium data');
-            console.log('   💡 Most contacts might be from Buildium integration');
+            console.log('   [STATS] Contact count is similar to Buildium data');
+            console.log('    Most contacts might be from Buildium integration');
         }
 
-        console.log('\n💰 BILLING IMPACT:');
+        console.log('\n BILLING IMPACT:');
         console.log(`   • Current monthly cost: ~$${marketableCount * 0.50} (at ~$0.50 per marketable contact)`);
         console.log(`   • If all made non-marketable: $0`);
         console.log(`   • Potential savings: ~$${marketableCount * 0.50}/month`);
@@ -109,7 +109,7 @@ async function getTotalContactCount() {
         };
 
     } catch (error) {
-        console.error('❌ Error getting contact count:', error.response?.data?.message || error.message);
+        console.error('[FAIL] Error getting contact count:', error.response?.data?.message || error.message);
         return null;
     }
 }

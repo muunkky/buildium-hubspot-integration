@@ -10,7 +10,7 @@ async function testAPIDirectly() {
     const clientId = process.env.BUILDIUM_CLIENT_ID;
     const clientSecret = process.env.BUILDIUM_CLIENT_SECRET;
     
-    console.log('🔍 Testing Buildium API Directly');
+    console.log('[SEARCH] Testing Buildium API Directly');
     console.log(`Base URL: ${baseURL}`);
     console.log(`Client ID: ${clientId ? 'Set' : 'Missing'}`);
     console.log(`Client Secret: ${clientSecret ? 'Set' : 'Missing'}\n`);
@@ -30,7 +30,7 @@ async function testAPIDirectly() {
             timeout: 30000
         });
         
-        console.log(`✅ Success: ${response1.data.length} owners returned`);
+        console.log(`[OK] Success: ${response1.data.length} owners returned`);
         if (response1.data.length > 0) {
             const owner = response1.data[0];
             console.log(`First owner: ${owner.FirstName} ${owner.LastName} (ID: ${owner.Id})`);
@@ -48,7 +48,7 @@ async function testAPIDirectly() {
             timeout: 30000
         });
         
-        console.log(`✅ Success: ${response2.data.length} owners returned`);
+        console.log(`[OK] Success: ${response2.data.length} owners returned`);
         
         // Validate the results
         let validCount = 0;
@@ -59,29 +59,29 @@ async function testAPIDirectly() {
             if (ownsProperty) {
                 validCount++;
                 if (index < 3) { // Show first 3 valid owners
-                    console.log(`✅ Valid: ${owner.FirstName} ${owner.LastName} - Properties: [${owner.PropertyIds.join(', ')}]`);
+                    console.log(`[OK] Valid: ${owner.FirstName} ${owner.LastName} - Properties: [${owner.PropertyIds.join(', ')}]`);
                 }
             } else {
                 invalidCount++;
                 if (index < 3) { // Show first 3 invalid owners
-                    console.log(`❌ Invalid: ${owner.FirstName} ${owner.LastName} - Properties: [${owner.PropertyIds?.join(', ')}]`);
+                    console.log(`[FAIL] Invalid: ${owner.FirstName} ${owner.LastName} - Properties: [${owner.PropertyIds?.join(', ')}]`);
                 }
             }
         });
         
-        console.log(`\n📊 Filter Results:`);
-        console.log(`✅ Owners who own property 140054: ${validCount}`);
-        console.log(`❌ Owners who DON'T own property 140054: ${invalidCount}`);
+        console.log(`\n[STATS] Filter Results:`);
+        console.log(`[OK] Owners who own property 140054: ${validCount}`);
+        console.log(`[FAIL] Owners who DON'T own property 140054: ${invalidCount}`);
         
         if (invalidCount > 0) {
-            console.log(`\n🚨 CRITICAL BUG: Buildium API property filter is not working correctly!`);
+            console.log(`\n CRITICAL BUG: Buildium API property filter is not working correctly!`);
             console.log(`The API returned ${invalidCount} owners who don't own the specified property.`);
         } else {
-            console.log(`\n✅ Property filtering working correctly!`);
+            console.log(`\n[OK] Property filtering working correctly!`);
         }
         
     } catch (error) {
-        console.error('❌ API Error:', error.response?.data || error.message);
+        console.error('[FAIL] API Error:', error.response?.data || error.message);
         if (error.response) {
             console.error('Status:', error.response.status);
             console.error('Headers:', error.response.headers);

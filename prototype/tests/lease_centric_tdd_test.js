@@ -13,24 +13,24 @@ const path = require('path');
 // Import the real BuildiumClient from our prototype
 const { BuildiumClient, HubSpotClient } = require('../index.js');
 
-console.log('🧪 TDD: LEASE-CENTRIC SYNC IMPLEMENTATION');
+console.log('[TEST] TDD: LEASE-CENTRIC SYNC IMPLEMENTATION');
 console.log('='.repeat(70));
-console.log(`📅 ${new Date().toLocaleString()}`);
-console.log(`🎯 Approach: Test-Driven Development\n`);
+console.log(`[DATE] ${new Date().toLocaleString()}`);
+console.log(`[TARGET] Approach: Test-Driven Development\n`);
 
 // Test helpers
 function assert(condition, message) {
     if (!condition) {
-        throw new Error(`❌ Assertion failed: ${message}`);
+        throw new Error(`[FAIL] Assertion failed: ${message}`);
     }
-    console.log(`✅ ${message}`);
+    console.log(`[OK] ${message}`);
 }
 
 function assertEqual(actual, expected, message) {
     if (actual !== expected) {
-        throw new Error(`❌ ${message}: expected ${expected}, got ${actual}`);
+        throw new Error(`[FAIL] ${message}: expected ${expected}, got ${actual}`);
     }
-    console.log(`✅ ${message}`);
+    console.log(`[OK] ${message}`);
 }
 
 // Mock classes for testing HubSpot functionality (real BuildiumClient will be tested for real)
@@ -69,7 +69,7 @@ class MockHubSpotClient {
 
 // Test 1: The core functionality we need to implement
 async function test1_BuildiumClient_ShouldFetchLeasesWithDateFilter() {
-    console.log('\n🧪 TEST 1: BuildiumClient should have getLeasesUpdatedSince method');
+    console.log('\n[TEST] TEST 1: BuildiumClient should have getLeasesUpdatedSince method');
     console.log('-'.repeat(50));
     
     try {
@@ -87,21 +87,21 @@ async function test1_BuildiumClient_ShouldFetchLeasesWithDateFilter() {
         
         // We won't actually call the API since we don't have credentials in tests
         // but we can verify the method exists and would accept the right parameters
-        console.log('✅ BuildiumClient.getLeasesUpdatedSince method exists and is callable');
-        console.log('✅ Method accepts date parameter as expected');
-        console.log('✅ TEST 1 PASSED: Buildium client has required lease filtering capability');
+        console.log('[OK] BuildiumClient.getLeasesUpdatedSince method exists and is callable');
+        console.log('[OK] Method accepts date parameter as expected');
+        console.log('[OK] TEST 1 PASSED: Buildium client has required lease filtering capability');
         return true;
         
     } catch (error) {
-        console.log(`❌ TEST 1 FAILED: ${error.message}`);
-        console.log('📝 Next step: Implement BuildiumClient.getLeasesUpdatedSince()');
+        console.log(`[FAIL] TEST 1 FAILED: ${error.message}`);
+        console.log(' Next step: Implement BuildiumClient.getLeasesUpdatedSince()');
         return false;
     }
 }
 
 // Test 2: HubSpot batch creation
 async function test2_HubSpotClient_ShouldCreateListingsBatch() {
-    console.log('\n🧪 TEST 2: HubSpot client should have createListingsBatch method');
+    console.log('\n[TEST] TEST 2: HubSpot client should have createListingsBatch method');
     console.log('-'.repeat(50));
     
     try {
@@ -122,21 +122,21 @@ async function test2_HubSpotClient_ShouldCreateListingsBatch() {
         
         // We won't actually call the API since we don't have credentials in tests
         // but we can verify the method exists and would accept the right parameters
-        console.log('✅ HubSpotClient.createListingsBatch method exists and is callable');
-        console.log('✅ Method accepts listings array parameter as expected');
-        console.log('✅ TEST 2 PASSED: HubSpot client has required batch creation capability');
+        console.log('[OK] HubSpotClient.createListingsBatch method exists and is callable');
+        console.log('[OK] Method accepts listings array parameter as expected');
+        console.log('[OK] TEST 2 PASSED: HubSpot client has required batch creation capability');
         return true;
         
     } catch (error) {
-        console.log(`❌ TEST 2 FAILED: ${error.message}`);
-        console.log('📝 Next step: Implement HubSpotClient.createListingsBatch()');
+        console.log(`[FAIL] TEST 2 FAILED: ${error.message}`);
+        console.log(' Next step: Implement HubSpotClient.createListingsBatch()');
         return false;
     }
 }
 
 // Test 3: Integration test - Lease-centric sync orchestration
 async function test3_LeaseCentricSync_ShouldOrchestrateSyncFlow() {
-    console.log('\n🧪 TEST 3: Lease-centric sync should orchestrate complete flow');
+    console.log('\n[TEST] TEST 3: Lease-centric sync should orchestrate complete flow');
     console.log('-'.repeat(50));
     
     try {
@@ -155,24 +155,24 @@ async function test3_LeaseCentricSync_ShouldOrchestrateSyncFlow() {
         // 2. Transform to HubSpot format 
         // 3. Create listings in batch
         
-        console.log('✅ Both API clients have required methods for lease-centric sync');
-        console.log('✅ Sync orchestration flow is ready for implementation');
-        console.log('✅ TEST 3 PASSED: Lease-centric sync integration is ready');
+        console.log('[OK] Both API clients have required methods for lease-centric sync');
+        console.log('[OK] Sync orchestration flow is ready for implementation');
+        console.log('[OK] TEST 3 PASSED: Lease-centric sync integration is ready');
         return true;
         
     } catch (error) {
-        console.log(`❌ TEST 3 FAILED: ${error.message}`);
-        console.log('📝 Next step: Ensure both BuildiumClient and HubSpotClient methods are implemented');
+        console.log(`[FAIL] TEST 3 FAILED: ${error.message}`);
+        console.log(' Next step: Ensure both BuildiumClient and HubSpotClient methods are implemented');
         return false;
     }
 }
 
 // Test runner
 async function runTDDTests() {
-    console.log('🏃 RUNNING TDD TESTS');
+    console.log(' RUNNING TDD TESTS');
     console.log('='.repeat(70));
-    console.log('ℹ️  Note: Tests are EXPECTED to fail initially in TDD');
-    console.log('ℹ️  We implement minimal code to make each test pass\n');
+    console.log('️  Note: Tests are EXPECTED to fail initially in TDD');
+    console.log('️  We implement minimal code to make each test pass\n');
 
     const tests = [
         { name: 'test1_BuildiumClient_ShouldFetchLeasesWithDateFilter', fn: test1_BuildiumClient_ShouldFetchLeasesWithDateFilter },
@@ -193,12 +193,12 @@ async function runTDDTests() {
 
     // Summary
     console.log('\n' + '='.repeat(70));
-    console.log('📊 TDD TEST RESULTS');
+    console.log('[STATS] TDD TEST RESULTS');
     console.log('='.repeat(70));
     
     let passCount = 0;
     results.forEach(result => {
-        const status = result.passed ? '✅ PASS' : '❌ FAIL';
+        const status = result.passed ? '[OK] PASS' : '[FAIL] FAIL';
         console.log(`${status} ${result.name}`);
         if (result.error) {
             console.log(`   └── ${result.error}`);
@@ -206,19 +206,19 @@ async function runTDDTests() {
         if (result.passed) passCount++;
     });
     
-    console.log(`\n🏆 Results: ${passCount}/${results.length} tests passing`);
+    console.log(`\n Results: ${passCount}/${results.length} tests passing`);
     
     if (passCount === 0) {
-        console.log('\n🎯 TDD STATUS: Ready to implement first functionality!');
-        console.log('📝 NEXT ACTIONS:');
+        console.log('\n[TARGET] TDD STATUS: Ready to implement first functionality!');
+        console.log(' NEXT ACTIONS:');
         console.log('   1. Implement BuildiumClient.getLeasesUpdatedSince()');
         console.log('   2. Run test again to see it pass');
         console.log('   3. Move to next failing test');
         console.log('   4. Repeat until all tests pass');
     } else if (passCount < results.length) {
-        console.log(`\n🔄 TDD STATUS: ${passCount} tests implemented, continue with remaining`);
+        console.log(`\n[RETRY] TDD STATUS: ${passCount} tests implemented, continue with remaining`);
     } else {
-        console.log('\n🎉 TDD COMPLETE: All tests passing, ready for refactoring!');
+        console.log('\n[COMPLETE] TDD COMPLETE: All tests passing, ready for refactoring!');
     }
     
     return { passCount, totalCount: results.length, results };
@@ -229,7 +229,7 @@ async function main() {
     try {
         await runTDDTests();
     } catch (error) {
-        console.error('💥 Test runner error:', error.message);
+        console.error(' Test runner error:', error.message);
         process.exit(1);
     }
 }

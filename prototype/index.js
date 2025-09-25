@@ -58,7 +58,7 @@ class BuildiumClient {
                 if (error.response?.status === 429 && attempt < maxRetries) {
                     // Exponential backoff: 200ms, 400ms, 800ms, 1600ms
                     const delay = initialDelay * Math.pow(2, attempt);
-                    console.log(`⏳ Rate limited (429). Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
+                    console.log(` Rate limited (429). Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
                     await new Promise(resolve => setTimeout(resolve, delay));
                     continue;
                 }
@@ -66,7 +66,7 @@ class BuildiumClient {
                 // Check for other server errors that might benefit from retry
                 if (error.response?.status >= 500 && attempt < maxRetries) {
                     const delay = initialDelay * Math.pow(1.5, attempt); // Slower backoff for server errors
-                    console.log(`🔄 Server error (${error.response.status}). Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
+                    console.log(`[RETRY] Server error (${error.response.status}). Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
                     await new Promise(resolve => setTimeout(resolve, delay));
                     continue;
                 }
@@ -82,7 +82,7 @@ class BuildiumClient {
      */
     async getTenant(tenantId) {
         try {
-            console.log(`🔍 Fetching tenant ${tenantId} from Buildium...`);
+            console.log(`[SEARCH] Fetching tenant ${tenantId} from Buildium...`);
             
             const response = await this.makeRequestWithRetry(() => 
                 axios.get(`${this.baseURL}/leases/tenants/${tenantId}`, {
@@ -94,10 +94,10 @@ class BuildiumClient {
                 })
             );
 
-            console.log('✅ Successfully fetched tenant from Buildium');
+            console.log('[OK] Successfully fetched tenant from Buildium');
             return response.data;
         } catch (error) {
-            console.error('❌ Error fetching tenant from Buildium:', error.response?.data || error.message);
+            console.error('[FAIL] Error fetching tenant from Buildium:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -113,12 +113,12 @@ class BuildiumClient {
             '/units'
         ];
         
-        console.log('🧪 Testing Buildium API connectivity...');
+        console.log('[TEST] Testing Buildium API connectivity...');
         
         for (const endpoint of testEndpoints) {
             try {
                 const url = `${this.baseURL}${endpoint}`;
-                console.log(`\n🔍 Testing: ${url}`);
+                console.log(`\n[SEARCH] Testing: ${url}`);
                 
                 const response = await this.makeRequestWithRetry(() =>
                     axios.get(url, {
@@ -132,12 +132,12 @@ class BuildiumClient {
                     })
                 );
                 
-                console.log(`✅ ${endpoint}: Success (${response.status})`);
+                console.log(`[OK] ${endpoint}: Success (${response.status})`);
                 if (response.data && Array.isArray(response.data)) {
                     console.log(`   Found ${response.data.length} records`);
                 }
             } catch (error) {
-                console.log(`❌ ${endpoint}: Failed (${error.response?.status || 'Network Error'})`);
+                console.log(`[FAIL] ${endpoint}: Failed (${error.response?.status || 'Network Error'})`);
                 if (error.response?.data) {
                     console.log(`   Error: ${JSON.stringify(error.response.data, null, 2)}`);
                 }
@@ -150,7 +150,7 @@ class BuildiumClient {
      */
     async getAllTenants(limit = 10, offset = 0) {
         try {
-            console.log(`🔍 Fetching ${limit} tenants from Buildium (offset: ${offset})...`);
+            console.log(`[SEARCH] Fetching ${limit} tenants from Buildium (offset: ${offset})...`);
             
             // Try the correct endpoint from the API documentation
             const url = `${this.baseURL}/leases/tenants`;
@@ -161,7 +161,7 @@ class BuildiumClient {
             };
             const params = { limit: limit, offset: offset };
             
-            console.log('🔧 Debug Info:');
+            console.log('[TOOL] Debug Info:');
             console.log(`   URL: ${url}`);
             console.log(`   Headers: ${JSON.stringify(headers, null, 2)}`);
             console.log(`   Params: ${JSON.stringify(params, null, 2)}`);
@@ -173,10 +173,10 @@ class BuildiumClient {
                 })
             );
 
-            console.log(`✅ Successfully fetched ${response.data.length} tenants from Buildium`);
+            console.log(`[OK] Successfully fetched ${response.data.length} tenants from Buildium`);
             return response.data;
         } catch (error) {
-            console.error('❌ Error fetching tenants from Buildium:');
+            console.error('[FAIL] Error fetching tenants from Buildium:');
             console.error('   Status:', error.response?.status);
             console.error('   Status Text:', error.response?.statusText);
             console.error('   Headers:', error.response?.headers);
@@ -191,7 +191,7 @@ class BuildiumClient {
      */
     async getProperty(propertyId) {
         try {
-            console.log(`🔍 Fetching property ${propertyId} from Buildium...`);
+            console.log(`[SEARCH] Fetching property ${propertyId} from Buildium...`);
             
             const response = await this.makeRequestWithRetry(() =>
                 axios.get(`${this.baseURL}/rentals/${propertyId}`, {
@@ -203,10 +203,10 @@ class BuildiumClient {
                 })
             );
 
-            console.log('✅ Successfully fetched property from Buildium');
+            console.log('[OK] Successfully fetched property from Buildium');
             return response.data;
         } catch (error) {
-            console.error('❌ Error fetching property from Buildium:', error.response?.data || error.message);
+            console.error('[FAIL] Error fetching property from Buildium:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -216,14 +216,14 @@ class BuildiumClient {
      */
     async getAllUnits(limit = 50, offset = 0, propertyIds = null) {
         try {
-            console.log(`🔍 Fetching ${limit} units from Buildium (offset: ${offset})...`);
+            console.log(`[SEARCH] Fetching ${limit} units from Buildium (offset: ${offset})...`);
             
             const params = { limit, offset };
             
             // Add property filter if specified
             if (propertyIds && propertyIds.length > 0) {
                 params.propertyids = propertyIds;
-                console.log(`   🏢 Filtering by properties: ${propertyIds.join(', ')}`);
+                console.log(`    Filtering by properties: ${propertyIds.join(', ')}`);
             }
             
             const response = await this.makeRequestWithRetry(() =>
@@ -251,10 +251,10 @@ class BuildiumClient {
                 })
             );
 
-            console.log(`✅ Successfully fetched ${response.data.length} units from Buildium`);
+            console.log(`[OK] Successfully fetched ${response.data.length} units from Buildium`);
             return response.data;
         } catch (error) {
-            console.error('❌ Error fetching units from Buildium:', error.response?.data || error.message);
+            console.error('[FAIL] Error fetching units from Buildium:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -264,7 +264,7 @@ class BuildiumClient {
      */
     async getUnitsForProperty(propertyId) {
         try {
-            console.log(`🏢 Fetching all units for property ${propertyId}...`);
+            console.log(` Fetching all units for property ${propertyId}...`);
             
             const allUnits = [];
             let offset = 0;
@@ -286,10 +286,10 @@ class BuildiumClient {
                 offset += batchSize;
             }
             
-            console.log(`✅ Found ${allUnits.length} units for property ${propertyId}`);
+            console.log(`[OK] Found ${allUnits.length} units for property ${propertyId}`);
             return allUnits;
         } catch (error) {
-            console.error(`❌ Error fetching units for property ${propertyId}:`, error.response?.data || error.message);
+            console.error(`[FAIL] Error fetching units for property ${propertyId}:`, error.response?.data || error.message);
             throw error;
         }
     }
@@ -299,7 +299,7 @@ class BuildiumClient {
      */
     async getUnit(unitId) {
         try {
-            console.log(`🔍 Fetching unit ${unitId} from Buildium...`);
+            console.log(`[SEARCH] Fetching unit ${unitId} from Buildium...`);
             
             const response = await this.makeRequestWithRetry(() =>
                 axios.get(`${this.baseURL}/rentals/units/${unitId}`, {
@@ -311,10 +311,10 @@ class BuildiumClient {
                 })
             );
 
-            console.log('✅ Successfully fetched unit from Buildium');
+            console.log('[OK] Successfully fetched unit from Buildium');
             return response.data;
         } catch (error) {
-            console.error('❌ Error fetching unit from Buildium:', error.response?.data || error.message);
+            console.error('[FAIL] Error fetching unit from Buildium:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -325,7 +325,7 @@ class BuildiumClient {
      */
     async getActiveLeaseForUnit(unitId) {
         try {
-            console.log(`🔍 Fetching active lease for unit ${unitId}...`);
+            console.log(`[SEARCH] Fetching active lease for unit ${unitId}...`);
             
             // Get all leases for this unit using our corrected method
             const allLeasesForUnit = await this.getAllLeasesForUnit(unitId);
@@ -333,10 +333,10 @@ class BuildiumClient {
             // Filter for active leases
             const activeLeases = allLeasesForUnit.filter(lease => lease.LeaseStatus === 'Active');
             
-            console.log(`✅ Found ${activeLeases.length} active lease(s) for unit ${unitId} (from ${allLeasesForUnit.length} total leases)`);
+            console.log(`[OK] Found ${activeLeases.length} active lease(s) for unit ${unitId} (from ${allLeasesForUnit.length} total leases)`);
             return activeLeases.length > 0 ? activeLeases[0] : null;
         } catch (error) {
-            console.error('❌ Error fetching active lease for unit:', error.response?.data || error.message);
+            console.error('[FAIL] Error fetching active lease for unit:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -351,10 +351,10 @@ class BuildiumClient {
      */
     async getAllLeasesForUnit(unitId) {
         try {
-            console.log(`🔍 Fetching leases for unit ${unitId}...`);
+            console.log(`[SEARCH] Fetching leases for unit ${unitId}...`);
             
             // First, get the unit to find its property ID and unit number
-            console.log(`🏠 Getting unit details for unit ${unitId}`);
+            console.log(` Getting unit details for unit ${unitId}`);
             const unitData = await this.getUnit(unitId);
             const propertyId = unitData.PropertyId;
             const unitNumber = unitData.UnitNumber;
@@ -366,10 +366,10 @@ class BuildiumClient {
                 throw new Error(`No unit number found for unit ${unitId}`);
             }
             
-            console.log(`🏢 Unit ${unitId} (Property: ${propertyId}) has unit number: "${unitNumber}"`);
+            console.log(` Unit ${unitId} (Property: ${propertyId}) has unit number: "${unitNumber}"`);
             
             // Use BOTH propertyids and unitnumber filters for maximum efficiency and safety
-            console.log(`📋 Fetching leases using combined property + unitnumber filters...`);
+            console.log(`[ITEM] Fetching leases using combined property + unitnumber filters...`);
             
             // Fetch all leases with pagination support
             let candidateLeases = [];
@@ -398,7 +398,7 @@ class BuildiumClient {
                 const pageData = response.data;
                 candidateLeases = candidateLeases.concat(pageData);
                 
-                console.log(`📊 Page ${Math.floor(offset/limit) + 1}: Found ${pageData.length} lease(s) (total: ${candidateLeases.length})`);
+                console.log(`[STATS] Page ${Math.floor(offset/limit) + 1}: Found ${pageData.length} lease(s) (total: ${candidateLeases.length})`);
                 
                 // Check if we have more data
                 hasMoreData = pageData.length === limit;
@@ -406,17 +406,17 @@ class BuildiumClient {
                 
                 // Safety break to prevent infinite loops
                 if (offset > 10000) {
-                    console.warn(`⚠️  Stopping pagination at ${offset} leases to prevent infinite loop`);
+                    console.warn(`[WARN]️  Stopping pagination at ${offset} leases to prevent infinite loop`);
                     break;
                 }
             }
             
-            console.log(`📊 Found ${candidateLeases.length} candidate lease(s) from API filters`);
+            console.log(`[STATS] Found ${candidateLeases.length} candidate lease(s) from API filters`);
             
             // If no results with unitnumber filter, try fallback with property filter only
             let allPropertyLeases = candidateLeases;
             if (candidateLeases.length === 0) {
-                console.log(`🔄 No results with unitnumber filter, trying fallback with property filter only...`);
+                console.log(`[RETRY] No results with unitnumber filter, trying fallback with property filter only...`);
                 
                 // Fallback also needs pagination support
                 allPropertyLeases = [];
@@ -443,7 +443,7 @@ class BuildiumClient {
                     const pageData = fallbackResponse.data;
                     allPropertyLeases = allPropertyLeases.concat(pageData);
                     
-                    console.log(`📊 Fallback page ${Math.floor(offset/limit) + 1}: Found ${pageData.length} lease(s) (total: ${allPropertyLeases.length})`);
+                    console.log(`[STATS] Fallback page ${Math.floor(offset/limit) + 1}: Found ${pageData.length} lease(s) (total: ${allPropertyLeases.length})`);
                     
                     // Check if we have more data
                     hasMoreData = pageData.length === limit;
@@ -451,12 +451,12 @@ class BuildiumClient {
                     
                     // Safety break to prevent infinite loops
                     if (offset > 10000) {
-                        console.warn(`⚠️  Stopping fallback pagination at ${offset} leases to prevent infinite loop`);
+                        console.warn(`[WARN]️  Stopping fallback pagination at ${offset} leases to prevent infinite loop`);
                         break;
                     }
                 }
                 
-                console.log(`📊 Fallback found ${allPropertyLeases.length} lease(s) for property ${propertyId}`);
+                console.log(`[STATS] Fallback found ${allPropertyLeases.length} lease(s) for property ${propertyId}`);
             }
             
             // Filter by exact unit ID to handle any edge cases
@@ -464,7 +464,7 @@ class BuildiumClient {
                 lease.UnitId == unitId || lease.Unit?.Id == unitId
             );
             
-            console.log(`✅ Confirmed ${exactLeases.length} exact lease(s) for unit ${unitId}`);
+            console.log(`[OK] Confirmed ${exactLeases.length} exact lease(s) for unit ${unitId}`);
             
             // Log lease details for debugging
             exactLeases.forEach((lease, index) => {
@@ -474,17 +474,17 @@ class BuildiumClient {
             // Warn if we had to filter out results (indicates potential unitnumber ambiguity)
             if (allPropertyLeases.length > exactLeases.length) {
                 const filterReason = candidateLeases.length === 0 ? 'unitnumber filter returned no results' : 'unit ID mismatch';
-                console.warn(`⚠️  Filtered out ${allPropertyLeases.length - exactLeases.length} lease(s) due to ${filterReason}`);
+                console.warn(`[WARN]️  Filtered out ${allPropertyLeases.length - exactLeases.length} lease(s) due to ${filterReason}`);
             }
             
             // Success message with method used
             const method = candidateLeases.length > 0 ? 'property + unitnumber filters' : 'property filter (fallback)';
-            console.log(`🎯 Retrieved leases using: ${method}`);
+            console.log(`[TARGET] Retrieved leases using: ${method}`);
             
             return exactLeases;
             
         } catch (error) {
-            console.error(`❌ Error fetching leases for unit ${unitId}:`, error.response?.data || error.message);
+            console.error(`[FAIL] Error fetching leases for unit ${unitId}:`, error.response?.data || error.message);
             throw error;
         }
     }
@@ -507,7 +507,7 @@ class BuildiumClient {
 
             return response.data;
         } catch (error) {
-            console.error(`❌ Error fetching lease ${leaseId}:`, error.response?.data || error.message);
+            console.error(`[FAIL] Error fetching lease ${leaseId}:`, error.response?.data || error.message);
             throw error;
         }
     }
@@ -517,7 +517,7 @@ class BuildiumClient {
      */
     async getAllLeases(limit = null) {
         try {
-            console.log(`🔍 Fetching ${limit ? `up to ${limit}` : 'ALL'} leases from Buildium...`);
+            console.log(`[SEARCH] Fetching ${limit ? `up to ${limit}` : 'ALL'} leases from Buildium...`);
             
             const allLeases = [];
             let offset = 0;
@@ -525,7 +525,7 @@ class BuildiumClient {
             let hasMore = true;
 
             while (hasMore && (limit === null || allLeases.length < limit)) {
-                console.log(`📋 Fetching lease batch: offset ${offset}, size ${batchSize}...`);
+                console.log(`[ITEM] Fetching lease batch: offset ${offset}, size ${batchSize}...`);
                 
                 const params = {
                     limit: batchSize,
@@ -555,13 +555,13 @@ class BuildiumClient {
 
                 // Stop if we've reached the limit
                 if (limit !== null && allLeases.length >= limit) {
-                    console.log(`🛑 Reached limit of ${limit} leases`);
+                    console.log(` Reached limit of ${limit} leases`);
                     break;
                 }
 
                 // Safety break to avoid infinite loops
                 if (offset > 50000) {
-                    console.log(`⚠️ Safety limit reached at ${offset} offset. Breaking pagination.`);
+                    console.log(`[WARN]️ Safety limit reached at ${offset} offset. Breaking pagination.`);
                     break;
                 }
             }
@@ -569,10 +569,10 @@ class BuildiumClient {
             const finalCount = limit !== null ? Math.min(allLeases.length, limit) : allLeases.length;
             const result = limit !== null ? allLeases.slice(0, limit) : allLeases;
             
-            console.log(`✅ Retrieved ${finalCount} total leases`);
+            console.log(`[OK] Retrieved ${finalCount} total leases`);
             return result;
         } catch (error) {
-            console.error('❌ Error fetching all leases:', error.response?.data || error.message);
+            console.error('[FAIL] Error fetching all leases:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -741,7 +741,7 @@ class BuildiumClient {
             // Format date for Buildium API (expects ISO string)
             const formattedDate = lastUpdated instanceof Date ? lastUpdated.toISOString() : lastUpdated;
             
-            console.log(`🔍 Fetching leases updated since ${formattedDate}...`);
+            console.log(`[SEARCH] Fetching leases updated since ${formattedDate}...`);
             
             const params = {
                 limit,
@@ -761,10 +761,10 @@ class BuildiumClient {
                 })
             );
 
-            console.log(`✅ Retrieved ${response.data.length} leases updated since ${formattedDate}`);
+            console.log(`[OK] Retrieved ${response.data.length} leases updated since ${formattedDate}`);
             return response.data;
         } catch (error) {
-            console.error(`❌ Error fetching leases updated since ${lastUpdated}:`, error.response?.data || error.message);
+            console.error(`[FAIL] Error fetching leases updated since ${lastUpdated}:`, error.response?.data || error.message);
             throw error;
         }
     }
@@ -776,7 +776,7 @@ class BuildiumClient {
     async getRentalOwners(options = {}) {
         try {
             const { propertyIds, status, limit = 100, offset = 0 } = options;
-            console.log(`🔍 Fetching rental owners from Buildium...`);
+            console.log(`[SEARCH] Fetching rental owners from Buildium...`);
             
             const params = { limit, offset };
             
@@ -803,10 +803,10 @@ class BuildiumClient {
                 })
             );
 
-            console.log(`✅ Retrieved ${response.data.length} rental owners`);
+            console.log(`[OK] Retrieved ${response.data.length} rental owners`);
             return response.data;
         } catch (error) {
-            console.error('❌ Error fetching rental owners:', error.response?.data || error.message);
+            console.error('[FAIL] Error fetching rental owners:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -818,7 +818,7 @@ class BuildiumClient {
     async getAssociationOwners(options = {}) {
         try {
             const { associationIds, limit = 100, offset = 0 } = options;
-            console.log(`🔍 Fetching association owners from Buildium...`);
+            console.log(`[SEARCH] Fetching association owners from Buildium...`);
             
             const params = { limit, offset };
             
@@ -841,10 +841,10 @@ class BuildiumClient {
                 })
             );
 
-            console.log(`✅ Retrieved ${response.data.length} association owners`);
+            console.log(`[OK] Retrieved ${response.data.length} association owners`);
             return response.data;
         } catch (error) {
-            console.error('❌ Error fetching association owners:', error.response?.data || error.message);
+            console.error('[FAIL] Error fetching association owners:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -857,12 +857,12 @@ class BuildiumClient {
             const { propertyIds, status, ownerType = 'both', limit } = options;
             const allOwners = [];
             
-            console.log(`🔍 Fetching all owners (type: ${ownerType})...`);
+            console.log(`[SEARCH] Fetching all owners (type: ${ownerType})...`);
             
             // Fetch rental owners if requested
             if (ownerType === 'rental' || ownerType === 'both') {
                 try {
-                    console.log('🔍 Fetching rental owners from Buildium...');
+                    console.log('[SEARCH] Fetching rental owners from Buildium...');
                     let offset = 0;
                     let hasMore = true;
                     let totalRentalOwners = 0;
@@ -894,16 +894,16 @@ class BuildiumClient {
                         }
                     }
                     
-                    console.log(`✅ Retrieved ${totalRentalOwners} rental owners`);
+                    console.log(`[OK] Retrieved ${totalRentalOwners} rental owners`);
                 } catch (error) {
-                    console.warn('⚠️ Failed to fetch rental owners:', error.message);
+                    console.warn('[WARN]️ Failed to fetch rental owners:', error.message);
                 }
             }
             
             // Fetch association owners if requested
             if (ownerType === 'association' || ownerType === 'both') {
                 try {
-                    console.log('🔍 Fetching association owners from Buildium...');
+                    console.log('[SEARCH] Fetching association owners from Buildium...');
                     let offset = 0;
                     let hasMore = true;
                     let totalAssociationOwners = 0;
@@ -934,9 +934,9 @@ class BuildiumClient {
                         }
                     }
                     
-                    console.log(`✅ Retrieved ${totalAssociationOwners} association owners`);
+                    console.log(`[OK] Retrieved ${totalAssociationOwners} association owners`);
                 } catch (error) {
-                    console.warn('⚠️ Failed to fetch association owners:', error.message);
+                    console.warn('[WARN]️ Failed to fetch association owners:', error.message);
                 }
             }
             
@@ -944,13 +944,13 @@ class BuildiumClient {
             let finalOwners = allOwners;
             if (limit && allOwners.length > limit) {
                 finalOwners = allOwners.slice(0, limit);
-                console.log(`🔢 Applied global limit: showing ${finalOwners.length} of ${allOwners.length} owners`);
+                console.log(`[LIMIT] Applied global limit: showing ${finalOwners.length} of ${allOwners.length} owners`);
             }
             
-            console.log(`✅ Retrieved ${finalOwners.length} total owners (${finalOwners.filter(o => o._ownerType === 'rental').length} rental, ${finalOwners.filter(o => o._ownerType === 'association').length} association)`);
+            console.log(`[OK] Retrieved ${finalOwners.length} total owners (${finalOwners.filter(o => o._ownerType === 'rental').length} rental, ${finalOwners.filter(o => o._ownerType === 'association').length} association)`);
             return finalOwners;
         } catch (error) {
-            console.error('❌ Error fetching all owners:', error.response?.data || error.message);
+            console.error('[FAIL] Error fetching all owners:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -980,7 +980,7 @@ class HubSpotClient {
                 if (error.response?.status === 429 && attempt < maxRetries) {
                     // Exponential backoff: baseDelay, baseDelay*2, baseDelay*4
                     const delay = baseDelay * Math.pow(2, attempt);
-                    console.log(`⏳ HubSpot rate limited (429). Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
+                    console.log(` HubSpot rate limited (429). Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
                     await new Promise(resolve => setTimeout(resolve, delay));
                     continue;
                 }
@@ -988,7 +988,7 @@ class HubSpotClient {
                 // Check for other server errors that might benefit from retry
                 if (error.response?.status >= 500 && attempt < maxRetries) {
                     const delay = baseDelay * Math.pow(1.5, attempt); // Slower backoff for server errors
-                    console.log(`🔄 HubSpot server error (${error.response.status}). Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
+                    console.log(`[RETRY] HubSpot server error (${error.response.status}). Retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
                     await new Promise(resolve => setTimeout(resolve, delay));
                     continue;
                 }
@@ -1004,10 +1004,10 @@ class HubSpotClient {
      */
     async createContact(contactData) {
         try {
-            console.log('📝 Creating contact in HubSpot...');
+            console.log(' Creating contact in HubSpot...');
             
             if (process.env.DRY_RUN === 'true') {
-                console.log('🔄 DRY RUN MODE - Would create contact:', contactData.properties?.email || 'No email');
+                console.log('[RETRY] DRY RUN MODE - Would create contact:', contactData.properties?.email || 'No email');
                 return { id: 'dry-run-id', properties: contactData.properties };
             }
 
@@ -1020,10 +1020,10 @@ class HubSpotClient {
                 })
             );
 
-            console.log('✅ Successfully created contact in HubSpot');
+            console.log('[OK] Successfully created contact in HubSpot');
             return response.data;
         } catch (error) {
-            console.error('❌ Error creating contact in HubSpot:', error.response?.data || error.message);
+            console.error('[FAIL] Error creating contact in HubSpot:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -1033,10 +1033,10 @@ class HubSpotClient {
      */
     async updateContact(contactId, contactData) {
         try {
-            console.log(`📝 Updating contact ${contactId} in HubSpot...`);
+            console.log(` Updating contact ${contactId} in HubSpot...`);
             
             if (process.env.DRY_RUN === 'true') {
-                console.log('🔄 DRY RUN MODE - Would update contact with data:', JSON.stringify(contactData, null, 2));
+                console.log('[RETRY] DRY RUN MODE - Would update contact with data:', JSON.stringify(contactData, null, 2));
                 return { id: contactId, properties: contactData.properties };
             }
 
@@ -1047,10 +1047,10 @@ class HubSpotClient {
                 }
             });
 
-            console.log('✅ Successfully updated contact in HubSpot');
+            console.log('[OK] Successfully updated contact in HubSpot');
             return response.data;
         } catch (error) {
-            console.error('❌ Error updating contact in HubSpot:', error.response?.data || error.message);
+            console.error('[FAIL] Error updating contact in HubSpot:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -1060,7 +1060,7 @@ class HubSpotClient {
      */
     async createListingCustomProperties() {
         try {
-            console.log('🔧 Creating custom properties for listings...');
+            console.log('[TOOL] Creating custom properties for listings...');
             
             const properties = [
                 {
@@ -1163,11 +1163,11 @@ class HubSpotClient {
                         headers: this.getHeaders()
                     });
                     
-                    console.log(`✅ Property '${property.name}' already exists`);
+                    console.log(`[OK] Property '${property.name}' already exists`);
                 } catch (error) {
                     if (error.response?.status === 404) {
                         // Property doesn't exist, create it
-                        console.log(`🔧 Creating property '${property.name}'...`);
+                        console.log(`[TOOL] Creating property '${property.name}'...`);
                         
                         const createResponse = await axios.post(`${this.baseURL}/crm/v3/properties/0-420`, {
                             name: property.name,
@@ -1180,17 +1180,17 @@ class HubSpotClient {
                             headers: this.getHeaders()
                         });
                         
-                        console.log(`✅ Created property '${property.name}'`);
+                        console.log(`[OK] Created property '${property.name}'`);
                     } else {
-                        console.error(`❌ Error checking property '${property.name}':`, error.message);
+                        console.error(`[FAIL] Error checking property '${property.name}':`, error.message);
                     }
                 }
             }
             
-            console.log('✅ All custom properties ready');
+            console.log('[OK] All custom properties ready');
             return true;
         } catch (error) {
-            console.error('❌ Failed to create custom properties:', error.message);
+            console.error('[FAIL] Failed to create custom properties:', error.message);
             return false;
         }
     }
@@ -1200,7 +1200,7 @@ class HubSpotClient {
      */
     async createContactCustomProperties() {
         try {
-            console.log('🔧 Creating custom properties for contacts...');
+            console.log('[TOOL] Creating custom properties for contacts...');
             
             const properties = [
                 {
@@ -1223,11 +1223,11 @@ class HubSpotClient {
                     const existingResponse = await axios.get(`${this.baseURL}/crm/v3/properties/0-1/${property.name}`, {
                         headers: this.getHeaders()
                     });
-                    console.log(`✅ Contact property '${property.name}' already exists`);
+                    console.log(`[OK] Contact property '${property.name}' already exists`);
                 } catch (error) {
                     if (error.response && error.response.status === 404) {
                         // Property doesn't exist, create it
-                        console.log(`🔨 Creating contact property: ${property.name}`);
+                        console.log(` Creating contact property: ${property.name}`);
                         
                         const response = await axios.post(`${this.baseURL}/crm/v3/properties/0-1`, {
                             name: property.name,
@@ -1239,17 +1239,17 @@ class HubSpotClient {
                             headers: this.getHeaders()
                         });
                         
-                        console.log(`✅ Successfully created contact property: ${property.name}`);
+                        console.log(`[OK] Successfully created contact property: ${property.name}`);
                     } else {
-                        console.error(`❌ Error checking/creating contact property ${property.name}:`, error.response?.data || error.message);
+                        console.error(`[FAIL] Error checking/creating contact property ${property.name}:`, error.response?.data || error.message);
                     }
                 }
             }
             
-            console.log('✅ Contact custom properties setup complete');
+            console.log('[OK] Contact custom properties setup complete');
             return true;
         } catch (error) {
-            console.error('❌ Failed to create contact custom properties:', error.message);
+            console.error('[FAIL] Failed to create contact custom properties:', error.message);
             return false;
         }
     }
@@ -1259,7 +1259,7 @@ class HubSpotClient {
      */
     async createCompanyCustomProperties() {
         try {
-            console.log('🔧 Creating custom properties for companies...');
+            console.log('[TOOL] Creating custom properties for companies...');
             
             const properties = [
                 {
@@ -1288,11 +1288,11 @@ class HubSpotClient {
                     const existingResponse = await axios.get(`${this.baseURL}/crm/v3/properties/0-2/${property.name}`, {
                         headers: this.getHeaders()
                     });
-                    console.log(`✅ Company property '${property.name}' already exists`);
+                    console.log(`[OK] Company property '${property.name}' already exists`);
                 } catch (error) {
                     if (error.response && error.response.status === 404) {
                         // Property doesn't exist, create it
-                        console.log(`🔨 Creating company property: ${property.name}`);
+                        console.log(` Creating company property: ${property.name}`);
                         
                         const response = await axios.post(`${this.baseURL}/crm/v3/properties/0-2`, {
                             name: property.name,
@@ -1305,18 +1305,18 @@ class HubSpotClient {
                             headers: this.getHeaders()
                         });
                         
-                        console.log(`✅ Successfully created company property: ${property.name}`);
+                        console.log(`[OK] Successfully created company property: ${property.name}`);
                     } else {
-                        console.error(`❌ Error checking/creating company property ${property.name}:`, error.response?.data || error.message);
+                        console.error(`[FAIL] Error checking/creating company property ${property.name}:`, error.response?.data || error.message);
                         // Don't fail the entire process for individual property errors
                     }
                 }
             }
             
-            console.log('✅ Company custom properties setup complete');
+            console.log('[OK] Company custom properties setup complete');
             return true;
         } catch (error) {
-            console.error('❌ Failed to create company custom properties:', error.response?.data || error.message);
+            console.error('[FAIL] Failed to create company custom properties:', error.response?.data || error.message);
             // Don't fail the sync process even if custom properties fail
             return true;
         }
@@ -1337,7 +1337,7 @@ class HubSpotClient {
      */
     async searchContactByEmail(email) {
         try {
-            console.log(`🔍 Searching for existing contact with email: ${email}`);
+            console.log(`[SEARCH] Searching for existing contact with email: ${email}`);
             
             // Use longer delay for search operations (550ms vs 200ms)
             const response = await this.makeRequestWithRetry(() =>
@@ -1358,14 +1358,14 @@ class HubSpotClient {
             );
 
             if (response.data.results.length > 0) {
-                console.log('✅ Found existing contact');
+                console.log('[OK] Found existing contact');
                 return response.data.results[0];
             } else {
-                console.log('ℹ️ No existing contact found');
+                console.log('️ No existing contact found');
                 return null;
             }
         } catch (error) {
-            console.error('❌ Error searching for contact:', error.response?.data || error.message);
+            console.error('[FAIL] Error searching for contact:', error.response?.data || error.message);
             return null;
         }
     }
@@ -1375,10 +1375,10 @@ class HubSpotClient {
      */
     async createListing(listingData) {
         try {
-            console.log('🏠 Creating listing in HubSpot...');
+            console.log(' Creating listing in HubSpot...');
             
             if (process.env.DRY_RUN === 'true') {
-                console.log('🔄 DRY RUN MODE - Would create listing:', listingData.properties?.buildium_unit_id || 'Unknown unit');
+                console.log('[RETRY] DRY RUN MODE - Would create listing:', listingData.properties?.buildium_unit_id || 'Unknown unit');
                 return { id: 'dry-run-listing-id', properties: listingData.properties };
             }
 
@@ -1391,10 +1391,10 @@ class HubSpotClient {
                 })
             );
 
-            console.log('✅ Successfully created listing in HubSpot');
+            console.log('[OK] Successfully created listing in HubSpot');
             return response.data;
         } catch (error) {
-            console.error('❌ Error creating listing in HubSpot:', error.response?.data || error.message);
+            console.error('[FAIL] Error creating listing in HubSpot:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -1404,10 +1404,10 @@ class HubSpotClient {
      */
     async updateListing(listingId, listingData) {
         try {
-            console.log(`🏠 Updating listing ${listingId} in HubSpot...`);
+            console.log(` Updating listing ${listingId} in HubSpot...`);
             
             if (process.env.DRY_RUN === 'true') {
-                console.log('🔄 DRY RUN MODE - Would update listing with data:', JSON.stringify(listingData, null, 2));
+                console.log('[RETRY] DRY RUN MODE - Would update listing with data:', JSON.stringify(listingData, null, 2));
                 return { id: listingId, properties: listingData.properties };
             }
 
@@ -1418,10 +1418,10 @@ class HubSpotClient {
                 }
             });
 
-            console.log('✅ Successfully updated listing in HubSpot');
+            console.log('[OK] Successfully updated listing in HubSpot');
             return response.data;
         } catch (error) {
-            console.error('❌ Error updating listing in HubSpot:', error.response?.data || error.message);
+            console.error('[FAIL] Error updating listing in HubSpot:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -1437,13 +1437,13 @@ class HubSpotClient {
                 throw new Error('listings must be a non-empty array');
             }
 
-            console.log(`🏠 Creating ${listings.length} listing(s) in HubSpot batch...`);
+            console.log(` Creating ${listings.length} listing(s) in HubSpot batch...`);
             if (limit) {
-                console.log(`🔢 Limit: Will stop after ${limit} successful operations (created + updated)`);
+                console.log(`[LIMIT] Limit: Will stop after ${limit} successful operations (created + updated)`);
             }
             
             if (dryRun) {
-                console.log(`🔄 DRY RUN MODE - Would create batch of ${listings.length} listings`);
+                console.log(`[RETRY] DRY RUN MODE - Would create batch of ${listings.length} listings`);
                 return listings.map((listing, index) => ({ 
                     id: `dry-run-listing-${index}`, 
                     properties: listing.properties 
@@ -1451,7 +1451,7 @@ class HubSpotClient {
             }
 
             // Check for existing listings and handle based on force flag
-            console.log('🔍 Checking for existing listings...');
+            console.log('[SEARCH] Checking for existing listings...');
             const newListings = [];
             const skippedListings = [];
             const updatedListings = [];
@@ -1460,7 +1460,7 @@ class HubSpotClient {
             for (let i = 0; i < listings.length; i++) {
                 // Check limit before processing
                 if (limit && successfulOperations >= limit) {
-                    console.log(`🔢 Reached limit of ${limit} successful operations. Stopping processing.`);
+                    console.log(`[LIMIT] Reached limit of ${limit} successful operations. Stopping processing.`);
                     break;
                 }
                 
@@ -1485,7 +1485,7 @@ class HubSpotClient {
                     if (existing) {
                         if (force) {
                             // FORCE MODE: Always update existing listings
-                            console.log(`🔄 Force updating existing listing: ${existing.id} (Unit: ${unitId})`);
+                            console.log(`[RETRY] Force updating existing listing: ${existing.id} (Unit: ${unitId})`);
                             try {
                                 const updateData = {
                                     properties: listing.properties
@@ -1495,10 +1495,10 @@ class HubSpotClient {
                                 if (existingListingsByUnitId) {
                                     existingListingsByUnitId[unitId] = updateResponse;
                                 }
-                                console.log(`✅ Force updated listing: ${existing.id} for unit ${unitId}`);
+                                console.log(`[OK] Force updated listing: ${existing.id} for unit ${unitId}`);
                                 successfulOperations++; // Count updates toward limit
                             } catch (error) {
-                                console.error(`❌ Failed to force update listing for unit ${unitId}:`, error.message);
+                                console.error(`[FAIL] Failed to force update listing for unit ${unitId}:`, error.message);
                             }
                         } else {
                             // SMART MODE: Check if lease data actually changed
@@ -1532,8 +1532,8 @@ class HubSpotClient {
                             }
                             
                             if (shouldUpdateLease) {
-                                console.log(`🔄 Updating lease data for existing listing: ${existing.id} (Unit: ${unitId})`);
-                                console.log(`📋 Lease changes detected - updating lease-related fields only`);
+                                console.log(`[RETRY] Updating lease data for existing listing: ${existing.id} (Unit: ${unitId})`);
+                                console.log(`[ITEM] Lease changes detected - updating lease-related fields only`);
                                 
                                 try {
                                     // Update only lease-related fields
@@ -1556,13 +1556,13 @@ class HubSpotClient {
                                     if (existingListingsByUnitId) {
                                         existingListingsByUnitId[unitId] = updateResponse;
                                     }
-                                    console.log(`✅ Updated lease data for listing: ${existing.id}`);
+                                    console.log(`[OK] Updated lease data for listing: ${existing.id}`);
                                     successfulOperations++; // Count updates toward limit
                                 } catch (error) {
-                                    console.error(`❌ Failed to update lease data for unit ${unitId}:`, error.message);
+                                    console.error(`[FAIL] Failed to update lease data for unit ${unitId}:`, error.message);
                                 }
                             } else {
-                                console.log(`⏭️  Skipping: Unit ID ${unitId} exists with current lease data (Listing ID: ${existing.id})`);
+                                console.log(`[SKIP]️  Skipping: Unit ID ${unitId} exists with current lease data (Listing ID: ${existing.id})`);
                                 skippedListings.push({ unitId, existingId: existing.id, reason: 'no_lease_changes' });
                             }
                         }
@@ -1575,10 +1575,10 @@ class HubSpotClient {
                 }
             }
 
-            console.log(`📊 Processing results: ${newListings.length} new, ${updatedListings.length} updated, ${skippedListings.length} skipped`);
+            console.log(`[STATS] Processing results: ${newListings.length} new, ${updatedListings.length} updated, ${skippedListings.length} skipped`);
 
             if (newListings.length === 0) {
-                console.log('ℹ️  No new listings to create');
+                console.log('️  No new listings to create');
                 return { created: [], updated: updatedListings, skipped: skippedListings };
             }
 
@@ -1589,7 +1589,7 @@ class HubSpotClient {
             for (let i = 0; i < newListings.length; i += batchSize) {
                 const batch = newListings.slice(i, i + batchSize);
                 
-                console.log(`📦 Processing batch ${Math.floor(i/batchSize) + 1} (${batch.length} listings)`);
+                console.log(` Processing batch ${Math.floor(i/batchSize) + 1} (${batch.length} listings)`);
                 
                 const batchRequest = {
                     inputs: batch
@@ -1615,13 +1615,13 @@ class HubSpotClient {
                         }
                     });
                 }
-                console.log(`✅ Batch ${Math.floor(i/batchSize) + 1} completed: ${response.data.results.length} listings created`);
+                console.log(`[OK] Batch ${Math.floor(i/batchSize) + 1} completed: ${response.data.results.length} listings created`);
             }
 
-            console.log(`✅ Final results: ${createdResults.length} created, ${updatedListings.length} updated, ${skippedListings.length} skipped`);
+            console.log(`[OK] Final results: ${createdResults.length} created, ${updatedListings.length} updated, ${skippedListings.length} skipped`);
             return { created: createdResults, updated: updatedListings, skipped: skippedListings };
         } catch (error) {
-            console.error('❌ Error creating listings batch in HubSpot:', error.response?.data || error.message);
+            console.error('[FAIL] Error creating listings batch in HubSpot:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -1694,7 +1694,7 @@ class HubSpotClient {
             
             return response.data.results || [];
         } catch (error) {
-            console.error('❌ Failed to get all listings:', error.message);
+            console.error('[FAIL] Failed to get all listings:', error.message);
             throw error;
         }
     }
@@ -1710,7 +1710,7 @@ class HubSpotClient {
             
             return response.data;
         } catch (error) {
-            console.error(`❌ Failed to delete listing ${listingId}:`, error.message);
+            console.error(`[FAIL] Failed to delete listing ${listingId}:`, error.message);
             throw error;
         }
     }
@@ -1720,7 +1720,7 @@ class HubSpotClient {
      */
     async searchListingByUnitId(unitId) {
         try {
-            console.log(`🔍 Searching for existing listing with Buildium Unit ID: ${unitId}`);
+            console.log(`[SEARCH] Searching for existing listing with Buildium Unit ID: ${unitId}`);
             
             const response = await this.makeRequestWithRetry(() =>
                 axios.post(`${this.baseURL}/crm/v3/objects/0-420/search`, {
@@ -1744,14 +1744,14 @@ class HubSpotClient {
             );
 
             if (response.data.results.length > 0) {
-                console.log('✅ Found existing listing with matching Buildium Unit ID');
+                console.log('[OK] Found existing listing with matching Buildium Unit ID');
                 return response.data.results[0];
             }
             
-            console.log('ℹ️ No existing listing found with this Buildium Unit ID');
+            console.log('️ No existing listing found with this Buildium Unit ID');
             return null;
         } catch (error) {
-            console.error('❌ Error searching for listing by Unit ID:', error.response?.data || error.message);
+            console.error('[FAIL] Error searching for listing by Unit ID:', error.response?.data || error.message);
             return null;
         }
     }
@@ -1769,7 +1769,7 @@ class HubSpotClient {
      */
     async searchListingsByPropertyId(propertyId) {
         try {
-            console.log(`🔍 Searching for listings with Buildium Property ID: ${propertyId}`);
+            console.log(`[SEARCH] Searching for listings with Buildium Property ID: ${propertyId}`);
             
             const response = await axios.post(`${this.baseURL}/crm/v3/objects/0-420/search`, {
                 filterGroups: [{
@@ -1788,10 +1788,10 @@ class HubSpotClient {
                 }
             });
 
-            console.log(`✅ Found ${response.data.results.length} listing(s) for property ${propertyId}`);
+            console.log(`[OK] Found ${response.data.results.length} listing(s) for property ${propertyId}`);
             return response.data.results;
         } catch (error) {
-            console.error(`❌ Error searching for listings by Property ID ${propertyId}:`, error.response?.data || error.message);
+            console.error(`[FAIL] Error searching for listings by Property ID ${propertyId}:`, error.response?.data || error.message);
             return [];
         }
     }
@@ -1802,10 +1802,10 @@ class HubSpotClient {
     async createContactListingAssociation(contactId, listingId, associationTypeId = 2) {
         try {
             const typeName = associationTypeId === 13 ? 'Association Owner' : associationTypeId === 4 ? 'Property Owner' : associationTypeId === 2 ? 'Active Tenant' : associationTypeId === 6 ? 'Inactive Tenant' : associationTypeId === 11 ? 'Future Tenant' : `Type ${associationTypeId}`;
-            console.log(`🔗 Creating ${typeName} association between Contact ${contactId} and Listing ${listingId}...`);
+            console.log(` Creating ${typeName} association between Contact ${contactId} and Listing ${listingId}...`);
             
             if (process.env.DRY_RUN === 'true') {
-                console.log('🔄 DRY RUN MODE - Would create association');
+                console.log('[RETRY] DRY RUN MODE - Would create association');
                 return { success: true };
             }
 
@@ -1832,10 +1832,10 @@ class HubSpotClient {
                 }
             );
 
-            console.log('✅ Successfully created contact-listing association');
+            console.log('[OK] Successfully created contact-listing association');
             return response.data;
         } catch (error) {
-            console.error('❌ Error creating association:', error.response?.data || error.message);
+            console.error('[FAIL] Error creating association:', error.response?.data || error.message);
             return null;
         }
     }
@@ -1846,11 +1846,11 @@ class HubSpotClient {
     async createOwnerPropertyAssociations(hubspotRecordId, owner, recordType, associationTypeId = 4) {
         try {
             const typeName = associationTypeId === 13 ? 'Association Owner' : associationTypeId === 4 ? 'Property Owner' : `Type ${associationTypeId}`;
-            console.log(`🔗 Creating ${typeName} associations for ${recordType} ${hubspotRecordId}...`);
+            console.log(` Creating ${typeName} associations for ${recordType} ${hubspotRecordId}...`);
             console.log(`   Owner has ${owner.PropertyIds?.length || 0} properties: ${owner.PropertyIds?.join(', ') || 'none'}`);
             
             if (!owner.PropertyIds || owner.PropertyIds.length === 0) {
-                console.log('⚠️ Owner has no PropertyIds - no associations to create');
+                console.log('[WARN]️ Owner has no PropertyIds - no associations to create');
                 return { status: 'skipped', reason: 'no_properties', associations: 0 };
             }
             
@@ -1865,7 +1865,7 @@ class HubSpotClient {
             
             // Process each property owned by this owner
             for (const propertyId of owner.PropertyIds) {
-                console.log(`\n🏢 Processing property ${propertyId}...`);
+                console.log(`\n Processing property ${propertyId}...`);
                 
                 try {
                     // Step 1: Look for existing unit listings for this property
@@ -1874,7 +1874,7 @@ class HubSpotClient {
                     
                     // Step 2: If no listings found, sync the property's units first
                     if (listings.length === 0) {
-                        console.log(`⚡ No listings found for property ${propertyId}, syncing units first...`);
+                        console.log(`[FAST] No listings found for property ${propertyId}, syncing units first...`);
                         
                         // Use the integration reference to sync property units
                         if (this.integration) {
@@ -1884,7 +1884,7 @@ class HubSpotClient {
                             // Search again after syncing
                             listings = await this.searchListingsByPropertyId(propertyId);
                         } else {
-                            console.log('⚠️ Cannot sync units - integration instance not available');
+                            console.log('[WARN]️ Cannot sync units - integration instance not available');
                             results.details.push({
                                 propertyId,
                                 status: 'error',
@@ -1907,9 +1907,9 @@ class HubSpotClient {
                                 associationTypeId
                             );
                             results.associationsCreated++;
-                            console.log(`   ✅ Associated with listing ${listing.id} (Unit: ${listing.properties?.buildium_unit_id || 'N/A'})`);
+                            console.log(`   [OK] Associated with listing ${listing.id} (Unit: ${listing.properties?.buildium_unit_id || 'N/A'})`);
                         } catch (error) {
-                            console.error(`   ❌ Failed to associate with listing ${listing.id}:`, error.message);
+                            console.error(`   [FAIL] Failed to associate with listing ${listing.id}:`, error.message);
                             results.errors++;
                         }
                     }
@@ -1922,7 +1922,7 @@ class HubSpotClient {
                     });
                     
                 } catch (error) {
-                    console.error(`❌ Error processing property ${propertyId}:`, error.message);
+                    console.error(`[FAIL] Error processing property ${propertyId}:`, error.message);
                     results.errors++;
                     results.details.push({
                         propertyId,
@@ -1933,16 +1933,16 @@ class HubSpotClient {
             }
             
             // Summary
-            console.log(`\n🏆 Owner Association Complete!`);
+            console.log(`\n Owner Association Complete!`);
             console.log(`   Properties Processed: ${results.propertiesProcessed}`);
             console.log(`   Listings Found: ${results.listingsFound}`);
-            console.log(`   ✅ Associations Created: ${results.associationsCreated}`);
-            console.log(`   ❌ Errors: ${results.errors}`);
+            console.log(`   [OK] Associations Created: ${results.associationsCreated}`);
+            console.log(`   [FAIL] Errors: ${results.errors}`);
             
             return results;
             
         } catch (error) {
-            console.error(`❌ Error creating owner property associations:`, error.message);
+            console.error(`[FAIL] Error creating owner property associations:`, error.message);
             return { status: 'error', error: error.message, associations: 0 };
         }
     }
@@ -1952,7 +1952,7 @@ class HubSpotClient {
      */
     async getListingAssociations(listingId) {
         try {
-            console.log(`🔗 Getting associations for listing ${listingId}...`);
+            console.log(` Getting associations for listing ${listingId}...`);
             
             const response = await axios.get(
                 `${this.baseURL}/crm/v4/objects/0-420/${listingId}/associations/contacts`,
@@ -1964,10 +1964,10 @@ class HubSpotClient {
                 }
             );
 
-            console.log(`✅ Found ${response.data.results?.length || 0} associations`);
+            console.log(`[OK] Found ${response.data.results?.length || 0} associations`);
             return response.data.results || [];
         } catch (error) {
-            console.error('❌ Error getting listing associations:', error.response?.data || error.message);
+            console.error('[FAIL] Error getting listing associations:', error.response?.data || error.message);
             return [];
         }
     }
@@ -1977,7 +1977,7 @@ class HubSpotClient {
      */
     async getContactAssociations(contactId) {
         try {
-            console.log(`🔗 Getting associations for contact ${contactId}...`);
+            console.log(` Getting associations for contact ${contactId}...`);
             
             const response = await axios.get(
                 `${this.baseURL}/crm/v4/objects/contacts/${contactId}/associations/0-420`,
@@ -1989,10 +1989,10 @@ class HubSpotClient {
                 }
             );
 
-            console.log(`✅ Found ${response.data.results?.length || 0} associations`);
+            console.log(`[OK] Found ${response.data.results?.length || 0} associations`);
             return response.data.results || [];
         } catch (error) {
-            console.error('❌ Error getting contact associations:', error.response?.data || error.message);
+            console.error('[FAIL] Error getting contact associations:', error.response?.data || error.message);
             return [];
         }
     }
@@ -2012,7 +2012,7 @@ class HubSpotClient {
             
             return listingAssociations;
         } catch (error) {
-            console.error('❌ Error getting contact-listing associations:', error.response?.data || error.message);
+            console.error('[FAIL] Error getting contact-listing associations:', error.response?.data || error.message);
             return [];
         }
     }
@@ -2022,7 +2022,7 @@ class HubSpotClient {
      */
     async getAssociationTypes(fromObjectType, toObjectType) {
         try {
-            console.log(`🔍 Getting association types from ${fromObjectType} to ${toObjectType}...`);
+            console.log(`[SEARCH] Getting association types from ${fromObjectType} to ${toObjectType}...`);
             
             const response = await axios.get(
                 `${this.baseURL}/crm/v4/associations/${fromObjectType}/${toObjectType}/labels`,
@@ -2034,10 +2034,10 @@ class HubSpotClient {
                 }
             );
 
-            console.log(`✅ Found ${response.data.results?.length || 0} association types`);
+            console.log(`[OK] Found ${response.data.results?.length || 0} association types`);
             return response.data.results || [];
         } catch (error) {
-            console.error('❌ Error getting association types:', error.response?.data || error.message);
+            console.error('[FAIL] Error getting association types:', error.response?.data || error.message);
             return [];
         }
     }
@@ -2047,7 +2047,7 @@ class HubSpotClient {
      */
     async deleteContact(contactId) {
         try {
-            console.log(`🗑️ Deleting contact ${contactId}...`);
+            console.log(`️ Deleting contact ${contactId}...`);
             
             await axios.delete(
                 `${this.baseURL}/crm/v3/objects/contacts/${contactId}`,
@@ -2059,9 +2059,9 @@ class HubSpotClient {
                 }
             );
 
-            console.log('✅ Successfully deleted contact');
+            console.log('[OK] Successfully deleted contact');
         } catch (error) {
-            console.error('❌ Error deleting contact:', error.response?.data || error.message);
+            console.error('[FAIL] Error deleting contact:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -2071,7 +2071,7 @@ class HubSpotClient {
      */
     async deleteListing(listingId) {
         try {
-            console.log(`🗑️ Deleting listing ${listingId}...`);
+            console.log(`️ Deleting listing ${listingId}...`);
             
             await axios.delete(
                 `${this.baseURL}/crm/v3/objects/0-420/${listingId}`,
@@ -2083,9 +2083,9 @@ class HubSpotClient {
                 }
             );
 
-            console.log('✅ Successfully deleted listing');
+            console.log('[OK] Successfully deleted listing');
         } catch (error) {
-            console.error('❌ Error deleting listing:', error.response?.data || error.message);
+            console.error('[FAIL] Error deleting listing:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -2100,14 +2100,14 @@ class HubSpotClient {
             const existingContact = await this.findContactByEmail(email);
             
             if (existingContact) {
-                console.log(`📝 Updating existing contact ${existingContact.id} for owner ${buildiumOwnerId}`);
+                console.log(` Updating existing contact ${existingContact.id} for owner ${buildiumOwnerId}`);
                 return await this.updateContact(existingContact.id, contactData);
             } else {
-                console.log(`➕ Creating new contact for owner ${buildiumOwnerId}`);
+                console.log(` Creating new contact for owner ${buildiumOwnerId}`);
                 return await this.createContact(contactData);
             }
         } catch (error) {
-            console.error('❌ Error creating/updating contact:', error.response?.data || error.message);
+            console.error('[FAIL] Error creating/updating contact:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -2132,7 +2132,7 @@ class HubSpotClient {
 
             return response.data;
         } catch (error) {
-            console.error('❌ Error creating contact:', error.response?.data || error.message);
+            console.error('[FAIL] Error creating contact:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -2157,7 +2157,7 @@ class HubSpotClient {
 
             return response.data;
         } catch (error) {
-            console.error('❌ Error updating contact:', error.response?.data || error.message);
+            console.error('[FAIL] Error updating contact:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -2171,14 +2171,14 @@ class HubSpotClient {
             const existingCompany = await this.findCompanyByBuildiumId(buildiumOwnerId);
             
             if (existingCompany) {
-                console.log(`📝 Updating existing company ${existingCompany.id} for owner ${buildiumOwnerId}`);
+                console.log(` Updating existing company ${existingCompany.id} for owner ${buildiumOwnerId}`);
                 return await this.updateCompany(existingCompany.id, companyData);
             } else {
-                console.log(`➕ Creating new company for owner ${buildiumOwnerId}`);
+                console.log(` Creating new company for owner ${buildiumOwnerId}`);
                 return await this.createCompany(companyData);
             }
         } catch (error) {
-            console.error('❌ Error creating/updating company:', error.response?.data || error.message);
+            console.error('[FAIL] Error creating/updating company:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -2203,7 +2203,7 @@ class HubSpotClient {
 
             return response.data;
         } catch (error) {
-            console.error('❌ Error creating company:', error.response?.data || error.message);
+            console.error('[FAIL] Error creating company:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -2228,7 +2228,7 @@ class HubSpotClient {
 
             return response.data;
         } catch (error) {
-            console.error('❌ Error updating company:', error.response?.data || error.message);
+            console.error('[FAIL] Error updating company:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -2239,11 +2239,11 @@ class HubSpotClient {
     async findContactByEmail(email) {
         try {
             if (!email) {
-                console.log(`⚠️ No email provided, cannot search for existing contact`);
+                console.log(`[WARN]️ No email provided, cannot search for existing contact`);
                 return null;
             }
 
-            console.log(`🔍 Searching for existing contact by email: ${email}...`);
+            console.log(`[SEARCH] Searching for existing contact by email: ${email}...`);
             const response = await this.makeRequestWithRetry(() =>
                 axios.post(
                     `${this.baseURL}/crm/v3/objects/contacts/search`,
@@ -2268,13 +2268,13 @@ class HubSpotClient {
 
             const existingContact = response.data.results.length > 0 ? response.data.results[0] : null;
             if (existingContact) {
-                console.log(`✅ Found existing contact ${existingContact.id} for email ${email}`);
+                console.log(`[OK] Found existing contact ${existingContact.id} for email ${email}`);
             } else {
-                console.log(`ℹ️ No existing contact found for email ${email}`);
+                console.log(`️ No existing contact found for email ${email}`);
             }
             return existingContact;
         } catch (error) {
-            console.error('❌ Error finding contact by email:', error.response?.data || error.message);
+            console.error('[FAIL] Error finding contact by email:', error.response?.data || error.message);
             return null;
         }
     }
@@ -2308,7 +2308,7 @@ class HubSpotClient {
 
             return response.data.results.length > 0 ? response.data.results[0] : null;
         } catch (error) {
-            console.error('❌ Error finding company by Buildium ID:', error.response?.data || error.message);
+            console.error('[FAIL] Error finding company by Buildium ID:', error.response?.data || error.message);
             return null;
         }
     }
@@ -2319,7 +2319,7 @@ class DataTransformer {
      * Transform Buildium tenant data to HubSpot contact format
      */
     transformTenantToContact(tenant) {
-        console.log('🔄 Transforming tenant data to HubSpot format...');
+        console.log('[RETRY] Transforming tenant data to HubSpot format...');
         
         // Extract primary phone number
         const primaryPhone = tenant.PhoneNumbers && tenant.PhoneNumbers.length > 0 
@@ -2388,7 +2388,7 @@ class DataTransformer {
         };
 
         // Log marketing status decision for audit trail
-        console.log(`📊 MARKETING STATUS AUDIT: Tenant ${tenant.Id} (${tenant.Email}) set to NON_MARKETABLE to prevent billing charges`);
+        console.log(`[STATS] MARKETING STATUS AUDIT: Tenant ${tenant.Id} (${tenant.Email}) set to NON_MARKETABLE to prevent billing charges`);
         
         // Remove empty/null properties
         Object.keys(hubspotContact.properties).forEach(key => {
@@ -2397,7 +2397,7 @@ class DataTransformer {
             }
         });
 
-        console.log('✅ Successfully transformed tenant data');
+        console.log('[OK] Successfully transformed tenant data');
         return hubspotContact;
     }
 
@@ -2406,7 +2406,7 @@ class DataTransformer {
      * Only includes fields that have actual data from Buildium to avoid overwriting existing HubSpot data
      */
     transformTenantToContactSafeUpdate(tenant) {
-        console.log('🔄 Transforming tenant data for SAFE UPDATE (non-empty fields only)...');
+        console.log('[RETRY] Transforming tenant data for SAFE UPDATE (non-empty fields only)...');
         
         // Extract primary phone number
         const primaryPhone = tenant.PhoneNumbers && tenant.PhoneNumbers.length > 0 
@@ -2468,13 +2468,13 @@ class DataTransformer {
         safeUpdateFields.hs_marketable_status = 'NON_MARKETABLE';
 
         // Log marketing status decision for audit trail
-        console.log(`📊 MARKETING STATUS AUDIT: Tenant ${tenant.Id} (${tenant.Email}) safe update - set to NON_MARKETABLE to prevent billing charges`);
+        console.log(`[STATS] MARKETING STATUS AUDIT: Tenant ${tenant.Id} (${tenant.Email}) safe update - set to NON_MARKETABLE to prevent billing charges`);
 
         const hubspotContact = {
             properties: safeUpdateFields
         };
 
-        console.log(`✅ Safe update transformation complete - ${Object.keys(safeUpdateFields).length} fields with data`);
+        console.log(`[OK] Safe update transformation complete - ${Object.keys(safeUpdateFields).length} fields with data`);
         return hubspotContact;
     }
 
@@ -2482,7 +2482,7 @@ class DataTransformer {
      * Transform Buildium property data to HubSpot native Listings object format
      */
     transformPropertyToListing(property, unitId = null) {
-        console.log('🔄 Transforming property data to HubSpot Listings format...');
+        console.log('[RETRY] Transforming property data to HubSpot Listings format...');
         
         // Build full address string
         const fullAddress = property.Address 
@@ -2569,7 +2569,7 @@ class DataTransformer {
             }
         });
 
-        console.log('✅ Successfully transformed property data to listing');
+        console.log('[OK] Successfully transformed property data to listing');
         return hubspotListing;
     }
 
@@ -2577,7 +2577,7 @@ class DataTransformer {
      * Transform Buildium owner data to HubSpot contact format (for individual owners)
      */
     transformOwnerToContact(owner) {
-        console.log(`🔄 Transforming owner ${owner.Id} to HubSpot contact format...`);
+        console.log(`[RETRY] Transforming owner ${owner.Id} to HubSpot contact format...`);
         
         // Extract primary phone number
         const primaryPhone = owner.PhoneNumbers && owner.PhoneNumbers.length > 0 
@@ -2629,8 +2629,8 @@ class DataTransformer {
         });
 
         // Log marketing status decision for audit trail
-        console.log(`📊 MARKETING STATUS AUDIT: Owner ${owner.Id} (${owner.Email || 'no email'}) set to NON_MARKETABLE to prevent billing charges`);
-        console.log(`✅ Transformed contact: ${owner.FirstName} ${owner.LastName} (${owner.Email || 'no email'})`);
+        console.log(`[STATS] MARKETING STATUS AUDIT: Owner ${owner.Id} (${owner.Email || 'no email'}) set to NON_MARKETABLE to prevent billing charges`);
+        console.log(`[OK] Transformed contact: ${owner.FirstName} ${owner.LastName} (${owner.Email || 'no email'})`);
         return hubspotContact;
     }
 
@@ -2638,7 +2638,7 @@ class DataTransformer {
      * Transform Buildium owner data to HubSpot company format (for company owners)
      */
     transformOwnerToCompany(owner) {
-        console.log(`🔄 Transforming company owner ${owner.Id} to HubSpot company format...`);
+        console.log(`[RETRY] Transforming company owner ${owner.Id} to HubSpot company format...`);
         
         // Extract primary phone number
         const primaryPhone = owner.PhoneNumbers && owner.PhoneNumbers.length > 0 
@@ -2686,7 +2686,7 @@ class DataTransformer {
             }
         });
 
-        console.log(`✅ Transformed company: ${owner.CompanyName || `Owner ${owner.Id}`}`);
+        console.log(`[OK] Transformed company: ${owner.CompanyName || `Owner ${owner.Id}`}`);
         return hubspotCompany;
     }
 }
@@ -2706,13 +2706,13 @@ class IntegrationPrototype {
      */
     async syncTenantToContact(tenantId) {
         try {
-            console.log('🚀 Starting Buildium to HubSpot sync...');
+            console.log(' Starting Buildium to HubSpot sync...');
             console.log('=' .repeat(50));
             
             // Step 1: Fetch tenant from Buildium
             const tenant = await this.buildiumClient.getTenant(tenantId);
             
-            console.log('📋 Tenant Data:');
+            console.log('[ITEM] Tenant Data:');
             console.log(`   Name: ${tenant.FirstName} ${tenant.LastName}`);
             console.log(`   Email: ${tenant.Email}`);
             console.log(`   ID: ${tenant.Id}`);
@@ -2723,7 +2723,7 @@ class IntegrationPrototype {
                 const existingContact = await this.hubspotClient.searchContactByEmail(tenant.Email);
                 if (existingContact) {
                     if (this.forceUpdate) {
-                        console.log('⚡ Contact exists but FORCE UPDATE enabled:');
+                        console.log('[FAST] Contact exists but FORCE UPDATE enabled:');
                         console.log(`   HubSpot ID: ${existingContact.id}`);
                         console.log('   Updating with latest Buildium data (safe mode - only non-empty fields)...');
                         
@@ -2733,12 +2733,12 @@ class IntegrationPrototype {
                         // Update the existing contact
                         const updatedContact = await this.hubspotClient.updateContact(existingContact.id, hubspotContactData);
                         
-                        console.log('✅ Contact updated successfully!');
+                        console.log('[OK] Contact updated successfully!');
                         console.log(`   HubSpot Contact ID: ${updatedContact.id}`);
                         
                         return { status: 'updated', reason: 'force_update', hubspotContact: updatedContact };
                     } else {
-                        console.log('⚠️ Contact already exists in HubSpot:');
+                        console.log('[WARN]️ Contact already exists in HubSpot:');
                         console.log(`   HubSpot ID: ${existingContact.id}`);
                         console.log('   Skipping creation... (use --force to update)');
                         return { status: 'skipped', reason: 'already_exists', hubspotContact: existingContact };
@@ -2752,7 +2752,7 @@ class IntegrationPrototype {
             // Step 4: Create contact in HubSpot
             const hubspotContact = await this.hubspotClient.createContact(hubspotContactData);
 
-            console.log('✅ Contact created successfully!');
+            console.log('[OK] Contact created successfully!');
             console.log(`   HubSpot Contact ID: ${hubspotContact.id}`);
 
             // Step 5: Check if tenant has lease information with property details
@@ -2769,31 +2769,31 @@ class IntegrationPrototype {
                         
                         // Use the Unit ID from the lease for unique identification
                         const unitId = activeLease.UnitId;
-                        console.log(`🏠 Unit ID from lease: ${unitId}`);
+                        console.log(` Unit ID from lease: ${unitId}`);
                         
                         // Check if listing already exists (search by Buildium Unit ID - guaranteed unique!)
                         const existingListing = await this.hubspotClient.searchListingByUnitId(unitId);
                         
                         if (existingListing) {
-                            console.log(`✅ Found existing listing: ${existingListing.id}`);
+                            console.log(`[OK] Found existing listing: ${existingListing.id}`);
                             hubspotListing = existingListing;
                         } else {
                             // Create new listing with Unit ID
-                            console.log('🏗️ Creating new listing for property...');
+                            console.log('️ Creating new listing for property...');
                             const listingData = this.transformer.transformPropertyToListing(property, unitId);
                             
                             try {
                                 hubspotListing = await this.hubspotClient.createListing(listingData);
-                                console.log(`✅ Created new listing: ${hubspotListing.id}`);
+                                console.log(`[OK] Created new listing: ${hubspotListing.id}`);
                             } catch (createError) {
                                 // If creation fails due to duplicate Unit ID, search for the existing listing
                                 if (createError.message.includes('already has that value') || 
                                     createError.message.includes('buildium_unit_id') ||
                                     createError.response?.data?.message?.includes('already has that value')) {
-                                    console.log('⚠️ Listing with this Unit ID already exists, finding it...');
+                                    console.log('[WARN]️ Listing with this Unit ID already exists, finding it...');
                                     hubspotListing = await this.hubspotClient.searchListingByUnitId(unitId);
                                     if (hubspotListing) {
-                                        console.log(`✅ Found existing listing: ${hubspotListing.id}`);
+                                        console.log(`[OK] Found existing listing: ${hubspotListing.id}`);
                                     } else {
                                         throw new Error('Could not find existing listing after duplicate error');
                                     }
@@ -2811,20 +2811,20 @@ class IntegrationPrototype {
                                 hubspotListing.id,
                                 2  // Active Tenant association type ID
                             );
-                            console.log('✅ Created "Active Tenant" association');
+                            console.log('[OK] Created "Active Tenant" association');
                         }
                         
                     } catch (propertyError) {
-                        console.log('⚠️ Could not create listing for property:', propertyError.message);
+                        console.log('[WARN]️ Could not create listing for property:', propertyError.message);
                     }
                 }
             }
 
-            console.log('�🎉 Sync completed successfully!');
+            console.log('�[COMPLETE] Sync completed successfully!');
             console.log(`   HubSpot Contact ID: ${hubspotContact.id}`);
             if (hubspotListing) {
                 console.log(`   HubSpot Listing ID: ${hubspotListing.id}`);
-                console.log('   Association: Contact ↔ Listing (Active Tenant)');
+                console.log('   Association: Contact  Listing (Active Tenant)');
             }
             
             return { 
@@ -2835,7 +2835,7 @@ class IntegrationPrototype {
             };
 
         } catch (error) {
-            console.error('💥 Sync failed:', error.message);
+            console.error(' Sync failed:', error.message);
             return { status: 'error', error: error.message };
         }
     }
@@ -2846,13 +2846,13 @@ class IntegrationPrototype {
      */
     async syncFutureTenantToContact(tenantId, unitId) {
         try {
-            console.log('🔮 Starting Future Tenant sync...');
+            console.log(' Starting Future Tenant sync...');
             console.log('=' .repeat(50));
             
             // Step 1: Fetch tenant from Buildium
             const tenant = await this.buildiumClient.getTenant(tenantId);
             
-            console.log('📋 Future Tenant Data:');
+            console.log('[ITEM] Future Tenant Data:');
             console.log(`   Name: ${tenant.FirstName} ${tenant.LastName}`);
             console.log(`   Email: ${tenant.Email}`);
             console.log(`   ID: ${tenant.Id}`);
@@ -2863,37 +2863,37 @@ class IntegrationPrototype {
             if (tenant.Email) {
                 const existingContact = await this.hubspotClient.searchContactByEmail(tenant.Email);
                 if (existingContact) {
-                    console.log('✅ Contact already exists in HubSpot:');
+                    console.log('[OK] Contact already exists in HubSpot:');
                     console.log(`   HubSpot ID: ${existingContact.id}`);
                     hubspotContact = existingContact;
                     
                     if (this.forceUpdate) {
-                        console.log('⚡ Force update enabled, updating with latest data...');
+                        console.log('[FAST] Force update enabled, updating with latest data...');
                         const hubspotContactData = this.transformer.transformTenantToContactSafeUpdate(tenant);
                         hubspotContact = await this.hubspotClient.updateContact(existingContact.id, hubspotContactData);
-                        console.log('✅ Contact updated successfully!');
+                        console.log('[OK] Contact updated successfully!');
                     }
                 } else {
                     // Create new contact
-                    console.log('🆕 Creating new contact for future tenant...');
+                    console.log(' Creating new contact for future tenant...');
                     const hubspotContactData = this.transformer.transformTenantToContact(tenant);
                     hubspotContact = await this.hubspotClient.createContact(hubspotContactData);
-                    console.log('✅ Contact created successfully!');
+                    console.log('[OK] Contact created successfully!');
                     console.log(`   HubSpot Contact ID: ${hubspotContact.id}`);
                 }
             } else {
-                console.log('⚠️ No email found for tenant, skipping contact creation');
+                console.log('[WARN]️ No email found for tenant, skipping contact creation');
                 return { status: 'skipped', reason: 'no_email' };
             }
 
             // Step 3: Find the listing by Unit ID
             const hubspotListing = await this.hubspotClient.searchListingByUnitId(unitId);
             if (!hubspotListing) {
-                console.log('⚠️ No listing found for unit ID:', unitId);
+                console.log('[WARN]️ No listing found for unit ID:', unitId);
                 return { status: 'error', error: 'listing_not_found' };
             }
 
-            console.log(`✅ Found listing: ${hubspotListing.id} for unit ${unitId}`);
+            console.log(`[OK] Found listing: ${hubspotListing.id} for unit ${unitId}`);
 
             // Step 4: Create Future Tenant association between contact and listing
             await this.hubspotClient.createContactListingAssociation(
@@ -2901,12 +2901,12 @@ class IntegrationPrototype {
                 hubspotListing.id,
                 11  // Future Tenant association type ID
             );
-            console.log('✅ Created "Future Tenant" association');
+            console.log('[OK] Created "Future Tenant" association');
 
-            console.log('🎉 Future Tenant sync completed successfully!');
+            console.log('[COMPLETE] Future Tenant sync completed successfully!');
             console.log(`   HubSpot Contact ID: ${hubspotContact.id}`);
             console.log(`   HubSpot Listing ID: ${hubspotListing.id}`);
-            console.log('   Association: Contact ↔ Listing (Future Tenant)');
+            console.log('   Association: Contact  Listing (Future Tenant)');
             
             return { 
                 status: 'success', 
@@ -2916,7 +2916,7 @@ class IntegrationPrototype {
             };
 
         } catch (error) {
-            console.error('💥 Future Tenant sync failed:', error.message);
+            console.error(' Future Tenant sync failed:', error.message);
             return { status: 'error', error: error.message };
         }
     }
@@ -2926,13 +2926,13 @@ class IntegrationPrototype {
      */
     async syncPropertyToListing(propertyId) {
         try {
-            console.log('🏠 Starting Buildium Property to HubSpot Listing sync...');
+            console.log(' Starting Buildium Property to HubSpot Listing sync...');
             console.log('=' .repeat(50));
             
             // Step 1: Fetch property from Buildium (using rental properties endpoint)
             const property = await this.buildiumClient.getProperty(propertyId);
             
-            console.log('🏢 Property Data:');
+            console.log(' Property Data:');
             console.log(`   Name: ${property.Name}`);
             console.log(`   Address: ${property.Address?.AddressLine1}, ${property.Address?.City}, ${property.Address?.State}`);
             console.log(`   ID: ${property.Id}`);
@@ -2943,7 +2943,7 @@ class IntegrationPrototype {
             const unitId = property.Id; // Use property ID as unit identifier for standalone syncs
             const existingListing = await this.hubspotClient.searchListingByUnitId(unitId);
             if (existingListing) {
-                console.log('⚠️ Listing already exists in HubSpot:');
+                console.log('[WARN]️ Listing already exists in HubSpot:');
                 console.log(`   HubSpot Listing ID: ${existingListing.id}`);
                 console.log('   Skipping creation...');
                 return { status: 'skipped', reason: 'already_exists', hubspotListing: existingListing };
@@ -2955,7 +2955,7 @@ class IntegrationPrototype {
             // Step 4: Create listing in HubSpot
             const hubspotListing = await this.hubspotClient.createListing(hubspotListingData);
 
-            console.log('🎉 Property sync completed successfully!');
+            console.log('[COMPLETE] Property sync completed successfully!');
             console.log(`   HubSpot Listing ID: ${hubspotListing.id}`);
             
             return { 
@@ -2965,7 +2965,7 @@ class IntegrationPrototype {
             };
 
         } catch (error) {
-            console.error('💥 Property sync failed:', error.message);
+            console.error(' Property sync failed:', error.message);
             return { status: 'error', error: error.message };
         }
     }
@@ -2977,18 +2977,18 @@ class IntegrationPrototype {
         try {
             const { force = false, limit } = options;
             
-            console.log(`🏢 Starting sync of all units for property ${propertyId}...`);
+            console.log(` Starting sync of all units for property ${propertyId}...`);
             console.log('=' .repeat(50));
             
             // Step 1: Get all units for this property
             const units = await this.buildiumClient.getUnitsForProperty(propertyId);
             
             if (units.length === 0) {
-                console.log(`⚠️ No units found for property ${propertyId}`);
+                console.log(`[WARN]️ No units found for property ${propertyId}`);
                 return { status: 'skipped', reason: 'no_units', propertyId, unitsProcessed: 0 };
             }
             
-            console.log(`📋 Found ${units.length} units to sync for property ${propertyId}`);
+            console.log(`[ITEM] Found ${units.length} units to sync for property ${propertyId}`);
             
             const results = {
                 propertyId,
@@ -3017,7 +3017,7 @@ class IntegrationPrototype {
                                 reason: 'already_exists',
                                 listingId: existingListing.id
                             });
-                            console.log(`⚠️ Listing already exists (ID: ${existingListing.id}) - skipping...`);
+                            console.log(`[WARN]️ Listing already exists (ID: ${existingListing.id}) - skipping...`);
                             continue;
                         }
                     }
@@ -3032,7 +3032,7 @@ class IntegrationPrototype {
                             status: 'success',
                             listingId: syncResult.hubspotListing.id
                         });
-                        console.log(`✅ Success: Listing ${syncResult.hubspotListing.id}`);
+                        console.log(`[OK] Success: Listing ${syncResult.hubspotListing.id}`);
                     } else if (syncResult.status === 'skipped') {
                         results.skipped++;
                         results.details.push({
@@ -3040,7 +3040,7 @@ class IntegrationPrototype {
                             status: 'skipped',
                             reason: syncResult.reason
                         });
-                        console.log(`⚠️ Skipped (${syncResult.reason})`);
+                        console.log(`[WARN]️ Skipped (${syncResult.reason})`);
                     } else {
                         results.errors++;
                         results.details.push({
@@ -3048,7 +3048,7 @@ class IntegrationPrototype {
                             status: 'error',
                             error: syncResult.error
                         });
-                        console.log(`❌ Error: ${syncResult.error}`);
+                        console.log(`[FAIL] Error: ${syncResult.error}`);
                     }
                     
                 } catch (error) {
@@ -3058,12 +3058,12 @@ class IntegrationPrototype {
                         status: 'error',
                         error: error.message
                     });
-                    console.error(`❌ Error syncing unit ${unit.UnitNumber || unit.Id}:`, error.message);
+                    console.error(`[FAIL] Error syncing unit ${unit.UnitNumber || unit.Id}:`, error.message);
                 }
             }
             
             // Step 3: Automatic tenant associations lifecycle management
-            console.log('\n🔄 Updating tenant association lifecycle (automatic)...');
+            console.log('\n[RETRY] Updating tenant association lifecycle (automatic)...');
             // Import TenantLifecycleManager here
             const TenantLifecycleManager = require('./TenantLifecycleManager.js');
             const lifecycleManager = new TenantLifecycleManager(this.hubspotClient, this.buildiumClient);
@@ -3071,24 +3071,24 @@ class IntegrationPrototype {
             const allLeasesDate = new Date('2020-01-01');
             const lifecycleStats = await lifecycleManager.updateTenantAssociations(false, limit, allLeasesDate, null); // null = process all leases
             const totalLifecycleUpdates = lifecycleStats.futureToActive + lifecycleStats.activeToInactive + lifecycleStats.futureToInactive;
-            console.log(`✅ Lifecycle updates: ${totalLifecycleUpdates}`);
+            console.log(`[OK] Lifecycle updates: ${totalLifecycleUpdates}`);
             if (totalLifecycleUpdates === 0) {
-                console.log('   ✨ All tenant associations are up to date!');
+                console.log('    All tenant associations are up to date!');
             }
             
             // Step 4: Summary
-            console.log('\n🏆 Property Units Sync Complete!');
+            console.log('\n Property Units Sync Complete!');
             console.log('=' .repeat(50));
             console.log(`   Property ID: ${propertyId}`);
             console.log(`   Total Units: ${results.totalUnits}`);
-            console.log(`   ✅ Success: ${results.success}`);
-            console.log(`   ⚠️ Skipped: ${results.skipped}`);
-            console.log(`   ❌ Errors: ${results.errors}`);
+            console.log(`   [OK] Success: ${results.success}`);
+            console.log(`   [WARN]️ Skipped: ${results.skipped}`);
+            console.log(`   [FAIL] Errors: ${results.errors}`);
             
             return { status: 'completed', ...results };
             
         } catch (error) {
-            console.error(`💥 Property units sync failed for property ${propertyId}:`, error.message);
+            console.error(` Property units sync failed for property ${propertyId}:`, error.message);
             return { status: 'error', propertyId, error: error.message };
         }
     }
@@ -3100,7 +3100,7 @@ class IntegrationPrototype {
         try {
             const { limit = 10 } = options;
             
-            console.log('🔄 Starting Batch Tenant Sync...');
+            console.log('[RETRY] Starting Batch Tenant Sync...');
             console.log('=' .repeat(50));
             console.log(`   Target: ${limit} successful syncs (skips don't count)`);
             console.log('');
@@ -3120,11 +3120,11 @@ class IntegrationPrototype {
             // Keep processing until we hit our success target or run out of tenants
             while (results.success < limit) {
                 // Step 1: Fetch a batch of tenants from Buildium
-                console.log(`📋 Fetching batch of tenants (offset: ${offset})...`);
+                console.log(`[ITEM] Fetching batch of tenants (offset: ${offset})...`);
                 const tenants = await this.buildiumClient.getAllTenants(batchSize, offset);
                 
                 if (tenants.length === 0) {
-                    console.log('ℹ️ No more tenants available');
+                    console.log('️ No more tenants available');
                     break;
                 }
                 
@@ -3144,13 +3144,13 @@ class IntegrationPrototype {
                         
                         if (syncResult.status === 'success') {
                             results.success++;
-                            console.log(`✅ [${results.success}/${limit}] Success: Contact ${syncResult.hubspotContact.id}${syncResult.hubspotListing ? `, Listing ${syncResult.hubspotListing.id}` : ''}`);
+                            console.log(`[OK] [${results.success}/${limit}] Success: Contact ${syncResult.hubspotContact.id}${syncResult.hubspotListing ? `, Listing ${syncResult.hubspotListing.id}` : ''}`);
                         } else if (syncResult.status === 'skipped') {
                             results.skipped++;
-                            console.log(`⚠️ Skipped (${syncResult.reason}) - continuing to next tenant...`);
+                            console.log(`[WARN]️ Skipped (${syncResult.reason}) - continuing to next tenant...`);
                         } else {
                             results.errors++;
-                            console.log(`❌ Error: ${syncResult.error}`);
+                            console.log(`[FAIL] Error: ${syncResult.error}`);
                         }
                         
                         results.details.push({
@@ -3167,7 +3167,7 @@ class IntegrationPrototype {
                         
                     } catch (error) {
                         results.errors++;
-                        console.log(`❌ Error: ${error.message}`);
+                        console.log(`[FAIL] Error: ${error.message}`);
                         
                         results.details.push({
                             tenant: `${tenant.FirstName} ${tenant.LastName}`,
@@ -3181,7 +3181,7 @@ class IntegrationPrototype {
                 // If we haven't reached our target, prepare for next batch
                 if (results.success < limit) {
                     offset += tenants.length;
-                    console.log(`\n🔄 Need ${limit - results.success} more successes, fetching next batch...`);
+                    console.log(`\n[RETRY] Need ${limit - results.success} more successes, fetching next batch...`);
                 }
             }
 
@@ -3189,19 +3189,19 @@ class IntegrationPrototype {
             results.total = totalProcessed;
 
             // Step 3: Summary
-            console.log('\n🎉 Batch Sync Complete!');
+            console.log('\n[COMPLETE] Batch Sync Complete!');
             console.log('=' .repeat(50));
             console.log(`   Target: ${limit} successful syncs`);
-            console.log(`   ✅ Successful: ${results.success}`);
-            console.log(`   ⚠️ Skipped: ${results.skipped}`);
-            console.log(`   ❌ Errors: ${results.errors}`);
-            console.log(`   📊 Total Processed: ${results.total}`);
+            console.log(`   [OK] Successful: ${results.success}`);
+            console.log(`   [WARN]️ Skipped: ${results.skipped}`);
+            console.log(`   [FAIL] Errors: ${results.errors}`);
+            console.log(`   [STATS] Total Processed: ${results.total}`);
             console.log('');
 
             return results;
 
         } catch (error) {
-            console.error('💥 Batch sync failed:', error.message);
+            console.error(' Batch sync failed:', error.message);
             return { status: 'error', error: error.message };
         }
     }
@@ -3214,7 +3214,7 @@ class IntegrationPrototype {
         try {
             const { limit = null, propertyIds = null } = options; // Default to unlimited
             
-            console.log('🏠 Starting Unit-to-Listing Sync...');
+            console.log(' Starting Unit-to-Listing Sync...');
             console.log('=' .repeat(50));
             console.log(`   Target: ${limit || 'ALL'} units to process`);
             if (propertyIds) {
@@ -3240,11 +3240,11 @@ class IntegrationPrototype {
             // Keep processing until we hit our success target or run out of units
             while (limit === null || results.success < limit) {
                 // Step 1: Fetch a batch of units from Buildium
-                console.log(`📋 Fetching batch of units (offset: ${offset})...`);
+                console.log(`[ITEM] Fetching batch of units (offset: ${offset})...`);
                 const units = await this.buildiumClient.getAllUnits(batchSize, offset, propertyIds);
                 
                 if (units.length === 0) {
-                    console.log('ℹ️ No more units available');
+                    console.log('️ No more units available');
                     break;
                 }
                 
@@ -3264,16 +3264,16 @@ class IntegrationPrototype {
                         
                         if (syncResult.status === 'success') {
                             results.success++;
-                            console.log(`✅ [${results.success}/${limit}] Success: Listing ${syncResult.hubspotListing.id}`);
+                            console.log(`[OK] [${results.success}/${limit}] Success: Listing ${syncResult.hubspotListing.id}`);
                         } else if (syncResult.status === 'updated') {
                             results.success++;
-                            console.log(`✅ [${results.success}/${limit}] Updated: Listing ${syncResult.hubspotListing.id}`);
+                            console.log(`[OK] [${results.success}/${limit}] Updated: Listing ${syncResult.hubspotListing.id}`);
                         } else if (syncResult.status === 'skipped') {
                             results.skipped++;
-                            console.log(`⚠️ Skipped (${syncResult.reason}) - continuing to next unit...`);
+                            console.log(`[WARN]️ Skipped (${syncResult.reason}) - continuing to next unit...`);
                         } else {
                             results.errors++;
-                            console.log(`❌ Error: ${syncResult.error}`);
+                            console.log(`[FAIL] Error: ${syncResult.error}`);
                         }
                         
                         results.details.push({
@@ -3290,7 +3290,7 @@ class IntegrationPrototype {
                         
                     } catch (error) {
                         results.errors++;
-                        console.log(`❌ Error: ${error.message}`);
+                        console.log(`[FAIL] Error: ${error.message}`);
                         
                         results.details.push({
                             unit: `Unit ${unit.UnitNumber || unit.Id}`,
@@ -3304,14 +3304,14 @@ class IntegrationPrototype {
                 // If we haven't reached our target, prepare for next batch
                 if (results.success < limit) {
                     offset += units.length;
-                    console.log(`\n🔄 Need ${limit - results.success} more successes, fetching next batch...`);
+                    console.log(`\n[RETRY] Need ${limit - results.success} more successes, fetching next batch...`);
                 }
             }
 
             results.total = totalProcessed;
 
             // Step: Automatic tenant associations lifecycle management
-            console.log('\n🔄 Updating tenant association lifecycle (automatic)...');
+            console.log('\n[RETRY] Updating tenant association lifecycle (automatic)...');
             // Import TenantLifecycleManager here
             const TenantLifecycleManager = require('./TenantLifecycleManager.js');
             const lifecycleManager = new TenantLifecycleManager(this.hubspotClient, this.buildiumClient);
@@ -3319,23 +3319,23 @@ class IntegrationPrototype {
             const allLeasesDate = new Date('2020-01-01');
             const lifecycleStats = await lifecycleManager.updateTenantAssociations(false, limit, allLeasesDate, null); // null = process all leases
             const totalLifecycleUpdates = lifecycleStats.futureToActive + lifecycleStats.activeToInactive + lifecycleStats.futureToInactive;
-            console.log(`✅ Lifecycle updates: ${totalLifecycleUpdates}`);
+            console.log(`[OK] Lifecycle updates: ${totalLifecycleUpdates}`);
             if (totalLifecycleUpdates === 0) {
-                console.log('   ✨ All tenant associations are up to date!');
+                console.log('    All tenant associations are up to date!');
             }
 
             // Summary
-            console.log('\n🎉 Unit Sync Complete!');
+            console.log('\n[COMPLETE] Unit Sync Complete!');
             console.log('=' .repeat(50));
             console.log(`   Target: ${limit || 'ALL'} units`);
-            console.log(`   ✅ Successful: ${results.success}`);
-            console.log(`   ⚠️ Skipped: ${results.skipped}`);
-            console.log(`   ❌ Errors: ${results.errors}`);
-            console.log(`   📊 Total Processed: ${results.total}`);
+            console.log(`   [OK] Successful: ${results.success}`);
+            console.log(`   [WARN]️ Skipped: ${results.skipped}`);
+            console.log(`   [FAIL] Errors: ${results.errors}`);
+            console.log(`   [STATS] Total Processed: ${results.total}`);
             
             // Detailed breakdown
             if (results.success > 0) {
-                console.log('\n🎉 Successfully Processed Units:');
+                console.log('\n[COMPLETE] Successfully Processed Units:');
                 results.details
                     .filter(d => d.result.status === 'success' || d.result.status === 'updated')
                     .forEach((detail, index) => {
@@ -3345,7 +3345,7 @@ class IntegrationPrototype {
             }
             
             if (results.errors > 0) {
-                console.log('\n❌ Errors Encountered:');
+                console.log('\n[FAIL] Errors Encountered:');
                 results.details
                     .filter(d => d.result.status === 'error')
                     .forEach((detail, index) => {
@@ -3358,7 +3358,7 @@ class IntegrationPrototype {
             return results;
 
         } catch (error) {
-            console.error('💥 Unit sync failed:', error.message);
+            console.error(' Unit sync failed:', error.message);
             return { status: 'error', error: error.message };
         }
     }
@@ -3368,14 +3368,14 @@ class IntegrationPrototype {
      */
     async syncUnitToListing(unit) {
         try {
-            console.log(`🏠 Processing Unit ${unit.UnitNumber || unit.Id} (Property: ${unit.PropertyId})`);
+            console.log(` Processing Unit ${unit.UnitNumber || unit.Id} (Property: ${unit.PropertyId})`);
             
             // Step 1: Check if listing already exists
             const existingListing = await this.hubspotClient.searchListingByUnitId(unit.Id);
             
             if (existingListing) {
                 if (this.forceUpdate) {
-                    console.log(`⚡ Listing exists for unit ${unit.Id}: ${existingListing.id} - FORCE UPDATING...`);
+                    console.log(`[FAST] Listing exists for unit ${unit.Id}: ${existingListing.id} - FORCE UPDATING...`);
                     
                     // Step 2: Get property details for update
                     const property = await this.buildiumClient.getProperty(unit.PropertyId);
@@ -3391,7 +3391,7 @@ class IntegrationPrototype {
                     // Step 5: Update the existing listing
                     const updatedListing = await this.hubspotClient.updateListing(existingListing.id, listingData);
                     
-                    console.log('✅ Listing updated successfully!');
+                    console.log('[OK] Listing updated successfully!');
                     console.log(`   HubSpot Listing ID: ${updatedListing.id}`);
                     
                     // Step 6: Process contacts for this updated listing
@@ -3403,7 +3403,7 @@ class IntegrationPrototype {
                         hubspotListing: updatedListing
                     };
                 } else {
-                    console.log(`⚠️ Listing already exists for unit ${unit.Id}: ${existingListing.id} (use --force to update)`);
+                    console.log(`[WARN]️ Listing already exists for unit ${unit.Id}: ${existingListing.id} (use --force to update)`);
                     return { 
                         status: 'skipped', 
                         reason: 'already_exists',
@@ -3427,12 +3427,12 @@ class IntegrationPrototype {
             
             // Step 6: Create listing in HubSpot
             const hubspotListing = await this.hubspotClient.createListing(listingData);
-            console.log(`✅ Created listing: ${hubspotListing.id}`);
+            console.log(`[OK] Created listing: ${hubspotListing.id}`);
             
             // Step 7: Handle tenant associations for both active and inactive tenants
             const { currentTenantAssociations, previousTenantAssociations } = await this.processContactsForListing(unit, [activeLease], allLeases, hubspotListing);
 
-            console.log(`🎉 Unit sync completed successfully!`);
+            console.log(`[COMPLETE] Unit sync completed successfully!`);
             console.log(`   HubSpot Listing ID: ${hubspotListing.id}`);
             console.log(`   Buildium Unit URL: ${buildiumUnitUrl}`);
 
@@ -3447,7 +3447,7 @@ class IntegrationPrototype {
             };
 
         } catch (error) {
-            console.error('💥 Unit sync failed:', error.message);
+            console.error(' Unit sync failed:', error.message);
             return { status: 'error', error: error.message };
         }
     }
@@ -3547,7 +3547,7 @@ class IntegrationPrototype {
             }
         });
 
-        console.log('🔄 Transformed unit to listing format');
+        console.log('[RETRY] Transformed unit to listing format');
         console.log(`   Current tenants: ${currentTenantContactIds.length}`);
         console.log(`   Previous tenants: ${previousTenantContactIds.length}`);
         return listingData;
@@ -3558,7 +3558,7 @@ class IntegrationPrototype {
      * Only includes fields that have actual data from Buildium to avoid overwriting existing HubSpot data
      */
     transformUnitToListingSafeUpdate(unit, property, activeLease, allLeases, buildiumUnitUrl) {
-        console.log('🔄 Transforming unit data for SAFE UPDATE (non-empty fields only)...');
+        console.log('[RETRY] Transforming unit data for SAFE UPDATE (non-empty fields only)...');
         
         // Get current and previous tenant contact IDs based on lease status
         let currentTenantContactIds = [];
@@ -3653,7 +3653,7 @@ class IntegrationPrototype {
             properties: safeUpdateFields
         };
 
-        console.log(`✅ Safe listing update transformation complete - ${Object.keys(safeUpdateFields).length} fields with data`);
+        console.log(`[OK] Safe listing update transformation complete - ${Object.keys(safeUpdateFields).length} fields with data`);
         console.log(`   Current tenants: ${currentTenantContactIds.length}`);
         console.log(`   Previous tenants: ${previousTenantContactIds.length}`);
         return listingData;
@@ -3663,7 +3663,7 @@ class IntegrationPrototype {
      * Process contacts and associations for a listing
      */
     async processContactsForListing(unit, activeLeases, allLeases, hubspotListing) {
-        console.log(`🔄 Processing contacts for listing ${hubspotListing.id}...`);
+        console.log(`[RETRY] Processing contacts for listing ${hubspotListing.id}...`);
         
         let currentTenantAssociations = [];
         let previousTenantAssociations = [];
@@ -3685,16 +3685,16 @@ class IntegrationPrototype {
                                 // Create Active Tenant association (type ID 2)
                                 await this.hubspotClient.createContactListingAssociation(contact.id, hubspotListing.id, 2);
                                 currentTenantAssociations.push(contact.id);
-                                console.log(`✅ Associated ACTIVE tenant ${tenantName} (${contact.id}) with listing`);
+                                console.log(`[OK] Associated ACTIVE tenant ${tenantName} (${contact.id}) with listing`);
                             } else if (lease.LeaseStatus === 'Past' || lease.LeaseStatus === 'Expired') {
                                 // Create Inactive Tenant association (type ID 6)
                                 await this.hubspotClient.createContactListingAssociation(contact.id, hubspotListing.id, 6);
                                 previousTenantAssociations.push(contact.id);
-                                console.log(`✅ Associated INACTIVE tenant ${tenantName} (${contact.id}) with listing`);
+                                console.log(`[OK] Associated INACTIVE tenant ${tenantName} (${contact.id}) with listing`);
                             }
                         }
                     } catch (error) {
-                        console.error(`❌ Failed to associate tenant ID ${tenantRef.Id}:`, error.message);
+                        console.error(`[FAIL] Failed to associate tenant ID ${tenantRef.Id}:`, error.message);
                     }
                 }
             }
@@ -3715,38 +3715,38 @@ class IntegrationPrototype {
             // The tenantReference from lease data only has Id, Status, MoveInDate
             const fullTenant = await this.buildiumClient.getTenant(tenantReference.Id);
             
-            console.log(`📋 Full tenant data: ${fullTenant.FirstName} ${fullTenant.LastName} (${fullTenant.Email || 'no email'})`);
+            console.log(`[ITEM] Full tenant data: ${fullTenant.FirstName} ${fullTenant.LastName} (${fullTenant.Email || 'no email'})`);
             
             // Try to find existing contact by email
             if (fullTenant.Email) {
                 const existingContact = await this.hubspotClient.searchContactByEmail(fullTenant.Email);
                 if (existingContact) {
                     if (this.forceUpdate) {
-                        console.log(`⚡ Found existing contact for ${fullTenant.FirstName} ${fullTenant.LastName}: ${existingContact.id} - FORCE UPDATING (safe mode)...`);
+                        console.log(`[FAST] Found existing contact for ${fullTenant.FirstName} ${fullTenant.LastName}: ${existingContact.id} - FORCE UPDATING (safe mode)...`);
                         
                         const contactData = this.transformer.transformTenantToContactSafeUpdate(fullTenant);
                         const updatedContact = await this.hubspotClient.updateContact(existingContact.id, contactData);
                         
-                        console.log(`✅ Updated contact: ${updatedContact.id}`);
+                        console.log(`[OK] Updated contact: ${updatedContact.id}`);
                         return updatedContact;
                     } else {
-                        console.log(`✅ Found existing contact for ${fullTenant.FirstName} ${fullTenant.LastName}: ${existingContact.id}`);
+                        console.log(`[OK] Found existing contact for ${fullTenant.FirstName} ${fullTenant.LastName}: ${existingContact.id}`);
                         return existingContact;
                     }
                 }
             }
             
             // If no existing contact found, create new one
-            console.log(`📝 Creating new contact for ${fullTenant.FirstName} ${fullTenant.LastName}...`);
+            console.log(` Creating new contact for ${fullTenant.FirstName} ${fullTenant.LastName}...`);
             
             const contactData = this.transformer.transformTenantToContact(fullTenant);
             const newContact = await this.hubspotClient.createContact(contactData);
             
-            console.log(`✅ Created new contact: ${newContact.id}`);
+            console.log(`[OK] Created new contact: ${newContact.id}`);
             return newContact;
             
         } catch (error) {
-            console.error(`❌ Failed to find/create contact for tenant ID ${tenantReference.Id}:`, error.message);
+            console.error(`[FAIL] Failed to find/create contact for tenant ID ${tenantReference.Id}:`, error.message);
             return null;
         }
     }
@@ -3756,45 +3756,45 @@ class IntegrationPrototype {
      */
     async deleteAllListings() {
         try {
-            console.log('🗑️ Deleting All Listings in HubSpot...');
+            console.log('️ Deleting All Listings in HubSpot...');
             console.log('=' .repeat(50));
             
             // Get all listings
             const listings = await this.hubspotClient.getAllListings();
             
             if (listings.length === 0) {
-                console.log('ℹ️ No listings found to delete');
+                console.log('️ No listings found to delete');
                 return { deleted: 0 };
             }
             
-            console.log(`📋 Found ${listings.length} listings to delete`);
+            console.log(`[ITEM] Found ${listings.length} listings to delete`);
             
             let deleted = 0;
             let errors = 0;
             
             for (const listing of listings) {
                 try {
-                    console.log(`🗑️ Deleting listing ${listing.id}...`);
+                    console.log(`️ Deleting listing ${listing.id}...`);
                     await this.hubspotClient.deleteListing(listing.id);
                     deleted++;
-                    console.log(`✅ Deleted listing ${listing.id}`);
+                    console.log(`[OK] Deleted listing ${listing.id}`);
                 } catch (error) {
                     errors++;
-                    console.log(`❌ Failed to delete listing ${listing.id}: ${error.message}`);
+                    console.log(`[FAIL] Failed to delete listing ${listing.id}: ${error.message}`);
                 }
                 
                 // Small delay to avoid rate limiting
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
             
-            console.log('\n🎉 Deletion Complete!');
-            console.log(`   ✅ Deleted: ${deleted}`);
-            console.log(`   ❌ Errors: ${errors}`);
+            console.log('\n[COMPLETE] Deletion Complete!');
+            console.log(`   [OK] Deleted: ${deleted}`);
+            console.log(`   [FAIL] Errors: ${errors}`);
             
             return { deleted, errors, total: listings.length };
             
         } catch (error) {
-            console.error('💥 Failed to delete listings:', error.message);
+            console.error(' Failed to delete listings:', error.message);
             return { deleted: 0, errors: 1, total: 0 };
         }
     }
@@ -3804,7 +3804,7 @@ class IntegrationPrototype {
      */
     async listTenants() {
         try {
-            console.log('📋 Available Tenants:');
+            console.log('[ITEM] Available Tenants:');
             console.log('=' .repeat(50));
             
             const tenants = await this.buildiumClient.getAllTenants();
@@ -3818,7 +3818,7 @@ class IntegrationPrototype {
 
             return tenants;
         } catch (error) {
-            console.error('❌ Failed to list tenants:', error.message);
+            console.error('[FAIL] Failed to list tenants:', error.message);
             return [];
         }
     }
@@ -3827,7 +3827,7 @@ class IntegrationPrototype {
      * Debug configuration and connectivity
      */
     async debugConfiguration() {
-        console.log('🔍 Environment Configuration:');
+        console.log('[SEARCH] Environment Configuration:');
         console.log('=' .repeat(50));
         
         // Check environment variables
@@ -3849,11 +3849,11 @@ class IntegrationPrototype {
             }
         });
         
-        console.log('\n🔗 API Client Configuration:');
+        console.log('\n API Client Configuration:');
         console.log('   Buildium Base URL:', this.buildiumClient.baseURL);
         console.log('   HubSpot Base URL:', this.hubspotClient.baseURL);
         
-        console.log('\n🧪 Testing Basic Connectivity:');
+        console.log('\n[TEST] Testing Basic Connectivity:');
         try {
             // Test a simple HTTP request to each API base URL
             const axios = require('axios');
@@ -3882,7 +3882,7 @@ class IntegrationPrototype {
                         validateStatus: () => true // Accept any status code
                     });
                     
-                    console.log(`   ✅ ${endpoint}: ${buildiumTest.status} ${buildiumTest.statusText}`);
+                    console.log(`   [OK] ${endpoint}: ${buildiumTest.status} ${buildiumTest.statusText}`);
                     if (buildiumTest.data && typeof buildiumTest.data === 'object') {
                         if (Array.isArray(buildiumTest.data)) {
                             console.log(`      Response: Array with ${buildiumTest.data.length} items`);
@@ -3896,16 +3896,16 @@ class IntegrationPrototype {
                         }
                     }
                 } catch (error) {
-                    console.log(`   ❌ ${endpoint}: ${error.message}`);
+                    console.log(`   [FAIL] ${endpoint}: ${error.message}`);
                 }
             }
             
         } catch (error) {
-            console.log(`   ❌ General connectivity error: ${error.message}`);
+            console.log(`   [FAIL] General connectivity error: ${error.message}`);
         }
         
         // Additional credential validation tips
-        console.log('\n💡 Troubleshooting Tips:');
+        console.log('\n Troubleshooting Tips:');
         console.log('   1. Verify your Buildium API is enabled in Settings > API Settings');
         console.log('   2. Check that your API key has "Read" permissions for Tenants');
         console.log('   3. Ensure you\'re using the production API keys (not sandbox)');
@@ -3926,13 +3926,13 @@ class IntegrationPrototype {
         const missing = requiredEnvVars.filter(envVar => !process.env[envVar]);
         
         if (missing.length > 0) {
-            console.error('❌ Missing required environment variables:');
+            console.error('[FAIL] Missing required environment variables:');
             missing.forEach(envVar => console.error(`   - ${envVar}`));
             console.error('\nPlease copy .env.example to .env and fill in your API credentials.');
             return false;
         }
 
-        console.log('✅ Configuration validated');
+        console.log('[OK] Configuration validated');
         return true;
     }
 
@@ -3941,7 +3941,7 @@ class IntegrationPrototype {
      */
     async handleOwnersCommand(options = {}) {
         try {
-            console.log('👥 Property Owners Sync Command');
+            console.log(' Property Owners Sync Command');
             console.log('=' .repeat(50));
             
             const {
@@ -3958,7 +3958,7 @@ class IntegrationPrototype {
 
             // Validate options
             if (!syncAll && !propertyIds && !verify) {
-                console.error('❌ Please specify --sync-all, --property-ids, or --verify');
+                console.error('[FAIL] Please specify --sync-all, --property-ids, or --verify');
                 return;
             }
 
@@ -3979,14 +3979,14 @@ class IntegrationPrototype {
             };
 
             if (dryRun) {
-                console.log('🔍 DRY RUN MODE - No changes will be made');
+                console.log('[SEARCH] DRY RUN MODE - No changes will be made');
             }
             
             if (force) {
-                console.log('💪 FORCE MODE - Will update existing owners');
+                console.log(' FORCE MODE - Will update existing owners');
             }
 
-            console.log(`📊 Sync Configuration:`);
+            console.log(`[STATS] Sync Configuration:`);
             console.log(`   Owner Type: ${ownerType}`);
             console.log(`   Status Filter: ${status || 'all'}`);
             console.log(`   Property IDs: ${propertyIds ? propertyIds.join(', ') : 'all'}`);
@@ -4000,16 +4000,16 @@ class IntegrationPrototype {
             const results = await this.syncOwners(syncOptions);
 
             // Print summary
-            console.log('\n📈 Sync Summary');
+            console.log('\n Sync Summary');
             console.log('=' .repeat(30));
-            console.log(`✅ Successfully synced: ${results.success}`);
-            console.log(`🔄 Enriched existing: ${results.enriched}`);
-            console.log(`⚠️ Skipped: ${results.skipped}`);
-            console.log(`❌ Errors: ${results.errors}`);
-            console.log(`📊 Total processed: ${results.total}`);
+            console.log(`[OK] Successfully synced: ${results.success}`);
+            console.log(`[RETRY] Enriched existing: ${results.enriched}`);
+            console.log(`[WARN]️ Skipped: ${results.skipped}`);
+            console.log(`[FAIL] Errors: ${results.errors}`);
+            console.log(`[STATS] Total processed: ${results.total}`);
 
             if (results.errors > 0) {
-                console.log('\n❌ Error Details:');
+                console.log('\n[FAIL] Error Details:');
                 results.errorDetails.forEach(error => {
                     console.log(`   - Owner ${error.ownerId}: ${error.message}`);
                 });
@@ -4018,7 +4018,7 @@ class IntegrationPrototype {
             return results;
 
         } catch (error) {
-            console.error('❌ Owners command failed:', error.message);
+            console.error('[FAIL] Owners command failed:', error.message);
             throw error;
         }
     }
@@ -4049,14 +4049,14 @@ class IntegrationPrototype {
 
         try {
             if (limit) {
-                console.log(`🎯 Target: ${limit} successful syncs (skips don't count)`);
+                console.log(`[TARGET] Target: ${limit} successful syncs (skips don't count)`);
                 return await this._syncOwnersWithLimit(options, results);
             } else {
                 // Original behavior: fetch all and process
                 return await this._syncAllOwners(options, results);
             }
         } catch (error) {
-            console.error('❌ Error in owners sync:', error.response?.data || error.message);
+            console.error('[FAIL] Error in owners sync:', error.response?.data || error.message);
             throw error;
         }
     }
@@ -4075,7 +4075,7 @@ class IntegrationPrototype {
         } = options;
 
         // Fetch owners from Buildium
-        console.log('🔍 Fetching owners from Buildium...');
+        console.log('[SEARCH] Fetching owners from Buildium...');
         const owners = await this.buildiumClient.getAllOwners({
             propertyIds,
             status,
@@ -4083,10 +4083,10 @@ class IntegrationPrototype {
         });
 
         results.total = owners.length;
-        console.log(`📊 Found ${owners.length} owners to process`);
+        console.log(`[STATS] Found ${owners.length} owners to process`);
 
         if (owners.length === 0) {
-            console.log('ℹ️ No owners found matching criteria');
+            console.log('️ No owners found matching criteria');
             return results;
         }
 
@@ -4100,7 +4100,7 @@ class IntegrationPrototype {
                 console.log('-'.repeat(60));
 
                 if (dryRun) {
-                    console.log('🔍 DRY RUN: Would sync this owner');
+                    console.log('[SEARCH] DRY RUN: Would sync this owner');
                     results.success++;
                     continue;
                 }
@@ -4109,16 +4109,16 @@ class IntegrationPrototype {
                 
                 if (syncResult.status === 'success') {
                     results.success++;
-                    console.log(`✅ Success: ${syncResult.recordType} ${syncResult.recordId}`);
+                    console.log(`[OK] Success: ${syncResult.recordType} ${syncResult.recordId}`);
                 } else if (syncResult.status === 'skipped') {
                     results.skipped++;
-                    console.log(`⚠️ Skipped: ${syncResult.reason}`);
+                    console.log(`[WARN]️ Skipped: ${syncResult.reason}`);
                 } else if (syncResult.status === 'enriched') {
                     results.enriched++;
-                    console.log(`🔄 Enriched: ${syncResult.recordType} ${syncResult.recordId}`);
+                    console.log(`[RETRY] Enriched: ${syncResult.recordType} ${syncResult.recordId}`);
                 } else {
                     results.errors++;
-                    console.log(`❌ Error: ${syncResult.error}`);
+                    console.log(`[FAIL] Error: ${syncResult.error}`);
                     results.errorDetails.push({
                         ownerId: owner.Id,
                         message: syncResult.error
@@ -4132,7 +4132,7 @@ class IntegrationPrototype {
 
             } catch (error) {
                 results.errors++;
-                console.log(`❌ Error processing owner ${owner.Id}: ${error.message}`);
+                console.log(`[FAIL] Error processing owner ${owner.Id}: ${error.message}`);
                 results.errorDetails.push({
                     ownerId: owner.Id,
                     message: error.message
@@ -4164,7 +4164,7 @@ class IntegrationPrototype {
         // Keep processing until we hit our success target or run out of owners
         while ((results.success + results.enriched) < limit) {
             // Step 1: Fetch a batch of owners from Buildium
-            console.log(`📋 Fetching batch of owners (offset: ${offset})...`);
+            console.log(`[ITEM] Fetching batch of owners (offset: ${offset})...`);
             const owners = await this.buildiumClient.getAllOwners({
                 propertyIds,
                 status,
@@ -4174,7 +4174,7 @@ class IntegrationPrototype {
             });
             
             if (owners.length === 0) {
-                console.log('ℹ️ No more owners available');
+                console.log('️ No more owners available');
                 break;
             }
             
@@ -4191,7 +4191,7 @@ class IntegrationPrototype {
                 
                 try {
                     if (dryRun) {
-                        console.log('🔍 DRY RUN: Would sync this owner');
+                        console.log('[SEARCH] DRY RUN: Would sync this owner');
                         results.success++;
                         continue;
                     }
@@ -4200,16 +4200,16 @@ class IntegrationPrototype {
                     
                     if (syncResult.status === 'success') {
                         results.success++;
-                        console.log(`✅ [${results.success + results.enriched}/${limit}] Success: ${syncResult.recordType} ${syncResult.recordId}`);
+                        console.log(`[OK] [${results.success + results.enriched}/${limit}] Success: ${syncResult.recordType} ${syncResult.recordId}`);
                     } else if (syncResult.status === 'enriched') {
                         results.enriched++;
-                        console.log(`🔄 [${results.success + results.enriched}/${limit}] Enriched: ${syncResult.recordType} ${syncResult.recordId}`);
+                        console.log(`[RETRY] [${results.success + results.enriched}/${limit}] Enriched: ${syncResult.recordType} ${syncResult.recordId}`);
                     } else if (syncResult.status === 'skipped') {
                         results.skipped++;
-                        console.log(`⚠️ Skipped (${syncResult.reason}) - continuing to next owner...`);
+                        console.log(`[WARN]️ Skipped (${syncResult.reason}) - continuing to next owner...`);
                     } else {
                         results.errors++;
-                        console.log(`❌ Error: ${syncResult.error}`);
+                        console.log(`[FAIL] Error: ${syncResult.error}`);
                         results.errorDetails.push({
                             ownerId: owner.Id,
                             message: syncResult.error
@@ -4223,7 +4223,7 @@ class IntegrationPrototype {
                     
                 } catch (error) {
                     results.errors++;
-                    console.log(`❌ Error: ${error.message}`);
+                    console.log(`[FAIL] Error: ${error.message}`);
                     results.errorDetails.push({
                         ownerId: owner.Id,
                         message: error.message
@@ -4236,13 +4236,13 @@ class IntegrationPrototype {
 
             // Safety check to prevent infinite loops
             if (offset > 1000) {
-                console.log('⚠️ Reached safety limit (1000 owners processed)');
+                console.log('[WARN]️ Reached safety limit (1000 owners processed)');
                 break;
             }
         }
 
         results.total = totalProcessed;
-        console.log(`\n📊 Processed ${totalProcessed} total owners to achieve ${results.success + results.enriched} successes`);
+        console.log(`\n[STATS] Processed ${totalProcessed} total owners to achieve ${results.success + results.enriched} successes`);
         
         return results;
     }
@@ -4279,11 +4279,11 @@ class IntegrationPrototype {
                         };
                     } else if (force) {
                         // Enrichment mode: update existing company
-                        console.log(`🔄 Enriching existing company: ${existingCompany.properties.name || 'Unknown'}`);
+                        console.log(`[RETRY] Enriching existing company: ${existingCompany.properties.name || 'Unknown'}`);
                         const updatedCompany = await this.hubspotClient.updateCompany(existingCompany.id, companyData);
                         
                         // Create/update property associations with force sync capability
-                        console.log('🔗 Creating/updating property associations for company...');
+                        console.log(' Creating/updating property associations for company...');
                         const associationTypeId = owner._ownerType === 'association' ? 8 : 4; // Association owners get different type
                         const associationResult = await this.hubspotClient.createOwnerPropertyAssociations(
                             updatedCompany.id, 
@@ -4306,7 +4306,7 @@ class IntegrationPrototype {
                 const hubspotCompany = await this.hubspotClient.createOrUpdateCompany(companyData, owner.Id);
                 
                 // Create property associations with force sync capability
-                console.log('🔗 Creating property associations for company...');
+                console.log(' Creating property associations for company...');
                 const associationTypeId = owner._ownerType === 'association' ? 13 : 4; // Association owners get different type
                 const associationResult = await this.hubspotClient.createOwnerPropertyAssociations(
                     hubspotCompany.id, 
@@ -4346,11 +4346,11 @@ class IntegrationPrototype {
                         };
                     } else if (force) {
                         // Enrichment mode: update existing contact
-                        console.log(`🔄 Enriching existing contact: ${existingContact.properties.firstname} ${existingContact.properties.lastname}`);
+                        console.log(`[RETRY] Enriching existing contact: ${existingContact.properties.firstname} ${existingContact.properties.lastname}`);
                         const updatedContact = await this.hubspotClient.updateContact(existingContact.id, contactData);
                         
                         // Create/update property associations with force sync capability
-                        console.log('🔗 Creating/updating property associations for contact...');
+                        console.log(' Creating/updating property associations for contact...');
                         const associationTypeId = owner._ownerType === 'association' ? 13 : 4; // Association owners get different type
                         const associationResult = await this.hubspotClient.createOwnerPropertyAssociations(
                             updatedContact.id, 
@@ -4373,7 +4373,7 @@ class IntegrationPrototype {
                 const hubspotContact = await this.hubspotClient.createOrUpdateContact(contactData, owner.Id);
                 
                 // Create property associations with force sync capability
-                console.log('🔗 Creating property associations for contact...');
+                console.log(' Creating property associations for contact...');
                 const associationTypeId = owner._ownerType === 'association' ? 13 : 4; // Association owners get different type
                 const associationResult = await this.hubspotClient.createOwnerPropertyAssociations(
                     hubspotContact.id, 
@@ -4392,7 +4392,7 @@ class IntegrationPrototype {
             }
 
         } catch (error) {
-            console.error(`❌ Error syncing owner ${owner.Id}:`, error.message);
+            console.error(`[FAIL] Error syncing owner ${owner.Id}:`, error.message);
             return {
                 status: 'error',
                 error: error.message
@@ -4405,14 +4405,14 @@ class IntegrationPrototype {
      */
     async verifyOwnersData() {
         try {
-            console.log('🔍 Verifying owners data integrity...');
+            console.log('[SEARCH] Verifying owners data integrity...');
             
             // Get sample of owners from Buildium
             const sampleOwners = await this.buildiumClient.getAllOwners({ 
                 ownerType: 'both' 
             });
             
-            console.log(`📊 Found ${sampleOwners.length} total owners in Buildium`);
+            console.log(`[STATS] Found ${sampleOwners.length} total owners in Buildium`);
             
             const verificationResults = {
                 buildiumOwners: sampleOwners.length,
@@ -4425,7 +4425,7 @@ class IntegrationPrototype {
             // Sample verification logic here
             // This would check for missing records, data inconsistencies, etc.
             
-            console.log('\n📈 Verification Results');
+            console.log('\n Verification Results');
             console.log('=' .repeat(30));
             console.log(`Buildium Owners: ${verificationResults.buildiumOwners}`);
             console.log(`HubSpot Contacts: ${verificationResults.hubspotContacts}`);
@@ -4435,7 +4435,7 @@ class IntegrationPrototype {
             return verificationResults;
             
         } catch (error) {
-            console.error('❌ Verification failed:', error.message);
+            console.error('[FAIL] Verification failed:', error.message);
             throw error;
         }
     }
@@ -4454,10 +4454,10 @@ class IntegrationPrototype {
 
 // Main execution
 async function main() {
-    console.log('🏠➡️📞 Buildium to HubSpot Integration Prototype');
+    console.log('️ Buildium to HubSpot Integration Prototype');
     console.log('=' .repeat(60));
-    console.log('✨ Enhanced with exponential backoff for rate limiting');
-    console.log('⚡ Buildium API: 10 req/sec | Retry: 200ms→400ms→800ms');
+    console.log(' Enhanced with exponential backoff for rate limiting');
+    console.log('[FAST] Buildium API: 10 req/sec | Retry: 200ms→400ms→800ms');
     console.log('=' .repeat(60));
 
     const integration = new IntegrationPrototype();
@@ -4499,7 +4499,7 @@ async function main() {
                 if (unitsLimitIndex !== -1 && args[unitsLimitIndex + 1]) {
                     unitsLimit = parseInt(args[unitsLimitIndex + 1]);
                     if (isNaN(unitsLimit) || unitsLimit < 1) {
-                        console.error('❌ Invalid limit value. Must be a positive number.');
+                        console.error('[FAIL] Invalid limit value. Must be a positive number.');
                         process.exit(1);
                     }
                 }
@@ -4512,7 +4512,7 @@ async function main() {
                     unitsPropertyIds = propertyIdsStr.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
                     
                     if (unitsPropertyIds.length === 0) {
-                        console.error('❌ Invalid property IDs. Please provide comma-separated numbers.');
+                        console.error('[FAIL] Invalid property IDs. Please provide comma-separated numbers.');
                         process.exit(1);
                     }
                 }
@@ -4521,7 +4521,7 @@ async function main() {
                 const unitsForceUpdate = args.includes('--force');
                 if (unitsForceUpdate) {
                     integration.forceUpdate = true;
-                    console.log('⚡ FORCE MODE: Will update existing listings and contacts (safe mode - only non-empty fields)');
+                    console.log('[FAST] FORCE MODE: Will update existing listings and contacts (safe mode - only non-empty fields)');
                 }
 
                 await integration.syncUnitsToListings({ 
@@ -4541,7 +4541,7 @@ async function main() {
                 if (leasesLimitIndex !== -1 && args[leasesLimitIndex + 1]) {
                     leasesLimit = parseInt(args[leasesLimitIndex + 1]);
                     if (isNaN(leasesLimit) || leasesLimit < 1) {
-                        console.error('❌ Invalid limit value. Must be a positive number.');
+                        console.error('[FAIL] Invalid limit value. Must be a positive number.');
                         process.exit(1);
                     }
                 }
@@ -4553,13 +4553,13 @@ async function main() {
 
                 if (force) {
                     integration.forceUpdate = true;
-                    console.log('⚡ FORCE MODE - Will update existing listings with new lease data');
+                    console.log('[FAST] FORCE MODE - Will update existing listings with new lease data');
                 }
 
-                console.log(`🔢 LIMIT MODE - Process until ${leasesLimit || 'unlimited'} successful operations`);
-                console.log('🚀 STARTING LEASE-CENTRIC SYNC');
+                console.log(`[LIMIT] LIMIT MODE - Process until ${leasesLimit || 'unlimited'} successful operations`);
+                console.log(' STARTING LEASE-CENTRIC SYNC');
                 console.log('==================================================');
-                console.log(`📅 Sync mode: ${dryRun ? 'DRY RUN' : 'LIVE'}`);
+                console.log(`[DATE] Sync mode: ${dryRun ? 'DRY RUN' : 'LIVE'}`);
                 
                 // Import LeaseCentricSyncManager here
                 const { LeaseCentricSyncManager } = require('./LeaseCentricSyncManager.js');
@@ -4569,16 +4569,16 @@ async function main() {
                 const result = await syncManager.syncLeases(dryRun, force, null, 500, leasesLimit, leaseUnitId); // null = ALL leases (no date filter)
 
                 // Lifecycle management is now automatic - no separate flag needed
-                console.log('\n🎉 LEASE-CENTRIC SYNC COMPLETE');
-                console.log(`⏱️  Duration: ${result.duration}ms`);
-                console.log(`📊 Stats: ${result.leasesChecked} leases → ${result.listingsCreated} created, ${result.listingsUpdated} updated, ${result.listingsSkipped} skipped`);
+                console.log('\n[COMPLETE] LEASE-CENTRIC SYNC COMPLETE');
+                console.log(`[DURATION]️  Duration: ${result.duration}ms`);
+                console.log(`[STATS] Stats: ${result.leasesChecked} leases → ${result.listingsCreated} created, ${result.listingsUpdated} updated, ${result.listingsSkipped} skipped`);
                 
                 if (dryRun) {
-                    console.log('\n💡 This was a DRY RUN. Remove --dry-run to actually create/update listings.');
+                    console.log('\n This was a DRY RUN. Remove --dry-run to actually create/update listings.');
                 }
                 break;            case 'sync':
                 if (!tenantId) {
-                    console.error('❌ Please provide a tenant ID: npm start sync <tenant_id>');
+                    console.error('[FAIL] Please provide a tenant ID: npm start sync <tenant_id>');
                     process.exit(1);
                 }
                 await integration.syncTenantToContact(tenantId);
@@ -4587,7 +4587,7 @@ async function main() {
             case 'sync-unit':
                 const unitId = args[1];
                 if (!unitId) {
-                    console.error('❌ Please provide a unit ID: npm start sync-unit <unit_id>');
+                    console.error('[FAIL] Please provide a unit ID: npm start sync-unit <unit_id>');
                     process.exit(1);
                 }
                 
@@ -4595,16 +4595,16 @@ async function main() {
                 const unitForceUpdate = args.includes('--force');
                 if (unitForceUpdate) {
                     integration.forceUpdate = true;
-                    console.log('⚡ FORCE MODE: Will update existing listing and contacts (safe mode - only non-empty fields)');
+                    console.log('[FAST] FORCE MODE: Will update existing listing and contacts (safe mode - only non-empty fields)');
                 }
                 
-                console.log(`🏠 Syncing Unit ${unitId} to HubSpot...`);
+                console.log(` Syncing Unit ${unitId} to HubSpot...`);
                 console.log('=' .repeat(50));
                 
                 try {
                     // Get the unit details
                     const unit = await integration.buildiumClient.getUnit(unitId);
-                    console.log(`📋 Unit: ${unit.UnitNumber || unit.Id} (Property: ${unit.PropertyId})`);
+                    console.log(`[ITEM] Unit: ${unit.UnitNumber || unit.Id} (Property: ${unit.PropertyId})`);
                     
                     // Ensure custom properties exist
                     await integration.hubspotClient.createListingCustomProperties();
@@ -4613,16 +4613,16 @@ async function main() {
                     const result = await integration.syncUnitToListing(unit);
                     
                     if (result.status === 'success') {
-                        console.log(`🎉 Successfully created listing: ${result.hubspotListing.id}`);
+                        console.log(`[COMPLETE] Successfully created listing: ${result.hubspotListing.id}`);
                     } else if (result.status === 'updated') {
-                        console.log(`🎉 Successfully updated listing: ${result.hubspotListing.id}`);
+                        console.log(`[COMPLETE] Successfully updated listing: ${result.hubspotListing.id}`);
                     } else if (result.status === 'skipped') {
-                        console.log(`⚠️ Skipped: ${result.reason}`);
+                        console.log(`[WARN]️ Skipped: ${result.reason}`);
                     } else {
-                        console.log(`❌ Error: ${result.error}`);
+                        console.log(`[FAIL] Error: ${result.error}`);
                     }
                 } catch (error) {
-                    console.error(`❌ Failed to sync unit ${unitId}:`, error.message);
+                    console.error(`[FAIL] Failed to sync unit ${unitId}:`, error.message);
                     process.exit(1);
                 }
                 break;
@@ -4637,7 +4637,7 @@ async function main() {
                 if (limitIndex !== -1 && args[limitIndex + 1]) {
                     limit = parseInt(args[limitIndex + 1]);
                     if (isNaN(limit) || limit < 1) {
-                        console.error('❌ Invalid limit value. Must be a positive number.');
+                        console.error('[FAIL] Invalid limit value. Must be a positive number.');
                         process.exit(1);
                     }
                 }
@@ -4648,7 +4648,7 @@ async function main() {
             case 'sync-property':
                 const propertyId = args[1];
                 if (!propertyId) {
-                    console.error('❌ Please provide a property ID: npm start sync-property <property_id>');
+                    console.error('[FAIL] Please provide a property ID: npm start sync-property <property_id>');
                     process.exit(1);
                 }
                 await integration.syncPropertyToListing(propertyId);
@@ -4768,7 +4768,7 @@ async function main() {
                 break;
         }
     } catch (error) {
-        console.error('💥 Application error:', error.message);
+        console.error(' Application error:', error.message);
         console.error('Stack:', error.stack);
         process.exit(1);
     }
@@ -4825,7 +4825,7 @@ Each log entry shows:
 CONSOLE LOG SEARCH:
 ==================
 You can also search the console output for:
-"📊 MARKETING STATUS AUDIT:"
+"[STATS] MARKETING STATUS AUDIT:"
 
 This will show you all contacts that were processed with NON_MARKETABLE status.
 
@@ -4840,7 +4840,7 @@ If you need to modify this behavior, search for "hs_marketable_status" in the co
 `;
 
     fs.writeFileSync(logFileName, auditContent);
-    console.log(`📋 Marketing Status Audit Log created: ${logFileName}`);
+    console.log(`[ITEM] Marketing Status Audit Log created: ${logFileName}`);
     return logFileName;
 }
 

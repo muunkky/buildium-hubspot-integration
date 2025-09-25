@@ -5,23 +5,23 @@ const { IntegrationPrototype } = require('../index.js');
  * Test that --limit counts successful syncs, not skipped records
  */
 async function testLimitWithSkips() {
-    console.log('🎯 Testing --limit with Skip Behavior');
+    console.log('[TARGET] Testing --limit with Skip Behavior');
     console.log('=' .repeat(60));
     
     const integration = new IntegrationPrototype();
     
     try {
-        console.log('\n📊 Test: --limit behavior comparison');
+        console.log('\n[STATS] Test: --limit behavior comparison');
         console.log('-'.repeat(50));
         
-        console.log('🔍 Without --limit (processes all available):');
+        console.log('[SEARCH] Without --limit (processes all available):');
         const allResults = await integration.handleOwnersCommand({
             propertyIds: [140054, 57129], // Two properties  
             dryRun: true,
             type: 'rental'
         });
         
-        console.log('\n🎯 With --limit 2 (stops after 2 successes):');
+        console.log('\n[TARGET] With --limit 2 (stops after 2 successes):');
         const limitedResults = await integration.handleOwnersCommand({
             propertyIds: [140054, 57129], // Same two properties
             limit: 2,
@@ -29,34 +29,34 @@ async function testLimitWithSkips() {
             type: 'rental'
         });
         
-        console.log('\n📊 Comparison Results:');
+        console.log('\n[STATS] Comparison Results:');
         console.log('=' .repeat(30));
         console.log('Without limit:');
-        console.log(`  ✅ Success: ${allResults.success}`);
-        console.log(`  🔄 Enriched: ${allResults.enriched}`);
-        console.log(`  ⚠️ Skipped: ${allResults.skipped}`);
-        console.log(`  📊 Total: ${allResults.total}`);
+        console.log(`  [OK] Success: ${allResults.success}`);
+        console.log(`  [RETRY] Enriched: ${allResults.enriched}`);
+        console.log(`  [WARN]️ Skipped: ${allResults.skipped}`);
+        console.log(`  [STATS] Total: ${allResults.total}`);
         
         console.log('\nWith --limit 2:');
-        console.log(`  ✅ Success: ${limitedResults.success}`);
-        console.log(`  🔄 Enriched: ${limitedResults.enriched}`);
-        console.log(`  ⚠️ Skipped: ${limitedResults.skipped}`);
-        console.log(`  📊 Total: ${limitedResults.total}`);
+        console.log(`  [OK] Success: ${limitedResults.success}`);
+        console.log(`  [RETRY] Enriched: ${limitedResults.enriched}`);
+        console.log(`  [WARN]️ Skipped: ${limitedResults.skipped}`);
+        console.log(`  [STATS] Total: ${limitedResults.total}`);
         
-        console.log('\n💡 Key Insights:');
+        console.log('\n Key Insights:');
         console.log(`  • --limit controls successful operations (success + enriched)`);
         console.log(`  • Skipped records don't count against the limit`);
         console.log(`  • System keeps processing until target successes reached`);
         console.log(`  • Similar to units/tenants sync behavior`);
         
         if (limitedResults.success + limitedResults.enriched === 2) {
-            console.log('\n✅ SUCCESS: --limit working correctly!');
+            console.log('\n[OK] SUCCESS: --limit working correctly!');
             console.log(`   Achieved exactly ${limitedResults.success + limitedResults.enriched} successful operations`);
         } else {
-            console.log('\n⚠️ NOTICE: Unexpected limit behavior');
+            console.log('\n[WARN]️ NOTICE: Unexpected limit behavior');
         }
         
-        console.log('\n🎯 Usage Examples:');
+        console.log('\n[TARGET] Usage Examples:');
         console.log('');
         console.log('# Sync exactly 5 owners successfully:');
         console.log('node index.js owners --sync-all --limit 5');
@@ -73,7 +73,7 @@ async function testLimitWithSkips() {
         };
         
     } catch (error) {
-        console.error('❌ Test failed:', error.message);
+        console.error('[FAIL] Test failed:', error.message);
         return null;
     }
 }

@@ -718,7 +718,7 @@ describe('Lease-Centric vs Unit-Centric Performance Comparison', function() {
         assert(efficiency > 50, `Expected >50x efficiency gain, got ${efficiency.toFixed(1)}x`);
         
         // Test passes - demonstrates the massive efficiency improvement
-        console.log('\n✅ Lease-centric approach is significantly more efficient!\n');
+        console.log('\n[OK] Lease-centric approach is significantly more efficient!\n');
     });
 });
 

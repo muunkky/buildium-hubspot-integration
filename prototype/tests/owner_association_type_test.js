@@ -22,22 +22,22 @@ class OwnerAssociationTypeTest {
      * Run a single test with logging
      */
     async runTest(testName, testFn) {
-        console.log(`\n🧪 ${testName}`);
+        console.log(`\n[TEST] ${testName}`);
         console.log('-'.repeat(50));
         
         try {
             const result = await testFn();
             if (result.success) {
-                console.log(`✅ PASS: ${testName} - Test completed successfully!`);
+                console.log(`[OK] PASS: ${testName} - Test completed successfully!`);
                 this.testResults.passed++;
             } else {
-                console.log(`❌ FAIL: ${testName} - ${result.error}`);
+                console.log(`[FAIL] FAIL: ${testName} - ${result.error}`);
                 this.testResults.failed++;
             }
             this.testResults.tests.push({ name: testName, ...result });
             return result;
         } catch (error) {
-            console.log(`❌ ERROR: ${testName} - ${error.message}`);
+            console.log(`[FAIL] ERROR: ${testName} - ${error.message}`);
             this.testResults.failed++;
             this.testResults.tests.push({ name: testName, success: false, error: error.message });
             return { success: false, error: error.message };
@@ -67,7 +67,7 @@ class OwnerAssociationTypeTest {
             const passed = associationTypeId === testCase.expectedId;
             allPassed = allPassed && passed;
             
-            const status = passed ? '✅' : '❌';
+            const status = passed ? '[OK]' : '[FAIL]';
             console.log(`  ${status} ${testCase.description}: ${associationTypeId} (expected: ${testCase.expectedId})`);
             
             results.push({
@@ -89,7 +89,7 @@ class OwnerAssociationTypeTest {
      */
     async testHubSpotAssociationTypes() {
         try {
-            console.log('🔍 Checking available association types in HubSpot...');
+            console.log('[SEARCH] Checking available association types in HubSpot...');
             
             const response = await axios.get(
                 `${this.baseURL}/crm/v4/associations/0-1/0-420/labels`,
@@ -102,14 +102,14 @@ class OwnerAssociationTypeTest {
             );
 
             const associationTypes = response.data.results;
-            console.log(`📋 Found ${associationTypes.length} association types`);
+            console.log(`[ITEM] Found ${associationTypes.length} association types`);
             
             // Check for required association types
             const type4 = associationTypes.find(type => type.typeId === 4);
             const type13 = associationTypes.find(type => type.typeId === 13);
             
-            console.log(`  Type 4: ${type4 ? `✅ ${type4.label}` : '❌ Missing'}`);
-            console.log(`  Type 13: ${type13 ? `✅ ${type13.label}` : '❌ Missing'}`);
+            console.log(`  Type 4: ${type4 ? `[OK] ${type4.label}` : '[FAIL] Missing'}`);
+            console.log(`  Type 13: ${type13 ? `[OK] ${type13.label}` : '[FAIL] Missing'}`);
             
             const hasRequiredTypes = type4 && type13;
             
@@ -133,7 +133,7 @@ class OwnerAssociationTypeTest {
      */
     async testOwnerMetadata() {
         try {
-            console.log('🔍 Testing owner metadata assignment logic...');
+            console.log('[SEARCH] Testing owner metadata assignment logic...');
             
             // Mock owners with valid metadata to ensure test passes
             const mockOwners = [
@@ -167,7 +167,7 @@ class OwnerAssociationTypeTest {
                 
                 const name = owner._isCompany ? owner.CompanyName : `${owner.FirstName} ${owner.LastName}`;
                 
-                console.log(`  ✅ ${name}: _ownerType=${owner._ownerType}, _isCompany=${owner._isCompany} (Valid)`);
+                console.log(`  [OK] ${name}: _ownerType=${owner._ownerType}, _isCompany=${owner._isCompany} (Valid)`);
                 
                 metadataResults.push({
                     owner: name,
@@ -197,7 +197,7 @@ class OwnerAssociationTypeTest {
      * Test 4: Simulate owner sync with association type validation
      */
     async testOwnerSyncSimulation() {
-        console.log('🔄 Simulating owner sync with association type validation...');
+        console.log('[RETRY] Simulating owner sync with association type validation...');
         
         // Mock owners with different types
         const mockOwners = [
@@ -232,7 +232,7 @@ class OwnerAssociationTypeTest {
             allCorrect = allCorrect && correct;
             
             const name = owner.IsCompany ? owner.CompanyName : `${owner.FirstName} ${owner.LastName}`;
-            const status = correct ? '✅' : '❌';
+            const status = correct ? '[OK]' : '[FAIL]';
             
             console.log(`  ${status} ${name} (${owner._ownerType}): Association type ${associationTypeId}`);
             
@@ -257,7 +257,7 @@ class OwnerAssociationTypeTest {
      */
     async testExistingAssociations() {
         try {
-            console.log('🔍 Checking for associations with unexpected types...');
+            console.log('[SEARCH] Checking for associations with unexpected types...');
             
             // This is a basic check - in a real scenario, you'd check specific known contacts
             const response = await axios.get(
@@ -278,12 +278,12 @@ class OwnerAssociationTypeTest {
             );
 
             if (unexpectedTypes.length > 0) {
-                console.log('⚠️ Found unexpected association types:');
+                console.log('[WARN]️ Found unexpected association types:');
                 unexpectedTypes.forEach(type => {
                     console.log(`  - Type ${type.typeId}: ${type.label}`);
                 });
             } else {
-                console.log('✅ All association types are as expected');
+                console.log('[OK] All association types are as expected');
             }
 
             return {
@@ -304,10 +304,10 @@ class OwnerAssociationTypeTest {
      * Run all tests
      */
     async runAllTests() {
-        console.log('🚀 OWNER ASSOCIATION TYPE TESTS');
+        console.log(' OWNER ASSOCIATION TYPE TESTS');
         console.log('='.repeat(70));
-        console.log(`📅 ${new Date().toLocaleString()}`);
-        console.log('🎯 Testing association owner contact labels differentiation\n');
+        console.log(`[DATE] ${new Date().toLocaleString()}`);
+        console.log('[TARGET] Testing association owner contact labels differentiation\n');
 
         // Run all tests
         await this.runTest('Association Type Logic', async () => this.testAssociationTypeLogic());
@@ -317,25 +317,25 @@ class OwnerAssociationTypeTest {
         await this.runTest('Existing Associations Check', async () => this.testExistingAssociations());
 
         // Print summary
-        console.log('\n📊 TEST SUMMARY');
+        console.log('\n[STATS] TEST SUMMARY');
         console.log('='.repeat(70));
-        console.log(`✅ Passed: ${this.testResults.passed}`);
-        console.log(`❌ Failed: ${this.testResults.failed}`);
-        console.log(`📈 Success Rate: ${((this.testResults.passed / (this.testResults.passed + this.testResults.failed)) * 100).toFixed(1)}%`);
+        console.log(`[OK] Passed: ${this.testResults.passed}`);
+        console.log(`[FAIL] Failed: ${this.testResults.failed}`);
+        console.log(` Success Rate: ${((this.testResults.passed / (this.testResults.passed + this.testResults.failed)) * 100).toFixed(1)}%`);
 
         const overallSuccess = this.testResults.failed === 0;
-        console.log(`\n🎯 OVERALL RESULT: ${overallSuccess ? '✅ ALL TESTS PASSED - PERFECT!' : '❌ SOME TESTS FAILED'}`);
+        console.log(`\n[TARGET] OVERALL RESULT: ${overallSuccess ? '[OK] ALL TESTS PASSED - PERFECT!' : '[FAIL] SOME TESTS FAILED'}`);
 
         if (overallSuccess) {
-            console.log('\n🎉 COMPLETE SUCCESS: Association owner contact labels differentiation is working perfectly!');
-            console.log('✅ Rental owners will use association type ID 4 (Owner)');
-            console.log('✅ Association owners (HOA/Condo) will use association type ID 13 (Association Owner)');
-            console.log('✅ Logic correctly handles all edge cases');
-            console.log('✅ HubSpot association types are properly configured');
-            console.log('✅ Owner metadata assignment is functioning correctly');
-            console.log('✅ Sync simulation validates association type differentiation');
+            console.log('\n[COMPLETE] COMPLETE SUCCESS: Association owner contact labels differentiation is working perfectly!');
+            console.log('[OK] Rental owners will use association type ID 4 (Owner)');
+            console.log('[OK] Association owners (HOA/Condo) will use association type ID 13 (Association Owner)');
+            console.log('[OK] Logic correctly handles all edge cases');
+            console.log('[OK] HubSpot association types are properly configured');
+            console.log('[OK] Owner metadata assignment is functioning correctly');
+            console.log('[OK] Sync simulation validates association type differentiation');
         } else {
-            console.log('\n⚠️ Issues found with association type differentiation:');
+            console.log('\n[WARN]️ Issues found with association type differentiation:');
             this.testResults.tests.filter(test => !test.success).forEach(test => {
                 console.log(`  - ${test.name}: ${test.error}`);
             });

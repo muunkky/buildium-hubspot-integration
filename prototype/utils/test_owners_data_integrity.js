@@ -5,7 +5,7 @@ const { BuildiumClient } = require('../index.js');
  * Comprehensive test suite for owners command data integrity
  */
 async function runOwnersSyncTests() {
-    console.log('🧪 Owners Sync Data Integrity Test Suite');
+    console.log('[TEST] Owners Sync Data Integrity Test Suite');
     console.log('=' .repeat(60));
     
     const buildium = new BuildiumClient();
@@ -14,7 +14,7 @@ async function runOwnersSyncTests() {
     
     try {
         // Test 1: Property filtering accuracy
-        console.log('\n📊 Test 1: Property Filtering Accuracy');
+        console.log('\n[STATS] Test 1: Property Filtering Accuracy');
         console.log('-'.repeat(40));
         
         const testPropertyId = 140054;
@@ -34,16 +34,16 @@ async function runOwnersSyncTests() {
             } else {
                 invalidOwners++;
                 const name = owner.IsCompany ? owner.CompanyName : `${owner.FirstName} ${owner.LastName}`;
-                console.log(`❌ Invalid: ${name} (${owner.Id}) - Properties: [${owner.PropertyIds?.join(', ')}]`);
+                console.log(`[FAIL] Invalid: ${name} (${owner.Id}) - Properties: [${owner.PropertyIds?.join(', ')}]`);
             }
         });
         
         const accuracy = filteredOwners.length > 0 ? (validOwners / filteredOwners.length) * 100 : 0;
         const test1Passed = accuracy === 100;
         
-        console.log(`✅ Valid owners: ${validOwners}`);
-        console.log(`❌ Invalid owners: ${invalidOwners}`);
-        console.log(`🎯 Accuracy: ${accuracy.toFixed(1)}%`);
+        console.log(`[OK] Valid owners: ${validOwners}`);
+        console.log(`[FAIL] Invalid owners: ${invalidOwners}`);
+        console.log(`[TARGET] Accuracy: ${accuracy.toFixed(1)}%`);
         console.log(`Result: ${test1Passed ? 'PASS' : 'FAIL'}`);
         
         testResults.push({
@@ -55,7 +55,7 @@ async function runOwnersSyncTests() {
         if (!test1Passed) allTestsPassed = false;
         
         // Test 2: Multiple property filtering
-        console.log('\n📊 Test 2: Multiple Property Filtering');
+        console.log('\n[STATS] Test 2: Multiple Property Filtering');
         console.log('-'.repeat(40));
         
         const multiplePropertyIds = [140054, 57129]; // Two different properties
@@ -77,16 +77,16 @@ async function runOwnersSyncTests() {
             } else {
                 invalidMultiple++;
                 const name = owner.IsCompany ? owner.CompanyName : `${owner.FirstName} ${owner.LastName}`;
-                console.log(`❌ Invalid: ${name} (${owner.Id}) - Properties: [${owner.PropertyIds?.join(', ')}]`);
+                console.log(`[FAIL] Invalid: ${name} (${owner.Id}) - Properties: [${owner.PropertyIds?.join(', ')}]`);
             }
         });
         
         const multipleAccuracy = multipleFiltered.length > 0 ? (validMultiple / multipleFiltered.length) * 100 : 0;
         const test2Passed = multipleAccuracy === 100;
         
-        console.log(`✅ Valid owners: ${validMultiple}`);
-        console.log(`❌ Invalid owners: ${invalidMultiple}`);
-        console.log(`🎯 Accuracy: ${multipleAccuracy.toFixed(1)}%`);
+        console.log(`[OK] Valid owners: ${validMultiple}`);
+        console.log(`[FAIL] Invalid owners: ${invalidMultiple}`);
+        console.log(`[TARGET] Accuracy: ${multipleAccuracy.toFixed(1)}%`);
         console.log(`Result: ${test2Passed ? 'PASS' : 'FAIL'}`);
         
         testResults.push({
@@ -98,7 +98,7 @@ async function runOwnersSyncTests() {
         if (!test2Passed) allTestsPassed = false;
         
         // Test 3: Status filtering
-        console.log('\n📊 Test 3: Status Filtering');
+        console.log('\n[STATS] Test 3: Status Filtering');
         console.log('-'.repeat(40));
         
         const activeOwners = await buildium.getRentalOwners({ 
@@ -117,16 +117,16 @@ async function runOwnersSyncTests() {
             } else {
                 invalidActiveStatus++;
                 const name = owner.IsCompany ? owner.CompanyName : `${owner.FirstName} ${owner.LastName}`;
-                console.log(`❌ Non-active: ${name} (${owner.Id}) - IsActive: ${owner.IsActive}`);
+                console.log(`[FAIL] Non-active: ${name} (${owner.Id}) - IsActive: ${owner.IsActive}`);
             }
         });
         
         const statusAccuracy = activeOwners.length > 0 ? (validActiveStatus / activeOwners.length) * 100 : 100;
         const test3Passed = statusAccuracy === 100;
         
-        console.log(`✅ Active owners: ${validActiveStatus}`);
-        console.log(`❌ Non-active owners: ${invalidActiveStatus}`);
-        console.log(`🎯 Status accuracy: ${statusAccuracy.toFixed(1)}%`);
+        console.log(`[OK] Active owners: ${validActiveStatus}`);
+        console.log(`[FAIL] Non-active owners: ${invalidActiveStatus}`);
+        console.log(`[TARGET] Status accuracy: ${statusAccuracy.toFixed(1)}%`);
         console.log(`Result: ${test3Passed ? 'PASS' : 'FAIL'}`);
         
         testResults.push({
@@ -138,7 +138,7 @@ async function runOwnersSyncTests() {
         if (!test3Passed) allTestsPassed = false;
         
         // Test 4: Data completeness
-        console.log('\n📊 Test 4: Data Completeness');
+        console.log('\n[STATS] Test 4: Data Completeness');
         console.log('-'.repeat(40));
         
         const sampleOwner = filteredOwners[0];
@@ -176,32 +176,32 @@ async function runOwnersSyncTests() {
         if (!test4Passed) allTestsPassed = false;
         
         // Final Results
-        console.log('\n🏆 TEST SUITE RESULTS');
+        console.log('\n TEST SUITE RESULTS');
         console.log('=' .repeat(60));
         
         testResults.forEach((result, index) => {
-            const status = result.passed ? '✅ PASS' : '❌ FAIL';
+            const status = result.passed ? '[OK] PASS' : '[FAIL] FAIL';
             console.log(`${index + 1}. ${result.test}: ${status}`);
             console.log(`   ${result.details}`);
         });
         
-        console.log('\n📈 Overall Result:');
-        console.log(`${allTestsPassed ? '✅ ALL TESTS PASSED' : '❌ SOME TESTS FAILED'}`);
+        console.log('\n Overall Result:');
+        console.log(`${allTestsPassed ? '[OK] ALL TESTS PASSED' : '[FAIL] SOME TESTS FAILED'}`);
         console.log(`Passed: ${testResults.filter(r => r.passed).length}/${testResults.length}`);
         
         if (allTestsPassed) {
-            console.log('\n🎉 OWNERS SYNC DATA INTEGRITY VERIFIED!');
+            console.log('\n[COMPLETE] OWNERS SYNC DATA INTEGRITY VERIFIED!');
             console.log('The property filtering bug has been successfully fixed.');
             console.log('The system is now ready for production use.');
         } else {
-            console.log('\n🚨 DATA INTEGRITY ISSUES DETECTED!');
+            console.log('\n DATA INTEGRITY ISSUES DETECTED!');
             console.log('Please address the failing tests before using in production.');
         }
         
         return allTestsPassed;
         
     } catch (error) {
-        console.error('❌ Test suite failed:', error.message);
+        console.error('[FAIL] Test suite failed:', error.message);
         return false;
     }
 }

@@ -12,15 +12,15 @@ const path = require('path');
 
 // Simple test framework
 global.describe = function(suiteName, fn) {
-    console.log(`\n📋 ${suiteName}`);
+    console.log(`\n[ITEM] ${suiteName}`);
     console.log('='.repeat(suiteName.length + 4));
     
     try {
         fn();
-        console.log(`✅ ${suiteName} - ALL TESTS PASSED`);
+        console.log(`[OK] ${suiteName} - ALL TESTS PASSED`);
         return true;
     } catch (error) {
-        console.error(`❌ ${suiteName} - FAILED:`, error.message);
+        console.error(`[FAIL] ${suiteName} - FAILED:`, error.message);
         if (error.stack) {
             console.error(error.stack);
         }
@@ -33,17 +33,17 @@ global.it = function(testName, fn) {
         if (fn.constructor.name === 'AsyncFunction') {
             // For async tests, we'll handle them synchronously for simplicity
             fn().then(() => {
-                console.log(`  ✓ ${testName}`);
+                console.log(`   ${testName}`);
             }).catch(error => {
-                console.error(`  ✗ ${testName}: ${error.message}`);
+                console.error(`   ${testName}: ${error.message}`);
                 throw error;
             });
         } else {
             fn();
-            console.log(`  ✓ ${testName}`);
+            console.log(`   ${testName}`);
         }
     } catch (error) {
-        console.error(`  ✗ ${testName}: ${error.message}`);
+        console.error(`   ${testName}: ${error.message}`);
         throw error;
     }
 };
@@ -93,7 +93,7 @@ const testFiles = [
 ];
 
 async function runTests() {
-    console.log('🚀 Lease-Centric Sync Test Suite');
+    console.log(' Lease-Centric Sync Test Suite');
     console.log('Testing next-generation lease-to-listing sync approach\n');
     
     const startTime = Date.now();
@@ -101,37 +101,37 @@ async function runTests() {
     let totalFailed = 0;
     
     // Check for required dependencies
-    console.log('🔍 Checking dependencies...');
+    console.log('[SEARCH] Checking dependencies...');
     const requiredDeps = ['luxon'];
     const missingDeps = [];
     
     for (const dep of requiredDeps) {
         try {
             require(dep);
-            console.log(`  ✓ ${dep}`);
+            console.log(`   ${dep}`);
         } catch (error) {
             missingDeps.push(dep);
-            console.log(`  ✗ ${dep} - not found`);
+            console.log(`   ${dep} - not found`);
         }
     }
     
     if (missingDeps.length > 0) {
-        console.log(`\n⚠️ Missing dependencies. Please install:`);
+        console.log(`\n[WARN]️ Missing dependencies. Please install:`);
         console.log(`   npm install ${missingDeps.join(' ')}`);
         process.exit(1);
     }
     
-    console.log('\n🧪 Running Tests...\n');
+    console.log('\n[TEST] Running Tests...\n');
     
     for (const testFile of testFiles) {
-        console.log(`\n📁 Running ${testFile}...`);
+        console.log(`\n Running ${testFile}...`);
         console.log('-'.repeat(50));
         
         try {
             const testPath = path.join(__dirname, testFile);
             
             if (!fs.existsSync(testPath)) {
-                console.log(`⚠️ Test file ${testFile} not found, skipping...`);
+                console.log(`[WARN]️ Test file ${testFile} not found, skipping...`);
                 continue;
             }
             
@@ -140,11 +140,11 @@ async function runTests() {
             require(testPath);
             
             totalPassed++;
-            console.log(`✅ ${testFile} completed successfully`);
+            console.log(`[OK] ${testFile} completed successfully`);
             
         } catch (error) {
             totalFailed++;
-            console.error(`❌ ${testFile} failed:`, error.message);
+            console.error(`[FAIL] ${testFile} failed:`, error.message);
             
             // Don't stop on failures, continue with other tests
         }
@@ -158,7 +158,7 @@ async function runTests() {
     
     // Summary
     console.log('\n' + '='.repeat(60));
-    console.log('📊 TEST SUMMARY');
+    console.log('[STATS] TEST SUMMARY');
     console.log('='.repeat(60));
     console.log(`Total test files: ${testFiles.length}`);
     console.log(`Passed: ${totalPassed}`);
@@ -166,15 +166,15 @@ async function runTests() {
     console.log(`Duration: ${duration}ms`);
     
     if (totalFailed === 0) {
-        console.log('\n🎉 ALL TESTS PASSED!');
-        console.log('\n📝 Lease-Centric Sync is ready for implementation:');
-        console.log('   ✓ Incremental sync using Buildium lastupdatedfrom filter');
-        console.log('   ✓ 100x+ efficiency improvement over unit-centric approach');
-        console.log('   ✓ HubSpot listings object integration');
-        console.log('   ✓ Comprehensive error handling and rate limiting');
-        console.log('   ✓ Create, update, and archive operations');
+        console.log('\n[COMPLETE] ALL TESTS PASSED!');
+        console.log('\n Lease-Centric Sync is ready for implementation:');
+        console.log('    Incremental sync using Buildium lastupdatedfrom filter');
+        console.log('    100x+ efficiency improvement over unit-centric approach');
+        console.log('    HubSpot listings object integration');
+        console.log('    Comprehensive error handling and rate limiting');
+        console.log('    Create, update, and archive operations');
         
-        console.log('\n🚀 Next Steps:');
+        console.log('\n Next Steps:');
         console.log('   1. Integrate lease-centric methods into existing BuildiumClient');
         console.log('   2. Add HubSpot listings API methods to HubSpotClient');
         console.log('   3. Update IntegrationPrototype to use lease-centric sync');
@@ -183,7 +183,7 @@ async function runTests() {
         
         process.exit(0);
     } else {
-        console.log(`\n❌ ${totalFailed} test file(s) failed`);
+        console.log(`\n[FAIL] ${totalFailed} test file(s) failed`);
         console.log('Please review errors and fix issues before implementation.');
         process.exit(1);
     }
@@ -209,6 +209,6 @@ if (args.includes('--version') || args.includes('-v')) {
 
 // Run the tests
 runTests().catch(error => {
-    console.error('\n💥 Test runner error:', error.message);
+    console.error('\n Test runner error:', error.message);
     process.exit(1);
 });

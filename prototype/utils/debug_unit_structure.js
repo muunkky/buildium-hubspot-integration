@@ -1,7 +1,7 @@
 const { BuildiumClient } = require('../index.js');
 
 async function debugUnitStructure() {
-    console.log('🔍 Debug Unit Data Structure');
+    console.log('[SEARCH] Debug Unit Data Structure');
     console.log('========================================');
     
     try {
@@ -12,7 +12,7 @@ async function debugUnitStructure() {
         const units = await buildiumClient.getAllUnits(1); // Get just 1 unit
         
         if (units.length === 0) {
-            console.log('❌ No units found');
+            console.log('[FAIL] No units found');
             return;
         }
         
@@ -27,7 +27,7 @@ async function debugUnitStructure() {
         console.log(JSON.stringify(unitDetails, null, 2));
         
     } catch (error) {
-        console.error('❌ Debug failed:', error.message);
+        console.error('[FAIL] Debug failed:', error.message);
         console.error('Stack:', error.stack);
     }
 }

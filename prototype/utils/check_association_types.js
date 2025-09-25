@@ -4,10 +4,10 @@ dotenv.config();
 
 async function checkAssociationTypes() {
     try {
-        console.log('🔍 Checking available association types for Contacts <-> Listings...');
+        console.log('[SEARCH] Checking available association types for Contacts <-> Listings...');
         
         // Check Contact → Listing associations
-        console.log('\n📋 Contact → Listing Association Types:');
+        console.log('\n[ITEM] Contact → Listing Association Types:');
         console.log('=' .repeat(60));
         
         const contactToListingResponse = await axios.get('https://api.hubapi.com/crm/v4/associations/0-1/0-420/labels', {
@@ -24,7 +24,7 @@ async function checkAssociationTypes() {
         console.log(`Total contact → listing types: ${contactToListingResponse.data.results.length}`);
         
         // Check Listing → Contact associations (reverse direction)
-        console.log('\n📋 Listing → Contact Association Types:');
+        console.log('\n[ITEM] Listing → Contact Association Types:');
         console.log('=' .repeat(60));
         
         const listingToContactResponse = await axios.get('https://api.hubapi.com/crm/v4/associations/0-420/0-1/labels', {
@@ -41,7 +41,7 @@ async function checkAssociationTypes() {
         console.log(`Total listing → contact types: ${listingToContactResponse.data.results.length}`);
         
         // Compare bidirectional associations
-        console.log('\n🔄 BIDIRECTIONAL ASSOCIATION MAPPING:');
+        console.log('\n[RETRY] BIDIRECTIONAL ASSOCIATION MAPPING:');
         console.log('=' .repeat(60));
         
         contactToListingResponse.data.results.forEach(contactAssoc => {
@@ -50,14 +50,14 @@ async function checkAssociationTypes() {
             );
             
             if (reverseAssoc) {
-                console.log(`"${contactAssoc.label}": Contact→Listing ID ${contactAssoc.typeId} ↔ Listing→Contact ID ${reverseAssoc.typeId}`);
+                console.log(`"${contactAssoc.label}": Contact→Listing ID ${contactAssoc.typeId}  Listing→Contact ID ${reverseAssoc.typeId}`);
             } else {
                 console.log(`"${contactAssoc.label}": Contact→Listing ID ${contactAssoc.typeId} (no reverse found)`);
             }
         });
         
     } catch (error) {
-        console.error('❌ Error:', error.response?.data || error.message);
+        console.error('[FAIL] Error:', error.response?.data || error.message);
     }
 }
 

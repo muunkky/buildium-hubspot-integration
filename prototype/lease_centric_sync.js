@@ -7,10 +7,10 @@ const { LeaseCentricSyncManager } = require('./LeaseCentricSyncManager.js');
 require('dotenv').config();
 
 async function runLeaseCentricSync() {
-    console.log('🚀 LEASE-CENTRIC SYNC - FULL IMPLEMENTATION');
+    console.log(' LEASE-CENTRIC SYNC - FULL IMPLEMENTATION');
     console.log('='.repeat(70));
-    console.log(`📅 ${new Date().toLocaleString()}`);
-    console.log('🎯 Complete workflow: Buildium leases → HubSpot listings\n');
+    console.log(`[DATE] ${new Date().toLocaleString()}`);
+    console.log('[TARGET] Complete workflow: Buildium leases → HubSpot listings\n');
 
     try {
         const syncManager = new LeaseCentricSyncManager();
@@ -27,45 +27,45 @@ async function runLeaseCentricSync() {
         if (limitIndex !== -1 && args[limitIndex + 1]) {
             limit = parseInt(args[limitIndex + 1]);
             if (isNaN(limit) || limit <= 0) {
-                console.error('❌ --limit must be a positive number');
+                console.error('[FAIL] --limit must be a positive number');
                 process.exit(1);
             }
         }
         
         if (dryRun) {
-            console.log('🔄 DRY RUN MODE - Preview only, no actual changes');
+            console.log('[RETRY] DRY RUN MODE - Preview only, no actual changes');
         }
         if (force) {
-            console.log('⚡ FORCE MODE - Will update existing listings with new lease data');
+            console.log('[FAST] FORCE MODE - Will update existing listings with new lease data');
         }
         if (limit) {
-            console.log(`🔢 LIMIT MODE - Process until ${limit} successful operations`);
+            console.log(`[LIMIT] LIMIT MODE - Process until ${limit} successful operations`);
         }
 
         const stats = await syncManager.syncLeases(dryRun, force, 7, 50, limit, updateLifecycle);
         
-        console.log('\n🎉 SYNC SUMMARY');
+        console.log('\n[COMPLETE] SYNC SUMMARY');
         console.log('='.repeat(30));
-        console.log(`📊 Leases processed: ${stats.leasesChecked}`);
-        console.log(`✅ Listings created: ${stats.listingsCreated}`);
-        console.log(`🔄 Listings updated: ${stats.listingsUpdated}`);
-        console.log(`⏭️  Listings skipped: ${stats.listingsSkipped}`);
-        console.log(`❌ Errors: ${stats.errors || 0}`);
+        console.log(`[STATS] Leases processed: ${stats.leasesChecked}`);
+        console.log(`[OK] Listings created: ${stats.listingsCreated}`);
+        console.log(`[RETRY] Listings updated: ${stats.listingsUpdated}`);
+        console.log(`[SKIP]️  Listings skipped: ${stats.listingsSkipped}`);
+        console.log(`[FAIL] Errors: ${stats.errors || 0}`);
         
         if (stats.leasesChecked > 0) {
             const processed = stats.listingsCreated + stats.listingsUpdated + stats.listingsSkipped;
             const efficiency = (processed / stats.leasesChecked * 100).toFixed(1);
-            console.log(`⚡ Efficiency: ${efficiency}% of leases processed`);
+            console.log(`[FAST] Efficiency: ${efficiency}% of leases processed`);
         }
 
         if (dryRun) {
-            console.log('\n💡 This was a DRY RUN. Remove --dry-run to actually create/update listings.');
+            console.log('\n This was a DRY RUN. Remove --dry-run to actually create/update listings.');
         }
 
     } catch (error) {
-        console.error('\n❌ SYNC FAILED:', error.message);
+        console.error('\n[FAIL] SYNC FAILED:', error.message);
         if (error.response?.status === 401) {
-            console.error('🔑 Check your API credentials in .env file');
+            console.error(' Check your API credentials in .env file');
         }
         process.exit(1);
     }
@@ -76,7 +76,7 @@ async function main() {
     const args = process.argv.slice(2);
     
     if (args.includes('--help') || args.includes('-h')) {
-        console.log('🔧 LEASE-CENTRIC SYNC USAGE');
+        console.log('[TOOL] LEASE-CENTRIC SYNC USAGE');
         console.log('============================');
         console.log('node lease_centric_sync.js [options]');
         console.log('');

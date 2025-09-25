@@ -9,7 +9,7 @@ async function testIndividualLeases() {
     const buildiumClient = new BuildiumClient();
     
     try {
-        console.log('🧪 Testing Individual Lease Fetching');
+        console.log('[TEST] Testing Individual Lease Fetching');
         console.log('===================================\n');
         
         // Test with a specific unit that we know has leases

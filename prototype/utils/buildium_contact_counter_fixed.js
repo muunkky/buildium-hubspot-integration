@@ -27,54 +27,54 @@ class BuildiumContactCounter {
     }
 
     async getTotalBuildiumContacts() {
-        console.log('🏢 Getting total contact count from Buildium...\n');
+        console.log(' Getting total contact count from Buildium...\n');
 
         try {
             // Get owners count (fix the double counting issue)
-            console.log('📊 1. Counting Owners...');
+            console.log('[STATS] 1. Counting Owners...');
             const ownersCount = await this.countOwners();
             
             // Get tenants count
-            console.log('📊 2. Counting Tenants...');
+            console.log('[STATS] 2. Counting Tenants...');
             const tenantsCount = await this.countTenants();
             
-            console.log('\n📈 BUILDIUM CONTACT SUMMARY:');
+            console.log('\n BUILDIUM CONTACT SUMMARY:');
             console.log('============================');
-            console.log(`📋 Owners: ${ownersCount}`);
-            console.log(`🏠 Tenants: ${tenantsCount}`);
+            console.log(`[ITEM] Owners: ${ownersCount}`);
+            console.log(` Tenants: ${tenantsCount}`);
 
             const totalBuildium = ownersCount + tenantsCount;
 
-            console.log(`\n🎯 TOTAL BUILDIUM CONTACTS: ${totalBuildium}`);
+            console.log(`\n[TARGET] TOTAL BUILDIUM CONTACTS: ${totalBuildium}`);
 
-            console.log('\n🔍 COMPARISON WITH HUBSPOT IMPORT:');
+            console.log('\n[SEARCH] COMPARISON WITH HUBSPOT IMPORT:');
             console.log('==================================');
-            console.log(`📊 Buildium Total: ${totalBuildium}`);
-            console.log(`📈 HubSpot Import (last week): ~1,555`);
+            console.log(`[STATS] Buildium Total: ${totalBuildium}`);
+            console.log(` HubSpot Import (last week): ~1,555`);
             
             const difference = Math.abs(totalBuildium - 1555);
             if (difference < 100) {
-                console.log('✅ MATCH: Buildium count matches HubSpot import');
+                console.log('[OK] MATCH: Buildium count matches HubSpot import');
                 console.log('   The bulk import was likely all Buildium data');
             } else if (totalBuildium > 1555) {
-                console.log(`📊 Buildium has ${difference} MORE contacts than imported`);
+                console.log(`[STATS] Buildium has ${difference} MORE contacts than imported`);
                 console.log('   Possible reasons: filtering, duplicates removed, or partial import');
             } else {
-                console.log(`📊 HubSpot import has ${difference} MORE than Buildium`);
+                console.log(`[STATS] HubSpot import has ${difference} MORE than Buildium`);
                 console.log('   Possible reasons: duplicates created, or other data sources');
             }
 
             // Additional analysis
-            console.log('\n🔍 DETAILED ANALYSIS:');
+            console.log('\n[SEARCH] DETAILED ANALYSIS:');
             console.log('====================');
             const ownerPercentage = ((ownersCount / totalBuildium) * 100).toFixed(1);
             const tenantPercentage = ((tenantsCount / totalBuildium) * 100).toFixed(1);
-            console.log(`📊 Owners: ${ownersCount} (${ownerPercentage}%)`);
-            console.log(`📊 Tenants: ${tenantsCount} (${tenantPercentage}%)`);
+            console.log(`[STATS] Owners: ${ownersCount} (${ownerPercentage}%)`);
+            console.log(`[STATS] Tenants: ${tenantsCount} (${tenantPercentage}%)`);
 
             if (totalBuildium > 0) {
                 const ratio = (tenantsCount / ownersCount).toFixed(1);
-                console.log(`📊 Tenant-to-Owner Ratio: ${ratio}:1`);
+                console.log(`[STATS] Tenant-to-Owner Ratio: ${ratio}:1`);
             }
 
             return {
@@ -84,7 +84,7 @@ class BuildiumContactCounter {
             };
 
         } catch (error) {
-            console.error('❌ Error getting Buildium contact counts:', error.message);
+            console.error('[FAIL] Error getting Buildium contact counts:', error.message);
             return null;
         }
     }
@@ -94,21 +94,21 @@ class BuildiumContactCounter {
             // Just get rental owners since that's what we actually have
             const rentalOwners = await this.buildium.getAllOwners('rental');
             
-            console.log(`   📋 Rental owners: ${rentalOwners.length}`);
-            console.log(`   📋 Association owners: 0 (none in system)`);
-            console.log(`   📋 Total owners: ${rentalOwners.length}`);
+            console.log(`   [ITEM] Rental owners: ${rentalOwners.length}`);
+            console.log(`   [ITEM] Association owners: 0 (none in system)`);
+            console.log(`   [ITEM] Total owners: ${rentalOwners.length}`);
             
             return rentalOwners.length;
 
         } catch (error) {
-            console.error('   ❌ Error counting owners:', error.message);
+            console.error('   [FAIL] Error counting owners:', error.message);
             return 0;
         }
     }
 
     async countTenants() {
         try {
-            console.log('   🔍 Fetching tenant data using getAllTenants method...');
+            console.log('   [SEARCH] Fetching tenant data using getAllTenants method...');
             
             let totalTenants = 0;
             let offset = 0;
@@ -126,18 +126,18 @@ class BuildiumContactCounter {
                     hasMore = tenants.length === batchSize;
                     
                     if (totalTenants % 500 === 0 || !hasMore) {
-                        console.log(`   📊 Counted ${totalTenants} tenants so far...`);
+                        console.log(`   [STATS] Counted ${totalTenants} tenants so far...`);
                     }
                 } else {
                     hasMore = false;
                 }
             }
 
-            console.log(`   🏠 Total tenants found: ${totalTenants}`);
+            console.log(`    Total tenants found: ${totalTenants}`);
             return totalTenants;
 
         } catch (error) {
-            console.error('   ❌ Error counting tenants:', error.message);
+            console.error('   [FAIL] Error counting tenants:', error.message);
             return 0;
         }
     }

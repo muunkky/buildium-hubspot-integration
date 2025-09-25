@@ -365,7 +365,7 @@ describe('Lease-Centric Sync', function() {
             // What the result SHOULD be after fixing the bug:
             // assert.equal(results.updated, 1, 'Should update existing listing with new lease data');
             
-            console.log('🐛 BUG DOCUMENTED: Lease updates skip existing listings even when lease data changed');
+            console.log(' BUG DOCUMENTED: Lease updates skip existing listings even when lease data changed');
         });
 
         it('should only fetch leases updated since specified time', async function() {

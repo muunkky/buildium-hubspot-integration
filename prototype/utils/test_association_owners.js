@@ -5,22 +5,22 @@ const { BuildiumClient } = require('../index.js');
  * Test association owners vs rental owners to understand condo board contacts
  */
 async function testAssociationOwners() {
-    console.log('🏢 Testing Association Owners vs Rental Owners');
+    console.log(' Testing Association Owners vs Rental Owners');
     console.log('=' .repeat(60));
     
     const buildium = new BuildiumClient();
     
     try {
-        console.log('\n📊 Fetching rental owners...');
+        console.log('\n[STATS] Fetching rental owners...');
         const rentalOwners = await buildium.getRentalOwners({ limit: 10 });
         console.log(`Found ${rentalOwners.length} rental owners`);
         
-        console.log('\n🏘️ Fetching association owners...');
+        console.log('\n️ Fetching association owners...');
         const associationOwners = await buildium.getAssociationOwners({ limit: 10 });
         console.log(`Found ${associationOwners.length} association owners`);
         
         // Compare data structures
-        console.log('\n📋 Rental Owner Sample:');
+        console.log('\n[ITEM] Rental Owner Sample:');
         if (rentalOwners.length > 0) {
             const sample = rentalOwners[0];
             Object.entries(sample).forEach(([key, value]) => {
@@ -30,7 +30,7 @@ async function testAssociationOwners() {
             });
         }
         
-        console.log('\n📋 Association Owner Sample:');
+        console.log('\n[ITEM] Association Owner Sample:');
         if (associationOwners.length > 0) {
             const sample = associationOwners[0];
             Object.entries(sample).forEach(([key, value]) => {
@@ -45,7 +45,7 @@ async function testAssociationOwners() {
         const associationIds = new Set(associationOwners.map(o => o.Id));
         const overlap = [...rentalIds].filter(id => associationIds.has(id));
         
-        console.log('\n🔄 Overlap Analysis:');
+        console.log('\n[RETRY] Overlap Analysis:');
         console.log(`  Rental owner IDs: ${rentalIds.size}`);
         console.log(`  Association owner IDs: ${associationIds.size}`);
         console.log(`  Overlapping IDs: ${overlap.length}`);
@@ -61,7 +61,7 @@ async function testAssociationOwners() {
         }
         
         // Check if association owners have different properties
-        console.log('\n🏠 Property Analysis:');
+        console.log('\n Property Analysis:');
         if (associationOwners.length > 0) {
             const assocPropertyIds = associationOwners.flatMap(o => o.PropertyIds || []);
             const rentalPropertyIds = rentalOwners.flatMap(o => o.PropertyIds || []);
@@ -80,7 +80,7 @@ async function testAssociationOwners() {
         };
         
     } catch (error) {
-        console.error('❌ Error testing association owners:', error.message);
+        console.error('[FAIL] Error testing association owners:', error.message);
         return null;
     }
 }
