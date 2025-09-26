@@ -1,4 +1,0 @@
-{"ts":"2025-09-23T22:13:35.719Z","stream":"stdout","message":"TEST RUN 2025-09-23T22:13:35.686Z"}
-{"ts":"2025-09-23T22:13:35.719Z","stream":"stdout","message":"Command: node prototype/index.js leases --no-spawn-test"}
-{"ts":"2025-09-23T22:13:35.719Z","stream":"stdout","message":"Sample stdout line: tenant@example.com created"}
-{"ts":"2025-09-23T22:13:35.719Z","stream":"stderr","message":"Sample stderr line: failed to fetch unit 123-456-7890"}

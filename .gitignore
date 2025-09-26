@@ -163,4 +163,4 @@ prototype/debug_*.js
 prototype/check_*.js
 prototype/create_*.js
 prototype/find_*.js
-show_data.js
+show_data.jstmp/
